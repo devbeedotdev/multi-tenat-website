@@ -1,14 +1,13 @@
-import Image from "next/image";
-import { getTenantByDomain } from "@/lib/mock-db";
+import { ProductCardA } from "@/components/cards/ProductCardA";
+import { ProductCardB } from "@/components/cards/ProductCardB";
+import { ProductCardC } from "@/components/cards/ProductCardC";
+import { getTenantByDomain, products } from "@/lib/mock-db";
 
 type DomainPageProps = {
   params: {
     domain: string;
   };
 };
-
-const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export default function DomainHomePage({ params }: DomainPageProps) {
   const tenant = getTenantByDomain(params.domain);
@@ -27,33 +26,33 @@ export default function DomainHomePage({ params }: DomainPageProps) {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="mb-8">
-        <Image
-          src={PLACEHOLDER_IMAGE}
-          alt={`${tenant.businessName} logo`}
-          width={128}
-          height={128}
-          className="rounded-full object-cover shadow-md"
-        />
-      </div>
+    <main className="min-h-screen bg-gray-50 px-4 py-10">
+      <section className="mx-auto max-w-6xl space-y-6">
+        <header className="space-y-2 text-center md:text-left">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            {tenant.websiteDisplayName}
+          </p>
+          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
+            {tenant.businessName}
+          </h1>
+          <p className="text-sm text-gray-600 md:max-w-2xl">
+            {tenant.businessDescription}
+          </p>
+        </header>
 
-      <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">
-        {tenant.businessName}
-      </h1>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {products.map((product) => {
+            const Card =
+              tenant.variant === "A"
+                ? ProductCardA
+                : tenant.variant === "B"
+                  ? ProductCardB
+                  : ProductCardC;
 
-      <p className="text-lg text-gray-600 mb-6 text-center max-w-xl">
-        {tenant.businessDescription}
-      </p>
-
-      <p className="mb-4 text-sm font-medium uppercase tracking-wide text-gray-500">
-        Variant: <span className="font-semibold">{tenant.variant}</span>
-      </p>
-
-      <button className="bg-primary text-white p-4 rounded shadow hover:opacity-90 transition">
-        Themed Primary Button
-      </button>
+            return <Card key={product.productId} product={product} />;
+          })}
+        </div>
+      </section>
     </main>
   );
 }
-

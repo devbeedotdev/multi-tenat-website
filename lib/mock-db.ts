@@ -1,3 +1,5 @@
+import type { Product } from "@/types/product";
+
 export type TenantVariant = "A" | "B" | "C";
 
 export type Tenant = {
@@ -37,3 +39,73 @@ export function getTenantByDomain(domain: string): Tenant | undefined {
   const normalized = domain.split(":")[0].toLowerCase();
   return tenants[normalized];
 }
+
+const PLACEHOLDER_IMAGE =
+  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
+
+export const products: Product[] = [
+  {
+    productId: "prod-1",
+    productName: "Classic Black Bomber Jacket",
+    productCategory: "Outerwear",
+    productAmount: 200,
+    discountPrice: 180,
+    quantityAvailable: 6,
+    isNegotiable: true,
+    isPromo: true,
+    isBestSelling: true,
+    productImageUrls: [PLACEHOLDER_IMAGE],
+    shortDescription: "Timeless black bomber jacket with a clean, modern fit.",
+    fullDescription:
+      "This classic black bomber jacket pairs effortlessly with anything in your wardrobe. Featuring a tailored fit, smooth zipper closure, and soft inner lining, it's perfect for cool evenings and everyday wear.",
+    videoUrl: undefined,
+  },
+  {
+    productId: "prod-1",
+    productName: "Classic Black Bomber Jacket",
+    productCategory: "Outerwear",
+    productAmount: 200,
+    discountPrice: 180,
+    quantityAvailable: 0,
+    isNegotiable: true,
+    isPromo: false,
+    isBestSelling: false,
+    productImageUrls: [PLACEHOLDER_IMAGE],
+    shortDescription: "Timeless black bomber jacket with a clean, modern fit.",
+    fullDescription:
+      "This classic black bomber jacket pairs effortlessly with anything in your wardrobe. Featuring a tailored fit, smooth zipper closure, and soft inner lining, it's perfect for cool evenings and everyday wear.",
+    videoUrl: undefined,
+  },
+  {
+    productId: "prod-1",
+    productName: "Classic Black Bomber Jacket",
+    productCategory: "Outerwear",
+    productAmount: 200,
+    discountPrice: 180,
+    quantityAvailable: 6,
+    isNegotiable: false,
+    isPromo: false,
+    isBestSelling: false,
+    productImageUrls: [PLACEHOLDER_IMAGE],
+    shortDescription: "Timeless black bomber jacket with a clean, modern fit.",
+    fullDescription:
+      "This classic black bomber jacket pairs effortlessly with anything in your wardrobe. Featuring a tailored fit, smooth zipper closure, and soft inner lining, it's perfect for cool evenings and everyday wear.",
+    videoUrl: undefined,
+  },
+  {
+    productId: "prod-1",
+    productName: "Classic Black Bomber Jacket",
+    productCategory: "Outerwear",
+    productAmount: 200,
+    discountPrice: undefined,
+    quantityAvailable: 6,
+    isNegotiable: false,
+    isPromo: false,
+    isBestSelling: false,
+    productImageUrls: [PLACEHOLDER_IMAGE],
+    shortDescription: "Timeless black bomber jacket with a clean, modern fit.",
+    fullDescription:
+      "This classic black bomber jacket pairs effortlessly with anything in your wardrobe. Featuring a tailored fit, smooth zipper closure, and soft inner lining, it's perfect for cool evenings and everyday wear.",
+    videoUrl: undefined,
+  },
+];
