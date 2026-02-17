@@ -40,7 +40,16 @@ export default function DomainHomePage({ params }: DomainPageProps) {
           </p>
         </header>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div
+          className={`grid gap-3 ${
+            tenant.variant === "A"
+              ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              : 
+              tenant.variant === "B"
+                ? "grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+          }`}
+        >
           {products.map((product) => {
             const Card =
               tenant.variant === "A"

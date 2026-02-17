@@ -12,5 +12,11 @@ export interface Product {
   videoUrl?: string;
   shortDescription: string;
   fullDescription: string;
+  currency? : string 
 }
 
+
+
+export type ProductCardProps = {
+  product: Product;
+};
