@@ -8,6 +8,7 @@ export type Tenant = {
   primaryColor: string;
   businessDescription: string;
   websiteDisplayName: string;
+  logoUrl: string;
 };
 
 export const tenants: Record<string, Tenant> = {
@@ -18,6 +19,8 @@ export const tenants: Record<string, Tenant> = {
     businessDescription:
       "A development tenant for local testing and UI exploration.",
     websiteDisplayName: "Jumia Nigeria",
+    logoUrl:
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
   },
   "client-a.com": {
     businessName: "Client A Boutique",
@@ -25,6 +28,8 @@ export const tenants: Record<string, Tenant> = {
     primaryColor: "#16A34A",
     businessDescription: "A modern boutique experience tailored for Client A.",
     websiteDisplayName: "Pari Pulse",
+    logoUrl:
+      "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
   },
   "client-b.com": {
     businessName: "Client B Outfitters",
@@ -32,6 +37,8 @@ export const tenants: Record<string, Tenant> = {
     primaryColor: "#DB2777",
     businessDescription: "An energetic brand presence for Client B.",
     websiteDisplayName: "Jiji Nigeria",
+    logoUrl:
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=64&h=64&q=80",
   },
 };
 
@@ -113,7 +120,7 @@ export const products: Product[] = [
     productName: "Classic Black Bomber Jacket",
     productCategory: "Outerwear",
     productAmount: 200,
-    currency : "$",
+    currency: "$",
     discountPrice: 180.201,
     quantityAvailable: 6,
     isNegotiable: false,
@@ -188,7 +195,8 @@ export const products: Product[] = [
     fullDescription:
       "This classic black bomber jacket pairs effortlessly with anything in your wardrobe. Featuring a tailored fit, smooth zipper closure, and soft inner lining, it's perfect for cool evenings and everyday wear.",
     videoUrl: undefined,
-  },{
+  },
+  {
     productId: "prod-1",
     productName: "Classic Black Bomber Jacket",
     productCategory: "Outerwear",

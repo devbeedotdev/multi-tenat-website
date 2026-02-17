@@ -1,4 +1,5 @@
-import type { ReactNode, CSSProperties } from "react";
+import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import { getTenantByDomain } from "@/lib/mock-db";
 
 type DomainLayoutProps = {
@@ -7,6 +8,27 @@ type DomainLayoutProps = {
     domain: string;
   };
 };
+
+export function generateMetadata({
+  params,
+}: {
+  params: { domain: string };
+}): Metadata {
+  const tenant = getTenantByDomain(params.domain);
+
+  if (!tenant) {
+    return {
+      title: "Tenant not found",
+    };
+  }
+
+  return {
+    title: tenant.websiteDisplayName,
+    icons: {
+      icon: [{ url: tenant.logoUrl }],
+    },
+  };
+}
 
 export default function DomainLayout({ children, params }: DomainLayoutProps) {
   const tenant = getTenantByDomain(params.domain);
@@ -24,14 +46,13 @@ export default function DomainLayout({ children, params }: DomainLayoutProps) {
     );
   }
 
-  const themeStyle = {
-    "--primary": tenant.primaryColor,
-  } as CSSProperties;
-
   return (
-    <div style={themeStyle}>
+    <>
+      <head>
+        <style>{`body { --primary: ${tenant.primaryColor}; }`}</style>
+      </head>
       {children}
-    </div>
+    </>
   );
 }
 

@@ -29,7 +29,7 @@ export function ProductCardA({ product }: ProductCardProps) {
         />
 
         {/* Promo Badge Top Right */}
-        {product.isPromo && (
+        {/* {product.isPromo && (
           <div className="absolute right-2 top-2">
             <Image
               src="/images/promo.png"
@@ -39,7 +39,7 @@ export function ProductCardA({ product }: ProductCardProps) {
               className="object-contain drop-shadow-md rotate-12"
             />
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Content */}
