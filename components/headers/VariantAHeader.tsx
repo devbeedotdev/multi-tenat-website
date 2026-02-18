@@ -1,4 +1,3 @@
-
 "use client";
 
 import { TenantPageProps } from "@/types/tenant";
@@ -20,15 +19,17 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
 
   return (
     <div
-      className={`sticky top-0 z-50 px-3 bg-white transition-all duration-300 ${
-        isCollapsed ? "py-2 shadow-md" : "py-0"
+      className={`sticky top-0 z-50 pt-2  bg-white transition-all duration-300 ${
+        isCollapsed ? "py-1 shadow-md " : "py-0"
       }`}
     >
-      <div className="w-full transition-all duration-300">
+      <div className="mx-auto max-w-6xl px-4 transition-all duration-300">
         {/* Header Row */}
-        <div className={`flex items-center transition-all duration-300 ${
-  isCollapsed ? "justify-start" : "justify-between"
-}`}>
+        <div
+          className={`flex items-center transition-all duration-300 ${
+            isCollapsed ? "justify-start" : "justify-between"
+          }`}
+        >
           {/* Logo */}
           <div className="flex items-center gap-3">
             {tenant.logoUrl ? (
@@ -53,36 +54,36 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
 
           {/* Right Side */}
           <div
-    className={`flex items-center text-gray-600 font-medium transition-all duration-300 ${
-      isCollapsed ? "flex-1 ml-0 md:ml-10" : "gap-3"
-    }`}
-  >
-  {/* Search moves into header when collapsed */}
-  <div
-    className={`transition-all duration-500 ease-in-out overflow-hidden ${
-      isCollapsed ? "opacity-100 ml-4 flex-1" : "opacity-0 w-0"
-    }`}
-  >
-    {/* Added w-full and max-w-xl to keep it centered or stretched */}
-    <div className="flex items-center gap-2 w-full max-w-3xl">
-        <div className="flex items-center flex-1 bg-gray-50 rounded-xl px-4 h-11 shadow-sm border border-primary/20 focus-within:border-primary transition">
-          <Search className="text-gray-400 w-5 h-5 shrink-0" />
-          <input
-            type="text"
-            placeholder="Search Product"
-            className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
-          />
-        </div>
+            className={`flex items-center text-gray-600 font-medium transition-all duration-300 ${
+              isCollapsed ? "flex-1 ml-0 md:ml-10" : "gap-3"
+            }`}
+          >
+            {/* Search moves into header when collapsed */}
+            <div
+              className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                isCollapsed ? "opacity-100 ml-4 flex-1" : "opacity-0 w-0"
+              }`}
+            >
+              {/* Added w-full and max-w-xl to keep it centered or stretched */}
+              <div className="flex items-center gap-2 w-full max-w-3xl">
+                <div className="flex items-center flex-1 bg-gray-50 rounded-xl px-4 h-11 shadow-sm border border-primary/20 focus-within:border-primary transition">
+                  <Search className="text-gray-400 w-5 h-5 shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Search Product"
+                    className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
+                  />
+                </div>
 
-        <button className="h-11 px-4 rounded-xl bg-primary text-white font-medium shrink-0">
-          <Search className="w-5 h-5 md:hidden" />
-          <span className="hidden md:block">Search</span>
-        </button>
-      </div>
-    </div>
+                <button className="h-11 px-4 rounded-xl bg-primary text-white font-medium shrink-0">
+                  <Search className="w-5 h-5 md:hidden" />
+                  <span className="hidden md:block">Search</span>
+                </button>
+              </div>
+            </div>
 
-  {/* Support & Help Buttons (Logic remains same) */}
-  <div className="flex items-center"></div>
+            {/* Support & Help Buttons (Logic remains same) */}
+            <div className="flex items-center"></div>
             {/* Support */}
             <button
               onClick={() => alert("support")}
@@ -122,31 +123,30 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
 
         {/* Original Search Bar (Visible only when NOT collapsed) */}
         <div
-  className={`mt-2 w-full transition-all duration-300 ease-in-out ${
-    isCollapsed
-      ? "max-h-0 opacity-0 overflow-hidden"
-      : "max-h-20 opacity-100"
-  }`}
->
-  {/* Added w-full here to ensure the flex container spans the whole width */}
-  <div className="flex items-center gap-2 w-full">
-    <div className="flex items-center flex-1 bg-white rounded-xl px-4 h-11 sm:h-12 shadow-sm border border-primary/50 focus-within:border-primary transition">
-      <Search className="text-gray-400 w-5 h-5 shrink-0" />
-      <input
-        type="text"
-        placeholder="Search Product"
-        className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
-      />
-    </div>
+          className={`mt-2 w-full transition-all duration-300 ease-in-out ${
+            isCollapsed
+              ? "max-h-0 opacity-0 overflow-hidden"
+              : "max-h-20 opacity-100"
+          }`}
+        >
+          {/* Added w-full here to ensure the flex container spans the whole width */}
+          <div className="flex items-center gap-2 w-full">
+            <div className="flex items-center flex-1 bg-white rounded-xl px-4 h-11 sm:h-12 shadow-sm border border-primary/50 focus-within:border-primary transition">
+              <Search className="text-gray-400 w-5 h-5 shrink-0" />
+              <input
+                type="text"
+                placeholder="Search Product"
+                className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
+              />
+            </div>
 
-    {/* shrink-0 prevents the button from squishing when space is tight */}
-    <button className="h-11 sm:h-12 px-5 rounded-xl bg-primary text-white font-medium transition duration-200 hover:opacity-90 active:scale-95 flex items-center justify-center shrink-0">
-      <Search className="w-5 h-5 lg:hidden" />
-      <span className="hidden lg:block">Search</span>
-    </button>
-  </div>
-</div>
-
+            {/* shrink-0 prevents the button from squishing when space is tight */}
+            <button className="h-11 sm:h-12 px-5 rounded-xl bg-primary text-white font-medium transition duration-200 hover:opacity-90 active:scale-95 flex items-center justify-center shrink-0">
+              <Search className="w-5 h-5 lg:hidden" />
+              <span className="hidden lg:block">Search</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
