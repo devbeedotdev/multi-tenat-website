@@ -1,15 +1,5 @@
 import type { Product } from "@/types/product";
-
-export type TenantVariant = "A" | "B" | "C";
-
-export type Tenant = {
-  businessName: string;
-  variant: TenantVariant;
-  primaryColor: string;
-  businessDescription: string;
-  websiteDisplayName: string;
-  logoUrl: string;
-};
+import { Tenant } from "@/types/tenant";
 
 export const tenants: Record<string, Tenant> = {
   localhost: {
@@ -19,7 +9,8 @@ export const tenants: Record<string, Tenant> = {
     businessDescription:
       "A development tenant for local testing and UI exploration.",
     websiteDisplayName: "Jumia Nigeria",
-    logoUrl:
+    logoUrl: "/images/logo.jpeg",
+    favIcon:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
   },
   "client-a.com": {
@@ -28,7 +19,7 @@ export const tenants: Record<string, Tenant> = {
     primaryColor: "#16A34A",
     businessDescription: "A modern boutique experience tailored for Client A.",
     websiteDisplayName: "Pari Pulse",
-    logoUrl:
+    favIcon:
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
   },
   "client-b.com": {
@@ -37,7 +28,7 @@ export const tenants: Record<string, Tenant> = {
     primaryColor: "#000000",
     businessDescription: "An energetic brand presence for Client B.",
     websiteDisplayName: "Jiji Nigeria",
-    logoUrl:
+    favIcon:
       "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=64&h=64&q=80",
   },
 };

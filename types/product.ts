@@ -20,3 +20,5 @@ export interface Product {
 export type ProductCardProps = {
   product: Product;
 };
+
+

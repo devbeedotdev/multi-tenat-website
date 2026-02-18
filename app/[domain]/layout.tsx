@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import type { Metadata } from "next";
 import { getTenantByDomain } from "@/lib/mock-db";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
 type DomainLayoutProps = {
   children: ReactNode;
@@ -25,7 +25,7 @@ export function generateMetadata({
   return {
     title: tenant.websiteDisplayName,
     icons: {
-      icon: [{ url: tenant.logoUrl }],
+      icon: [{ url: tenant.favIcon }],
     },
   };
 }
@@ -48,9 +48,12 @@ export default function DomainLayout({ children, params }: DomainLayoutProps) {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `body { --primary: ${tenant.primaryColor}; }` }} />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `body { --primary: ${tenant.primaryColor}; }`,
+        }}
+      />
       {children}
     </>
   );
 }
-
