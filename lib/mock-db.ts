@@ -15,7 +15,7 @@ export const tenants: Record<string, Tenant> = {
   localhost: {
     businessName: "Localhost Demo Store - First",
     variant: "A",
-    primaryColor: "#2563EB",
+    primaryColor: "#964B00",
     businessDescription:
       "A development tenant for local testing and UI exploration.",
     websiteDisplayName: "Jumia Nigeria",
@@ -34,7 +34,7 @@ export const tenants: Record<string, Tenant> = {
   "client-b.com": {
     businessName: "Client B Outfitters - Third",
     variant: "C",
-    primaryColor: "#DB2777",
+    primaryColor: "#000000",
     businessDescription: "An energetic brand presence for Client B.",
     websiteDisplayName: "Jiji Nigeria",
     logoUrl:
@@ -56,7 +56,7 @@ export const products: Product[] = [
     productName: "Classic Black Bomber Jacket",
     productCategory: "Outerwear",
     productAmount: 200,
-    discountPrice: 6000000,
+    discountPrice: 0,
     quantityAvailable: 6,
     isNegotiable: true,
     isPromo: true,
@@ -72,7 +72,7 @@ export const products: Product[] = [
     productName: "Classic Black Bomber Exclusive Jacket",
     productCategory: "Outerwear",
     productAmount: 200,
-    discountPrice: 6000000,
+    discountPrice: 220,
     quantityAvailable: 0,
     isNegotiable: true,
     isPromo: false,

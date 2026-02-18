@@ -14,7 +14,10 @@ const primaryImage = (product: Product) =>
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export function ProductCardB({ product }: ProductCardProps) {
-  const price = product.discountPrice ?? product.productAmount;
+  const price =
+  product.discountPrice == undefined || product.discountPrice === 0
+    ? product.productAmount
+    : product.discountPrice;
   const currency = product.currency ?? "₦";
 
   return (
@@ -30,17 +33,17 @@ export function ProductCardB({ product }: ProductCardProps) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
-          {/* {product.isPromo && (
+          {product.isPromo && (
             <div className="absolute left-2 top-2">
               <Image
-                src="/assets/promo.png"
+                src="/images/promo.png"
                 alt="Promo"
-                width={36}
-                height={36}
+                width={30}
+                height={30}
                 className="object-contain drop-shadow-md rotate-12"
               />
-            </div> */}
-          {/* )} */}
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -64,7 +67,7 @@ export function ProductCardB({ product }: ProductCardProps) {
                   {formatPrice(price)}
                 </p>
 
-                {product.discountPrice && (
+                {product.discountPrice !== undefined && product.discountPrice > 0 &&(
                   <p className="text-xs text-slate-400 line-through">
                     {currency}
                     {formatPrice(product.productAmount)}

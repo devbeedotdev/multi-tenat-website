@@ -1,0 +1,10 @@
+---
+description: Image usage - local and remote assets
+alwaysApply: true
+---
+
+# Images
+
+- **Local images**: Allowed. Place assets in `public/` and reference by path (e.g. `/images/promo.png` for `public/images/promo.png`).
+- **Promo badge**: Use the local image `public/images/promo.png` for promo badges (e.g. in product cards). Reference as `/images/promo.png`.
+- **Product/logo placeholders**: Continue using the Unsplash URL `https://images.unsplash.com/photo-1523275335684-37898b6baf30` for product images and logos when no specific asset is required.

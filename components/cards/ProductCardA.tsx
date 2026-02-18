@@ -12,7 +12,10 @@ const primaryImage = (product: Product) =>
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export function ProductCardA({ product }: ProductCardProps) {
-  const price = product.discountPrice ?? product.productAmount;
+  const price =
+    product.discountPrice == undefined || product.discountPrice === 0
+      ? product.productAmount
+      : product.discountPrice;
 
   const currency = product.currency ?? "₦";
 
@@ -29,7 +32,7 @@ export function ProductCardA({ product }: ProductCardProps) {
         />
 
         {/* Promo Badge Top Right */}
-        {/* {product.isPromo && (
+        {product.isPromo && (
           <div className="absolute right-2 top-2">
             <Image
               src="/images/promo.png"
@@ -39,7 +42,7 @@ export function ProductCardA({ product }: ProductCardProps) {
               className="object-contain drop-shadow-md rotate-12"
             />
           </div>
-        )} */}
+        )}
       </div>
 
       {/* Content */}
@@ -67,12 +70,13 @@ export function ProductCardA({ product }: ProductCardProps) {
               {currency}
               {formatPrice(price)}
             </p>
-            {product.discountPrice && (
-              <p className="text-xs text-slate-400 line-through">
-                {currency}
-                {formatPrice(product.productAmount)}
-              </p>
-            )}
+            {product.discountPrice !== undefined &&
+              product.discountPrice > 0 && (
+                <p className="text-xs text-slate-400 line-through">
+                  {currency}
+                  {formatPrice(product.productAmount)}
+                </p>
+              )}
           </div>
 
           {/* Quantity */}
