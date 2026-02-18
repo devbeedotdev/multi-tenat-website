@@ -13,7 +13,7 @@ export type Tenant = {
 
 export const tenants: Record<string, Tenant> = {
   localhost: {
-    businessName: "Localhost Demo Store",
+    businessName: "Localhost Demo Store - First",
     variant: "A",
     primaryColor: "#2563EB",
     businessDescription:
@@ -23,7 +23,7 @@ export const tenants: Record<string, Tenant> = {
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
   },
   "client-a.com": {
-    businessName: "Client A Boutique",
+    businessName: "Client A Boutique - Second",
     variant: "B",
     primaryColor: "#16A34A",
     businessDescription: "A modern boutique experience tailored for Client A.",
@@ -32,7 +32,7 @@ export const tenants: Record<string, Tenant> = {
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
   },
   "client-b.com": {
-    businessName: "Client B Outfitters",
+    businessName: "Client B Outfitters - Third",
     variant: "C",
     primaryColor: "#DB2777",
     businessDescription: "An energetic brand presence for Client B.",

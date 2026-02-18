@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import {
-  capitalize,
   capitalizeFirstWords,
   formatPrice,
   toUpper,
@@ -31,7 +30,7 @@ export function ProductCardB({ product }: ProductCardProps) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
-          {product.isPromo && (
+          {/* {product.isPromo && (
             <div className="absolute left-2 top-2">
               <Image
                 src="/assets/promo.png"
@@ -40,8 +39,8 @@ export function ProductCardB({ product }: ProductCardProps) {
                 height={36}
                 className="object-contain drop-shadow-md rotate-12"
               />
-            </div>
-          )}
+            </div> */}
+          {/* )} */}
         </div>
 
         {/* Content */}
