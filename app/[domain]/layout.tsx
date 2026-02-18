@@ -48,9 +48,7 @@ export default function DomainLayout({ children, params }: DomainLayoutProps) {
 
   return (
     <>
-      <head>
-        <style>{`body { --primary: ${tenant.primaryColor}; }`}</style>
-      </head>
+      <style dangerouslySetInnerHTML={{ __html: `body { --primary: ${tenant.primaryColor}; }` }} />
       {children}
     </>
   );
