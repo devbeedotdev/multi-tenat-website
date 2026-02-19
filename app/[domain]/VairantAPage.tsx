@@ -1,6 +1,6 @@
 import { ProductCardA } from "@/components/cards/ProductCardA";
 import VariantAHeader from "@/components/headers/VariantAHeader";
-import CategoryScroller from "@/components/scroll_view/VariantACategoryScroller";
+import CategoryListView from "@/components/scroll_view/CategoryListView";
 import { products } from "@/lib/mock-db";
 import { TenantPageProps } from "@/types/tenant";
 
@@ -11,7 +11,7 @@ export default function VariantAPage({ tenant }: TenantPageProps) {
 
       {/* Products */}
       <section className="max-w-6xl mx-auto px-1 py-6">
-        <CategoryScroller />
+        <CategoryListView />
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4">
           {products.map((product) => (
             <ProductCardA key={product.productId} product={product} />

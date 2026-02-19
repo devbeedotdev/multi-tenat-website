@@ -7,7 +7,7 @@ import SearchProductForm from "../forms/SearchForm";
 
 export default function VariantBHeader({ tenant }: TenantPageProps) {
   return (
-    <div className="flex flex-col gap-2 px-3 py-2 bg-white sticky top-0 z-50 border-b shadow-sm">
+    <div className="flex flex-col gap-2 px-3 md:px-4  py-2 bg-white sticky top-0 z-50 border-b shadow-sm">
       {/* Top Row: Logo and Action Buttons */}
       <div className="flex items-center justify-between w-full">
         {/* Logo: Smaller on mobile, larger on desktop */}

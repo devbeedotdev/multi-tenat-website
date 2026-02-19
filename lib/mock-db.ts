@@ -19,7 +19,7 @@ export const tenants: Record<string, Tenant> = {
     isLogoHorizontal: true,
     logoUrl: "/images/paripulse.png",
     variant: "B",
-    primaryColor: "#16A34A",
+    primaryColor: "#000000",
     businessDescription: "A modern boutique experience tailored for Client A.",
     websiteDisplayName: "Pari Pulse",
     favIcon:
