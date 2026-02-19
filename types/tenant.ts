@@ -7,7 +7,8 @@ export type Tenant = {
   businessDescription: string;
   websiteDisplayName: string;
   favIcon: string;
-  logoUrl? : string
+  logoUrl?: string;
+  isLogoHorizontal: boolean;
 };
 
 export type TenantPageProps = {

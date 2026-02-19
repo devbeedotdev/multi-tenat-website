@@ -1,9 +1,10 @@
 "use client";
 
 import { TenantPageProps } from "@/types/tenant";
-import { Headset, HelpCircle, Home, Search } from "lucide-react";
+import { Headset, HelpCircle, Home } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import SearchProductForm from "../forms/SearchForm";
 
 export default function VariantAHeader({ tenant }: TenantPageProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -23,7 +24,7 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
         isCollapsed ? "py-1 shadow-md " : "py-0"
       }`}
     >
-      <div className="mx-auto max-w-6xl px-4 transition-all duration-300">
+      <div className="mx-auto max-w-6xl px-2 transition-all duration-300">
         {/* Header Row */}
         <div
           className={`flex items-center transition-all duration-300 ${
@@ -33,16 +34,34 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
           {/* Logo */}
           <div className="flex items-center gap-3">
             {tenant.logoUrl ? (
-              <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-primary p-0.5 transition-all duration-300">
-                <div className="relative w-full h-full rounded-full overflow-hidden">
-                  <Image
-                    src={tenant.logoUrl}
-                    alt="Logo"
-                    fill
-                    sizes="(max-width: 768px) 40px, 56px"
-                    className="object-cover"
-                  />
-                </div>
+              <div className="flex-shrink-0">
+                {tenant.logoUrl &&
+                  (tenant.isLogoHorizontal ? (
+                    /* 1. Horizontal/Rectangular Orientation */
+                    <div className="flex items-center">
+                      <Image
+                        src={tenant.logoUrl}
+                        width={120} // Base width for aspect ratio
+                        height={40} // Base height for aspect ratio
+                        className="h-7 md:h-10 w-auto object-contain transition-all duration-300"
+                        alt="Horizontal Logo"
+                        priority // Ensures logo loads fast
+                      />
+                    </div>
+                  ) : (
+                    /* 2. Round/Circle Orientation */
+                    <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-primary p-0.5 transition-all duration-300 hover:scale-105">
+                      <div className="relative w-full h-full rounded-full overflow-hidden bg-white">
+                        <Image
+                          src={tenant.logoUrl}
+                          alt="Round Logo"
+                          fill
+                          sizes="(max-width: 768px) 40px, 56px"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  ))}
               </div>
             ) : (
               <button className="flex items-center gap-1 px-2 py-2 rounded-xl hover:bg-gray-100 transition">
@@ -65,21 +84,7 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
               }`}
             >
               {/* Added w-full and max-w-xl to keep it centered or stretched */}
-              <div className="flex items-center gap-2 w-full max-w-3xl">
-                <div className="flex items-center flex-1 bg-gray-50 rounded-xl px-4 h-11 shadow-sm border border-primary/20 focus-within:border-primary transition">
-                  <Search className="text-gray-400 w-5 h-5 shrink-0" />
-                  <input
-                    type="text"
-                    placeholder="Search Product"
-                    className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
-                  />
-                </div>
-
-                <button className="h-11 px-4 rounded-xl bg-primary text-white font-medium shrink-0">
-                  <Search className="w-5 h-5 md:hidden" />
-                  <span className="hidden md:block">Search</span>
-                </button>
-              </div>
+              <SearchProductForm />
             </div>
 
             {/* Support & Help Buttons (Logic remains same) */}
@@ -130,22 +135,7 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
           }`}
         >
           {/* Added w-full here to ensure the flex container spans the whole width */}
-          <div className="flex items-center gap-2 w-full">
-            <div className="flex items-center flex-1 bg-white rounded-xl px-4 h-11 sm:h-12 shadow-sm border border-primary/50 focus-within:border-primary transition">
-              <Search className="text-gray-400 w-5 h-5 shrink-0" />
-              <input
-                type="text"
-                placeholder="Search Product"
-                className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
-              />
-            </div>
-
-            {/* shrink-0 prevents the button from squishing when space is tight */}
-            <button className="h-11 sm:h-12 px-5 rounded-xl bg-primary text-white font-medium transition duration-200 hover:opacity-90 active:scale-95 flex items-center justify-center shrink-0">
-              <Search className="w-5 h-5 lg:hidden" />
-              <span className="hidden lg:block">Search</span>
-            </button>
-          </div>
+          <SearchProductForm />
         </div>
       </div>
     </div>
