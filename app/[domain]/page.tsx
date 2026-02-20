@@ -4,12 +4,21 @@ import VariantAPage from "./VairantAPage";
 import VariantBPage from "./VariantBPage";
 import VariantCPage from "./VariantCPage";
 
+type DomainPageSearchParams = {
+  category?: string | string[];
+};
+
 type DomainPageProps = {
   params: {
     domain: string;
   };
+  searchParams?: DomainPageSearchParams;
 };
-export default async function DomainHomePage({ params }: DomainPageProps) {
+
+export default async function DomainHomePage({
+  params,
+  searchParams,
+}: DomainPageProps) {
   const tenant = getTenantByDomain(params.domain);
 
   if (!tenant) {

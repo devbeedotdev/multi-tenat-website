@@ -14,4 +14,5 @@ export type Tenant = {
 
 export type TenantPageProps = {
   tenant: Tenant;
+  searchParams?: { category?: string };
 };

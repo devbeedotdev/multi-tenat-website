@@ -46,6 +46,30 @@ export function tenantExists(domain: string): boolean {
 }
 
 /**
+ * Get unique, sorted list of categories for a tenant.
+ * Always includes "All" as the first element.
+ *
+ * Note: Current mock data does not scope products by tenant,
+ * but the signature is future-proofed for real multi-tenant storage.
+ */
+export async function getCategoriesByTenant(
+  tenantId: string,
+): Promise<string[]> {
+  const tenantProducts = await getProductsByTenant(tenantId);
+
+  const categorySet = new Set<string>();
+  for (const product of tenantProducts) {
+    if (product.productCategory?.trim()) {
+      categorySet.add(product.productCategory.trim());
+    }
+  }
+
+  const categories = Array.from(categorySet).sort((a, b) => a.localeCompare(b));
+
+  return ["All", ...categories];
+}
+
+/**
  * Get products for a specific tenant
  * @param tenantId - The tenant identifier (domain)
  * @returns Array of products for the tenant
@@ -63,9 +87,10 @@ export async function getProductsByTenant(
 
 export async function getProductsByCategoryAndTenant(
   tenantId: string,
-  category: string,
+  category?: string,
 ): Promise<Product[]> {
-  const normalizedCategory = category.trim().toLowerCase();
+  const normalizedCategory = (category ?? "all").trim().toLowerCase();
+  console.log(`This category - ${category}`);
 
   // If "All", return tenant products
   if (normalizedCategory === "all") {

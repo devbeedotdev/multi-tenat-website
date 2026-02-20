@@ -3,8 +3,15 @@ import SearchProductForm from "../forms/SearchForm";
 import CategoryListView from "../scroll_view/CategoryListView";
 import { ProductCardC } from "../cards/ProductCardC";
 
+type VariantCBodyProps = {
+  products: Product[];
+};
 
-export default async  function VariantCBody({ products }: {products:  Array<Product>}) {
+export default function VariantCBody({ products }: VariantCBodyProps) {
+  const categories = Array.from(
+    new Set(products.map((p) => p.productCategory).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b));
+
   return (
     <section className="flex-1 min-w-0  px-2 md:px-3 py-1 mt-16 md:mt-0 pt-5">
       {/* Desktop Search */}
@@ -14,7 +21,7 @@ export default async  function VariantCBody({ products }: {products:  Array<Prod
       </div>
 
       <div>
-        <CategoryListView />
+        <CategoryListView categories={categories} currentCategory="All" />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-1 pt-4">

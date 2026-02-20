@@ -1,42 +1,20 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useRef } from "react";
 
-const categories = [
-  "All",
-  "Shoes",
-  "Bags",
-  "Hats",
-  "Watches",
-  "Clothing",
-  "Accessories",
-  "Electronics",
-  "Jewelry",
-  "Sports",
-  "Beauty",
-  "Bags",
-  "Hats",
-  "Watches",
-  "Clothing",
-  "Accessories",
-  "Electronics",
-  "Jewelry",
-  "Sports",
-  "Beauty",
-  "Bags",
-  "Hats",
-  "Watches",
-  "Clothing",
-  "Accessories",
-  "Electronics",
-  "Jewelry",
-  "Sports",
-  "Beauty",
-];
+type CategoryListViewProps = {
+  categories: string[];
+  currentCategory: string;
+};
 
-export default function CategoryListView() {
-  const [selected, setSelected] = useState("All");
+export default function CategoryListView({
+  categories = [],
+  currentCategory,
+}: CategoryListViewProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
@@ -46,6 +24,21 @@ export default function CategoryListView() {
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
+  };
+
+  const handleCategoryClick = (category: string) => {
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+
+    // Normalize "All" selection
+    if (category.toLowerCase() === "all") {
+      params.delete("category");
+    } else {
+      params.set("category", category);
+    }
+    const queryString = params.toString();
+    const search = queryString ? `?${queryString}` : "";
+
+    router.push(search, { scroll: true });
   };
 
   return (
@@ -68,19 +61,25 @@ export default function CategoryListView() {
           ref={scrollRef}
           className="flex gap-2 overflow-x-auto scrollbar-hide flex-1 px-2 md:px-0"
         >
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelected(cat)}
-              className={`whitespace-nowrap px-4 py-2 text-sm rounded-full border transition ${
-                selected === cat
-                  ? "bg-primary text-white border-primary shadow-sm"
-                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const isActive =
+              currentCategory.toLowerCase() === cat.toLowerCase();
+
+            return (
+              <button
+                key={cat}
+                onClick={() => handleCategoryClick(cat)}
+                className={`whitespace-nowrap px-4 py-2 text-sm rounded-full border transition ${
+                  isActive
+                    ? "text-white border-transparent shadow-sm" // Remove bg-primary class
+                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                }`}
+                style={isActive ? { backgroundColor: "var(--primary)" } : {}} // Use the variable
+              >
+                {cat}
+              </button>
+            );
+          })}
         </div>
 
         {/* Right Arrow - Hidden on mobile, flex on desktop */}
