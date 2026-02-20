@@ -170,12 +170,12 @@ export default function CategoryAContainer({
               className="overflow-x-auto scrollbar-hide scroll-smooth px-8"
             >
               <div
-  className={`grid ${
-    products.length > 5
-      ? "grid-rows-2 grid-flow-col"
-      : "grid-rows-1 grid-flow-col"
-  } gap-4 auto-cols-max`}
->
+                className={`grid ${
+                  products.length > 5
+                    ? "grid-rows-2 grid-flow-col"
+                    : "grid-rows-1 grid-flow-col"
+                } gap-4 auto-cols-max`}
+              >
                 {products.slice(0, 20).map((product) => (
                   <div
                     key={product.productId}
@@ -205,7 +205,8 @@ export default function CategoryAContainer({
       {/* Other Category Sections */}
       {products.length > 0 &&
         categories
-          .filter((cat) => cat !== selectedCategory && cat !== "All")
+          .filter((cat) => cat !== selectedCategory && cat !== "All") // 1. Remove unwanted items
+          // 2. Limit the remaining list to 20
           .map((cat) => (
             <CategorySection
               key={cat}
