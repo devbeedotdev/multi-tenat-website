@@ -1,9 +1,10 @@
-import { products } from "@/lib/mock-db";
-import { ProductCardC } from "../cards/ProductCardC";
+import type { Product } from "@/types/product";
 import SearchProductForm from "../forms/SearchForm";
 import CategoryListView from "../scroll_view/CategoryListView";
+import { ProductCardC } from "../cards/ProductCardC";
 
-export default function VariantCBody() {
+
+export default async  function VariantCBody({ products }: {products:  Array<Product>}) {
   return (
     <section className="flex-1 min-w-0  px-2 md:px-3 py-1 mt-16 md:mt-0 pt-5">
       {/* Desktop Search */}

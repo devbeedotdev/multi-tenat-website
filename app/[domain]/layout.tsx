@@ -1,4 +1,4 @@
-import { getTenantByDomain } from "@/lib/mock-db";
+import { getTenantByDomain } from "@/lib/dal";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 

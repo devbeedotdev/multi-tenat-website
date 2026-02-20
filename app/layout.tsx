@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import "./globals.css";
 
-import { getTenantByDomain } from "@/lib/mock-db";
+import { getTenantByDomain } from "@/lib/dal";
 import { headers } from "next/headers";
 
 export async function generateMetadata() {
@@ -9,6 +9,7 @@ export async function generateMetadata() {
   const host = headersList.get("host") ?? "localhost";
 
   const tenant = getTenantByDomain(host);
+  
 
   return {
     title: tenant?.websiteDisplayName ?? "Shopping Platform",
@@ -24,3 +25,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
+
+
+
+
+

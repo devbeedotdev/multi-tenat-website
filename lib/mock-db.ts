@@ -5,6 +5,7 @@ export const tenants: Record<string, Tenant> = {
   localhost: {
     businessName: "Localhost Demo Store - First",
     variant: "A",
+    tenantId: "localhost",
     primaryColor: "#964B00",
     isLogoHorizontal: false,
     businessDescription:
@@ -18,6 +19,7 @@ export const tenants: Record<string, Tenant> = {
     businessName: "Client A Boutique - Second",
     isLogoHorizontal: true,
     logoUrl: "/images/paripulse.png",
+    tenantId: "client-a.com",
     variant: "B",
     primaryColor: "#10B981",
     businessDescription: "A modern boutique experience tailored for Client A.",
@@ -30,6 +32,7 @@ export const tenants: Record<string, Tenant> = {
     isLogoHorizontal: true,
     logoUrl: "/images/paripulse.png",
     variant: "C",
+    tenantId: "client-b.com",
     primaryColor: "#000000",
     businessDescription: "An energetic brand presence for Client B.",
     websiteDisplayName: "Jiji Nigeria",

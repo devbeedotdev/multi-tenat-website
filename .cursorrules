@@ -1,0 +1,24 @@
+# Multi-Tenant App Rules
+
+## Framework & Architecture
+- Framework: Next.js App Router & TypeScript
+- Multi-tenancy: Use hostname detection in middleware.ts to internally rewrite to 'app/[domain]/...'. Do not show tenant IDs in the URL.
+- Data: Use lib/mock-db.ts as the source of truth (File System approach).
+- Theming: Inject --primary CSS variable at the layout level.
+
+## Images
+- Use the URL 'https://images.unsplash.com/photo-1523275335684-37898b6baf30' for every image (Logo & Products) for now. Do not use local files or DB Blobs yet.
+
+## STRICT DECOUPLING RULE - DATA ACCESS LAYER
+**CRITICAL**: UI components and Page files are **FORBIDDEN** from importing directly from `lib/mock-db.ts` or `@prisma/client`. 
+
+- **ALL data access MUST go through the Data Access Layer (DAL) in `lib/dal.ts`**
+- Only `lib/dal.ts` is allowed to import from `lib/mock-db.ts` or (later) Prisma
+- Page components should be `async` and `await` data from DAL functions:
+  - `getTenantByDomain(domain: string)` - Get tenant by domain (synchronous)
+  - `getTenantConfig(domain: string)` - Get tenant config (async)
+  - `getProductsByTenant(tenantId: string)` - Get products for a tenant (async)
+  - `tenantExists(domain: string)` - Check if tenant exists (for middleware)
+- Client components that cannot be async should receive data as props from their parent server components
+
+**Violations of this rule will break database migration readiness.**

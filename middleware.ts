@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { tenants } from "./lib/mock-db";
+import { tenantExists, getTenantByDomain } from "./lib/dal";
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
@@ -14,12 +14,12 @@ export function middleware(request: NextRequest) {
   const pathSegments = pathname.split("/").filter(Boolean);
   const firstSegment = pathSegments[0];
 
-  if (firstSegment && tenants[firstSegment]) {
+  if (firstSegment && tenantExists(firstSegment)) {
     return NextResponse.next();
   }
 
   // If we recognize this hostname as a tenant, rewrite internally to /[domain]${pathname}
-  if (tenants[hostname]) {
+  if (tenantExists(hostname)) {
     const rewrittenPath = `/${hostname}${pathname === "/" ? "" : pathname}`;
     return NextResponse.rewrite(new URL(rewrittenPath || "/", request.url));
   }

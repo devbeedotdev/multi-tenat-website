@@ -34,6 +34,7 @@ const categories = [
   "Sports",
   "Beauty",
 ];
+
 export default function CategoryListView() {
   const [selected, setSelected] = useState("All");
   const scrollRef = useRef<HTMLDivElement>(null);

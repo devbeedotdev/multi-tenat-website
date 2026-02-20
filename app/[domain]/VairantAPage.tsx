@@ -1,10 +1,12 @@
 import { ProductCardA } from "@/components/cards/ProductCardA";
 import VariantAHeader from "@/components/headers/VariantAHeader";
 import CategoryListView from "@/components/scroll_view/CategoryListView";
-import { products } from "@/lib/mock-db";
+import { getProductsByTenant } from "@/lib/dal";
 import { TenantPageProps } from "@/types/tenant";
 
-export default function VariantAPage({ tenant }: TenantPageProps) {
+export default async function VariantAPage({ tenant }: TenantPageProps) {
+  const products = await getProductsByTenant(tenant.tenantId);
+
   return (
     <main className="min-h-screen bg-white">
       <VariantAHeader tenant={tenant} />
