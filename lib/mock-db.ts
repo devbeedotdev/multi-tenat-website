@@ -110,7 +110,7 @@ export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
   return {
     productId: `prod-${i + 1}`,
     productName: `${category} Item ${i + 1}`,
-    productCategory: category,
+    productCategory: i === 0 ?  "Shoes" : "Accessories",
     productAmount: 100 + (i % 10) * 600000,
     discountPrice: i % 3 === 0 ? 10 : 0,
     quantityAvailable: 5 + (i % 12),
