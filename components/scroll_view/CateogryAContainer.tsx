@@ -95,7 +95,7 @@ export default function CategoryAContainer({
             {/* SCROLL CONTAINER */}
             <div
               ref={scrollRef}
-              className="overflow-x-auto scrollbar-hide scroll-smooth px-4 md:px-8"
+              className="overflow-x-auto scrollbar-hide scroll-smooth px-4 md:px-3"
             >
               <div
                 className={`grid

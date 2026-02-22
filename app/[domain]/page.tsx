@@ -1,18 +1,15 @@
 import { getTenantByDomain } from "@/lib/dal";
+import { TenantPageProps } from "@/types/tenant";
 import { notFound } from "next/navigation";
 import VariantAPage from "./VairantAPage";
 import VariantBPage from "./VariantBPage";
 import VariantCPage from "./VariantCPage";
 
-type DomainPageSearchParams = {
-  category?: string | string[];
-};
-
 type DomainPageProps = {
   params: {
     domain: string;
   };
-  searchParams?: DomainPageSearchParams;
+  searchParams?: TenantPageProps["searchParams"];
 };
 
 export default async function DomainHomePage({
@@ -20,7 +17,6 @@ export default async function DomainHomePage({
   searchParams,
 }: DomainPageProps) {
   const tenant = getTenantByDomain(params.domain);
-
   if (!tenant) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -31,13 +27,13 @@ export default async function DomainHomePage({
 
   switch (tenant.variant) {
     case "A":
-      return <VariantAPage tenant={tenant} />;
+      return <VariantAPage tenant={tenant} searchParams={searchParams} />;
 
     case "B":
-      return <VariantBPage tenant={tenant} />;
+      return <VariantBPage tenant={tenant} searchParams={searchParams} />;
 
     case "C":
-      return <VariantCPage tenant={tenant} />;
+      return <VariantCPage tenant={tenant} searchParams={searchParams} />;
 
     default:
       notFound();

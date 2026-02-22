@@ -6,7 +6,10 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import SearchProductForm from "../forms/SearchForm";
 
-export default function VariantAHeader({ tenant }: TenantPageProps) {
+export default function VariantAHeader({
+  tenant,
+  searchParams,
+}: TenantPageProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -134,8 +137,8 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
               : "max-h-20 opacity-100"
           }`}
         >
-          {/* Added w-full here to ensure the flex container spans the whole width */}
-          <SearchProductForm />
+          {/* Added w-full here to ensure the flex conta.iner spans the whole width */}
+          <SearchProductForm initialSearch={searchParams?.search} />
         </div>
       </div>
     </div>
