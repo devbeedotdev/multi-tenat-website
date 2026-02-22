@@ -67,9 +67,9 @@ export default function CategorySection({
   if (products.length === 0) return null;
 
   return (
-    <div className="mt-12 relative">
+    <div className="mt-6 md:mt-12 relative">
       {/* Header with See All */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 px-2">
         <h3 className="text-xl font-semibold">{category}</h3>
 
         {products.length > 6 && (
@@ -95,7 +95,11 @@ export default function CategorySection({
           {products.length > 5 && canScrollLeft && (
             <button
               onClick={() => scroll("left")}
-              className="hidden md:flex absolute left-0 top-[60%] -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-3"
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 
+              bg-white shadow-md rounded-full p-3 
+              transition-all duration-200 ease-in-out
+              hover:scale-110 hover:shadow-lg hover:bg-gray-50
+              active:scale-95 active:shadow-sm"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -104,7 +108,7 @@ export default function CategorySection({
           {/* Horizontal Scroll */}
           <div
             ref={scrollRef}
-            className="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide px-8"
+            className="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8"
           >
             {products.slice(0, 20).map((product) => (
               <div
@@ -120,7 +124,11 @@ export default function CategorySection({
           {products.length > 5 && canScrollRight && (
             <button
               onClick={() => scroll("right")}
-              className="hidden md:flex absolute right-0 top-[60%] -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-3"
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 
+              bg-white shadow-md rounded-full p-3 
+              transition-all duration-300 ease-out
+              hover:shadow-xl hover:scale-110 hover:bg-gray-50
+              active:scale-95 active:shadow-inner"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

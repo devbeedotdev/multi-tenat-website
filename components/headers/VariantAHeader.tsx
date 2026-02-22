@@ -24,7 +24,7 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
         isCollapsed ? "py-1 shadow-md " : "py-0"
       }`}
     >
-      <div className="mx-auto max-w-6xl px-2 transition-all duration-300">
+      <div className="mx-auto max-w-7xl px-2 md:px-6 transition-all duration-300">
         {/* Header Row */}
         <div
           className={`flex items-center transition-all duration-300 ${
