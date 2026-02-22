@@ -53,7 +53,18 @@ export default async function SearchedProductBody({
           ))}
         </div>
       ) : (
-        <p className="px-4 text-gray-500">No products found.</p>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-6">
+          🛍️
+        </div>
+        <h3 className="text-xl font-semibold text-gray-800">
+          No products found
+        </h3>
+        <p className="mt-2 text-gray-500 max-w-sm">
+        We couldn’t find any products matching your selection.
+        </p>
+      </div>
+      
       )}
 
       {/* Suggested Section */}
