@@ -1,4 +1,5 @@
 import { getProductsBySearchAndTenant, getProductsByTenant } from "@/lib/dal";
+import { getRandomProducts } from "@/src/utils/string.utils";
 import { Product } from "@/types/product";
 import { TenantPageProps } from "@/types/tenant";
 import { ProductCardA } from "../cards/ProductCardA";
@@ -54,17 +55,16 @@ export default async function SearchedProductBody({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-6">
-          🛍️
+          <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-6">
+            🛍️
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800">
+            No products found
+          </h3>
+          <p className="mt-2 text-gray-500 max-w-sm">
+            We couldn’t find any products matching your selection.
+          </p>
         </div>
-        <h3 className="text-xl font-semibold text-gray-800">
-          No products found
-        </h3>
-        <p className="mt-2 text-gray-500 max-w-sm">
-        We couldn’t find any products matching your selection.
-        </p>
-      </div>
-      
       )}
 
       {/* Suggested Section */}
@@ -73,7 +73,7 @@ export default async function SearchedProductBody({
       </h2>
       <SuggestedScroller
         tenant={tenant}
-        products={allProducts.slice().reverse().slice(0, 10)}
+        products={getRandomProducts(allProducts, 15)}
       />
     </div>
   );

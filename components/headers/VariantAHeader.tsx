@@ -87,7 +87,7 @@ export default function VariantAHeader({
               }`}
             >
               {/* Added w-full and max-w-xl to keep it centered or stretched */}
-              <SearchProductForm />
+              <SearchProductForm initialSearch={searchParams?.search} />
             </div>
 
             {/* Support & Help Buttons (Logic remains same) */}

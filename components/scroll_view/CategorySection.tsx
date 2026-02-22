@@ -1,6 +1,7 @@
 "use client";
 
 import { getProductsAction } from "@/lib/actions";
+import { getRandomProducts } from "@/src/utils/string.utils";
 import { Product } from "@/types/product";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -110,7 +111,7 @@ export default function CategorySection({
             ref={scrollRef}
             className="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8"
           >
-            {products.slice(0, 20).map((product) => (
+            {getRandomProducts(products, 20).map((product) => (
               <div
                 key={product.productId}
                 className="flex-none w-[180px] md:w-[220px]"

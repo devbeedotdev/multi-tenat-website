@@ -7,7 +7,6 @@ export default async function VariantAPage({
   tenant,
   searchParams,
 }: TenantPageProps) {
-  console.log(`Hello - ${searchParams?.search}`);
   return (
     <main className="min-h-screen bg-white">
       <VariantAHeader tenant={tenant} searchParams={searchParams} />

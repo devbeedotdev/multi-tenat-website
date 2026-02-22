@@ -1,24 +1,25 @@
 "use client";
 
 import { getProductsAction } from "@/lib/actions";
+import { getRandomProducts } from "@/src/utils/string.utils";
 import { Product } from "@/types/product";
 import { Tenant } from "@/types/tenant";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 import { ProductCardA } from "../cards/ProductCardA";
 import { ProductGridSkeleton } from "../cards/ProductCardASkeleton";
-import CategoryAListView from "../scroll_view/CategoryAListView";
+import CategoryAListView from "./CategoryAListView";
 import CategorySection from "./CategorySection";
 
-type CategoryAContainer = {
+type VariantAContainer = {
   tenant: Tenant;
   categories: string[];
 };
 
-export default function CategoryAContainer({
+export default function VariantAContainer({
   tenant,
   categories,
-}: CategoryAContainer) {
+}: VariantAContainer) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [products, setProducts] = useState<Product[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -100,14 +101,14 @@ export default function CategoryAContainer({
               <div
                 className={`grid
                   grid-rows-1
-                  ${products.length >= 4 ? "md:grid-rows-2" : "md:grid-rows-1"}
+                  ${products.length >= 5 ? "md:grid-rows-2" : "md:grid-rows-1"}
                   grid-flow-col
                   gap-4
                   auto-cols-[180px]
                   md:auto-cols-[220px]
                 `}
               >
-                {products.slice(0, 20).map((product) => (
+                {getRandomProducts(products, 20).map((product) => (
                   <div
                     key={product.productId}
                     className="w-[180px] md:w-[220px]"
