@@ -130,8 +130,8 @@ export default function VariantCSidebar({
               {tenant.isLogoHorizontal ? (
                 <Image
                   src={tenant.logoUrl}
-                  width={120}
-                  height={40}
+                  width={130}
+                  height={50}
                   className="h-8 md:h-10 w-auto object-contain"
                   alt="Logo"
                 />
