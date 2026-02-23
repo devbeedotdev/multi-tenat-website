@@ -2,6 +2,7 @@
 
 import { Tenant } from "@/types/tenant";
 import { X } from "lucide-react";
+import Image from "next/image";
 
 type VariantCSideBarProps = {
   tenant: Tenant;
@@ -30,6 +31,8 @@ export default function VariantCSidebar({
           w-64 md:w-15
           bg-white border-r border-gray-200
           p-6 z-50
+          pl-3
+          md:p-5
           transform transition-transform duration-300
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
@@ -57,7 +60,48 @@ export default function VariantCSidebar({
           <button className="text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition">
             Categories
           </button>
+          <button className="text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+            Support
+          </button>
+          <button className="text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+            Help
+          </button>
         </nav>
+
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          {tenant.logoUrl && (
+            <div className="flex-shrink-0">
+              {tenant.logoUrl &&
+                (tenant.isLogoHorizontal ? (
+                  /* 1. Horizontal/Rectangular Orientation */
+                  <div className="flex items-center">
+                    <Image
+                      src={tenant.logoUrl}
+                      width={120} // Base width for aspect ratio
+                      height={40} // Base height for aspect ratio
+                      className="h-7 md:h-10 w-auto object-contain transition-all duration-300"
+                      alt="Horizontal Logo"
+                      priority // Ensures logo loads fast
+                    />
+                  </div>
+                ) : (
+                  /* 2. Round/Circle Orientation */
+                  <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-primary p-0.5 transition-all duration-300 hover:scale-105">
+                    <div className="relative w-full h-full rounded-full overflow-hidden bg-white">
+                      <Image
+                        src={tenant.logoUrl}
+                        alt="Round Logo"
+                        fill
+                        sizes="(max-width: 768px) 40px, 56px"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
       </aside>
     </>
   );

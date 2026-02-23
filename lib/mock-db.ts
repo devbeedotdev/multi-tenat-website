@@ -28,7 +28,7 @@ export const tenants: Record<string, Tenant> = {
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
   },
   "client-b.com": {
-    businessName: "Client B Outfitters - Third",
+    businessName: "Arike's Online Store",
     isLogoHorizontal: true,
     logoUrl: "/images/paripulse.png",
     variant: "C",

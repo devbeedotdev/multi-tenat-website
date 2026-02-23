@@ -88,7 +88,7 @@ export default function VariantContainer({
           ? "max-w-7xl mx-auto px-1 md:px-6 py-6"
           : tenant.variant === "B"
             ? "mx-auto max-w-8xl px-3 md:px-5 py-4"
-            : "flex-1 min-w-0  px-2 md:px-3 py-1 mt-16 md:mt-0 pt-5"
+            : "flex-1 min-w-0  px-2 md:px-3 "
       }
     >
       {/* Top Category Scroller */}
@@ -128,14 +128,14 @@ export default function VariantContainer({
                   ${products.length >= 5 ? "md:grid-rows-2" : "md:grid-rows-1"}
                   grid-flow-col
                   gap-2
-                  auto-cols-[180px]
+                  auto-cols-[190px]
                   md:auto-cols-[220px]
                 `}
               >
                 {getRandomProducts(products, 20).map((product) => (
                   <div
                     key={product.productId}
-                    className="w-[180px] md:w-[220px]"
+                    className="w-[190px] md:w-[220px]"
                   >
                     {renderProductCard(product)}
                   </div>

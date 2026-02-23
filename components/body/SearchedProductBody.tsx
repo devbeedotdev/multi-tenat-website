@@ -31,7 +31,11 @@ export default async function SearchedProductBody({
   };
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-4 px-1 md:px-6">
+    <div
+      className={` ${
+        tenant.variant === "C" ? "max-w-8xl" : "max-w-7xl  mx-auto"
+      } flex flex-col gap-4 px-1 md:px-5`}
+    >
       {/* Header */}
       <h2 className="px-4 pt-4 text-lg font-semibold text-gray-800">
         Searched Product
@@ -39,13 +43,11 @@ export default async function SearchedProductBody({
 
       {searchedProducts.length > 0 ? (
         <div
-          className="grid 
-               grid-cols-2 
-               md:grid-cols-3 
-               lg:grid-cols-5 
-               gap-4 
-               pt-2
-               p-4"
+          className={`grid gap-2 pt-2 p-2 ${
+            tenant.variant === "C"
+              ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6"
+              : "grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+          }`}
         >
           {searchedProducts.map((product) => (
             <div key={product.productId}>{renderProductCard(product)}</div>
