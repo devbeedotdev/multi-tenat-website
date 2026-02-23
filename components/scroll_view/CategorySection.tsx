@@ -1,18 +1,16 @@
 "use client";
 
 import { getProductsAction } from "@/lib/actions";
-import { Product } from "@/types/product";
+import { getRandomProducts } from "@/src/utils/string.utils";
+import { CategorySectionProps, Product } from "@/types/product";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ProductCardA } from "../cards/ProductCardA";
-
-type CategorySectionProps = {
-  tenantId: string;
-  category: string;
-};
+import { ProductCardB } from "../cards/ProductCardB";
+import { ProductCardC } from "../cards/ProductCardC";
 
 export default function CategorySection({
-  tenantId,
+  tenant,
   category,
 }: CategorySectionProps) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -22,12 +20,25 @@ export default function CategorySection({
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const renderProductCard = (product: Product) => {
+    switch (tenant.variant) {
+      case "A":
+        return <ProductCardA product={product} />;
+      case "B":
+        return <ProductCardB product={product} />;
+      case "C":
+        return <ProductCardC product={product} />;
+      default:
+        return null; // Avoid calling notFound() inside a map loop
+    }
+  };
+
   useEffect(() => {
     (async () => {
-      const data = await getProductsAction(tenantId, category);
+      const data = await getProductsAction(tenant.tenantId, category);
       setProducts(data);
     })();
-  }, [tenantId, category]);
+  }, [tenant.tenantId, category]);
 
   // Scroll detection (only relevant when NOT in viewAll)
   useEffect(() => {
@@ -67,9 +78,9 @@ export default function CategorySection({
   if (products.length === 0) return null;
 
   return (
-    <div className="mt-12 relative">
+    <div className="mt-6 md:mt-12 relative">
       {/* Header with See All */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 px-2">
         <h3 className="text-xl font-semibold">{category}</h3>
 
         {products.length > 6 && (
@@ -84,10 +95,8 @@ export default function CategorySection({
 
       {/* ===== SEE ALL MODE ===== */}
       {viewAll ? (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {products.map((product) => (
-            <ProductCardA key={product.productId} product={product} />
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          {products.map((product) => renderProductCard(product))}
         </div>
       ) : (
         <>
@@ -95,7 +104,11 @@ export default function CategorySection({
           {products.length > 5 && canScrollLeft && (
             <button
               onClick={() => scroll("left")}
-              className="hidden md:flex absolute left-0 top-[60%] -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-3"
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 
+              bg-white shadow-md rounded-full p-3 
+              transition-all duration-200 ease-in-out
+              hover:scale-110 hover:shadow-lg hover:bg-gray-50
+              active:scale-95 active:shadow-sm"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -104,14 +117,14 @@ export default function CategorySection({
           {/* Horizontal Scroll */}
           <div
             ref={scrollRef}
-            className="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide px-8"
+            className="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide px-2 md:px-8"
           >
-            {products.slice(0, 20).map((product) => (
+            {getRandomProducts(products, 20).map((product) => (
               <div
                 key={product.productId}
                 className="flex-none w-[180px] md:w-[220px]"
               >
-                <ProductCardA product={product} />
+                {renderProductCard(product)}
               </div>
             ))}
           </div>
@@ -120,7 +133,11 @@ export default function CategorySection({
           {products.length > 5 && canScrollRight && (
             <button
               onClick={() => scroll("right")}
-              className="hidden md:flex absolute right-0 top-[60%] -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-3"
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 
+              bg-white shadow-md rounded-full p-3 
+              transition-all duration-300 ease-out
+              hover:shadow-xl hover:scale-110 hover:bg-gray-50
+              active:scale-95 active:shadow-inner"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

@@ -104,3 +104,25 @@ export async function getProductsByCategoryAndTenant(
       product.productCategory.trim().toLowerCase() === normalizedCategory,
   );
 }
+
+export async function getProductsBySearchAndTenant(
+  tenantId: string,
+  search?: string,
+): Promise<Product[]> {
+  const tenantProducts = await getProductsByTenant(tenantId);
+
+  const normalizedSearch = search?.trim().toLowerCase();
+
+  if (!normalizedSearch) {
+    return tenantProducts;
+  }
+
+  return tenantProducts.filter((product) => {
+    return (
+      product.productName.toLowerCase().includes(normalizedSearch) ||
+      product.shortDescription.toLowerCase().includes(normalizedSearch) ||
+      product.fullDescription.toLowerCase().includes(normalizedSearch) ||
+      product.productCategory.toLowerCase().includes(normalizedSearch)
+    );
+  });
+}

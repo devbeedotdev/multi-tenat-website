@@ -1,0 +1,80 @@
+import { getProductsBySearchAndTenant, getProductsByTenant } from "@/lib/dal";
+import { getRandomProducts } from "@/src/utils/string.utils";
+import { Product } from "@/types/product";
+import { TenantPageProps } from "@/types/tenant";
+import { ProductCardA } from "../cards/ProductCardA";
+import { ProductCardB } from "../cards/ProductCardB";
+import { ProductCardC } from "../cards/ProductCardC";
+import SuggestedScroller from "../scroll_view/SuggestedProductScroller";
+
+export default async function SearchedProductBody({
+  tenant,
+  searchParams,
+}: TenantPageProps) {
+  const allProducts = await getProductsByTenant(tenant.tenantId);
+
+  const searchedProducts = await getProductsBySearchAndTenant(
+    tenant.tenantId,
+    searchParams?.search,
+  );
+  const renderProductCard = (product: Product) => {
+    switch (tenant.variant) {
+      case "A":
+        return <ProductCardA product={product} />;
+      case "B":
+        return <ProductCardB product={product} />;
+      case "C":
+        return <ProductCardC product={product} />;
+      default:
+        return null; // Avoid calling notFound() inside a map loop
+    }
+  };
+
+  return (
+    <div
+      className={` ${
+        tenant.variant === "C" ? "max-w-8xl" : "max-w-7xl  mx-auto"
+      } flex flex-col gap-4 px-1 md:px-5`}
+    >
+      {/* Header */}
+      <h2 className="px-4 pt-4 text-lg font-semibold text-gray-800">
+        Searched Product
+      </h2>
+
+      {searchedProducts.length > 0 ? (
+        <div
+          className={`grid gap-2 pt-2 p-2 ${
+            tenant.variant === "C"
+              ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6"
+              : "grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+          }`}
+        >
+          {searchedProducts.map((product) => (
+            <div key={product.productId}>{renderProductCard(product)}</div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-6">
+            🛍️
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800">
+            No products found
+          </h3>
+          <p className="mt-2 text-gray-500 max-w-sm">
+            We couldn’t find any products matching your selection.
+          </p>
+        </div>
+      )}
+
+      {/* Suggested Section */}
+      <h2 className="px-4 text-lg font-semibold text-gray-800">
+        Suggested Product
+      </h2>
+      <SuggestedScroller
+        tenant={tenant}
+        products={getRandomProducts(allProducts, 15)}
+      />
+    </div>
+  );
+}

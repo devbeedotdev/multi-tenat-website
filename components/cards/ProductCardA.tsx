@@ -50,7 +50,7 @@ export function ProductCardA({ product }: ProductCardProps) {
         {/* Top Info */}
         <div className="flex flex-col gap-1">
           {/* Title */}
-          <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">
+          <h3 className="line-clamp-1 text-sm font-semibold text-slate-900">
             {capitalizeFirstWords(product.productName)}
           </h3>
 

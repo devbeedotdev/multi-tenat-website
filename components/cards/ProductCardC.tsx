@@ -20,7 +20,7 @@ export function ProductCardC({ product }: ProductCardProps) {
   const currency = product.currency ?? "₦";
 
   return (
-    <div className="group relative rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+    <div className="group relative rounded-2xl border border-gray-200 bg-white p-3 shadow-sm transition hover:shadow-md">
       {/* Top Section */}
       <div className="flex flex-row gap-3">
         {/* Product Image */}

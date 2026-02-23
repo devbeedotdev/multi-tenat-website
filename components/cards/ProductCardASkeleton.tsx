@@ -1,3 +1,7 @@
+import { Tenant } from "@/types/tenant";
+import { ProductCardBSkeleton } from "./ProductCardBSkeleton";
+import { ProductCardCSkeleton } from "./ProductCardCSkeleton";
+
 export function ProductCardASkeleton() {
   return (
     <article className="flex w-full flex-col overflow-hidden rounded-lg bg-white shadow-md">
@@ -32,12 +36,30 @@ export function ProductCardASkeleton() {
   );
 }
 
-export function ProductGridSkeleton({ count = 10 }: { count?: number }) {
+export function ProductGridSkeleton({
+  count = 10,
+  tenant,
+}: {
+  count?: number;
+  tenant: Tenant;
+}) {
+  const renderProductCardSkeleton = (idx: number) => {
+    switch (tenant.variant) {
+      case "A":
+        return <ProductCardASkeleton key={idx} />;
+      case "B":
+        return <ProductCardBSkeleton key={idx} />;
+      case "C":
+        return <ProductCardCSkeleton key={idx} />;
+      default:
+        return null; // Avoid calling notFound() inside a map loop
+    }
+  };
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {Array.from({ length: count }).map((_, idx) => (
-        <ProductCardASkeleton key={idx} />
-      ))}
+      {Array.from({ length: count }).map((_, idx) =>
+        renderProductCardSkeleton(idx),
+      )}
     </div>
   );
 }

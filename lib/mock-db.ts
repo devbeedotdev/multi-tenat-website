@@ -28,9 +28,9 @@ export const tenants: Record<string, Tenant> = {
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
   },
   "client-b.com": {
-    businessName: "Client B Outfitters - Third",
-    isLogoHorizontal: true,
-    logoUrl: "/images/paripulse.png",
+    businessName: "Arike's Online Store",
+    isLogoHorizontal: false,
+    logoUrl:  "/images/logo.jpg",
     variant: "C",
     tenantId: "client-b.com",
     primaryColor: "#000000",
@@ -110,7 +110,7 @@ export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
   return {
     productId: `prod-${i + 1}`,
     productName: `${category} Item ${i + 1}`,
-    productCategory: i === 0 ?  "Shoes" : "Accessories",
+    productCategory: i === 0 ? "Shoes" : "Accessories",
     productAmount: 100 + (i % 10) * 600000,
     discountPrice: i % 3 === 0 ? 10 : 0,
     quantityAvailable: 5 + (i % 12),

@@ -3,14 +3,10 @@
 
 "use client";
 
+import { CategoryListViewProps } from "@/types/product";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 
-type CategoryListViewProps = {
-  categories: string[];
-  currentCategory: string;
-  onSelect: (category: string) => void;
-};
 
 export default function CategoryAListView({
   categories,

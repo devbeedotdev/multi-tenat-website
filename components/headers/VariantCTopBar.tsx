@@ -19,37 +19,36 @@ export default function VariantCTopBar({
       <button onClick={onOpenSidebar}>
         <Menu className="w-6 h-6" />
       </button>
-
       {tenant.logoUrl ? (
-        tenant.isLogoHorizontal ? (
-          <Image
-            src={tenant.logoUrl}
-            width={120}
-            height={40}
-            className="h-7 w-auto object-contain"
-            alt="Logo"
-            priority
-          />
-        ) : (
-          <div className="relative w-12 h-12 rounded-full border-2 border-primary p-0.5">
-            <div className="relative w-full h-full rounded-full overflow-hidden bg-white">
-              <Image
-                src={tenant.logoUrl}
-                alt="Logo"
-                fill
-                sizes="40px"
-                className="object-contain"
-              />
+        <div className="flex-shrink-0">
+          {tenant.isLogoHorizontal ? (
+            <Image
+              src={tenant.logoUrl}
+              width={130}
+              height={50}
+              className="h-8 md:h-10 w-auto object-contain"
+              alt="Logo"
+            />
+          ) : (
+            <div className="relative w-12 h-12 rounded-full border-2 border-primary p-0.5">
+              <div className="relative w-full h-full rounded-full overflow-hidden">
+                <Image
+                  src={tenant.logoUrl}
+                  alt="Logo"
+                  fill
+                  className="object-cover"
+                />
+              </div>
             </div>
-          </div>
-        )
+          )}
+        </div>
       ) : (
         <button className="flex items-center gap-1 px-2 py-1 rounded-xl hover:bg-gray-100 transition">
           <Home className="w-4 h-4" />
           Home
         </button>
-      )}
-
+        )}
+     
       <SearchProductForm height="h-10" />
     </div>
   );

@@ -1,3 +1,5 @@
+import { Tenant } from "./tenant";
+
 export interface Product {
   productId: string;
   productName: string;
@@ -12,13 +14,20 @@ export interface Product {
   videoUrl?: string;
   shortDescription: string;
   fullDescription: string;
-  currency? : string 
+  currency?: string;
 }
-
-
 
 export type ProductCardProps = {
   product: Product;
 };
 
+export type CategoryListViewProps = {
+  categories: string[];
+  currentCategory: string;
+  onSelect: (category: string) => void;
+};
 
+export type CategorySectionProps = {
+  tenant: Tenant;
+  category: string;
+};

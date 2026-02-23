@@ -6,7 +6,10 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import SearchProductForm from "../forms/SearchForm";
 
-export default function VariantAHeader({ tenant }: TenantPageProps) {
+export default function VariantAHeader({
+  tenant,
+  searchParams,
+}: TenantPageProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -24,7 +27,7 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
         isCollapsed ? "py-1 shadow-md " : "py-0"
       }`}
     >
-      <div className="mx-auto max-w-6xl px-2 transition-all duration-300">
+      <div className="mx-auto max-w-7xl px-2 md:px-6 transition-all duration-300">
         {/* Header Row */}
         <div
           className={`flex items-center transition-all duration-300 ${
@@ -84,7 +87,7 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
               }`}
             >
               {/* Added w-full and max-w-xl to keep it centered or stretched */}
-              <SearchProductForm />
+              <SearchProductForm initialSearch={searchParams?.search} />
             </div>
 
             {/* Support & Help Buttons (Logic remains same) */}
@@ -134,8 +137,11 @@ export default function VariantAHeader({ tenant }: TenantPageProps) {
               : "max-h-20 opacity-100"
           }`}
         >
-          {/* Added w-full here to ensure the flex container spans the whole width */}
-          <SearchProductForm />
+          {/* Added w-full here to ensure the flex conta.iner spans the whole width */}
+          <SearchProductForm
+            initialSearch={searchParams?.search}
+            useAutoSearch={false}
+          />
         </div>
       </div>
     </div>
