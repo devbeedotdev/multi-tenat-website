@@ -138,7 +138,10 @@ export default function VariantAHeader({
           }`}
         >
           {/* Added w-full here to ensure the flex conta.iner spans the whole width */}
-          <SearchProductForm initialSearch={searchParams?.search} />
+          <SearchProductForm
+            initialSearch={searchParams?.search}
+            useAutoSearch={false}
+          />
         </div>
       </div>
     </div>

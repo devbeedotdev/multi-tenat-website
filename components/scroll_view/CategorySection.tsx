@@ -2,18 +2,15 @@
 
 import { getProductsAction } from "@/lib/actions";
 import { getRandomProducts } from "@/src/utils/string.utils";
-import { Product } from "@/types/product";
+import { CategorySectionProps, Product } from "@/types/product";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ProductCardA } from "../cards/ProductCardA";
-
-type CategorySectionProps = {
-  tenantId: string;
-  category: string;
-};
+import { ProductCardB } from "../cards/ProductCardB";
+import { ProductCardC } from "../cards/ProductCardC";
 
 export default function CategorySection({
-  tenantId,
+  tenant,
   category,
 }: CategorySectionProps) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,12 +20,25 @@ export default function CategorySection({
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const renderProductCard = (product: Product) => {
+    switch (tenant.variant) {
+      case "A":
+        return <ProductCardA product={product} />;
+      case "B":
+        return <ProductCardB product={product} />;
+      case "C":
+        return <ProductCardC product={product} />;
+      default:
+        return null; // Avoid calling notFound() inside a map loop
+    }
+  };
+
   useEffect(() => {
     (async () => {
-      const data = await getProductsAction(tenantId, category);
+      const data = await getProductsAction(tenant.tenantId, category);
       setProducts(data);
     })();
-  }, [tenantId, category]);
+  }, [tenant.tenantId, category]);
 
   // Scroll detection (only relevant when NOT in viewAll)
   useEffect(() => {
@@ -85,10 +95,8 @@ export default function CategorySection({
 
       {/* ===== SEE ALL MODE ===== */}
       {viewAll ? (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {products.map((product) => (
-            <ProductCardA key={product.productId} product={product} />
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          {products.map((product) => renderProductCard(product))}
         </div>
       ) : (
         <>
@@ -109,14 +117,14 @@ export default function CategorySection({
           {/* Horizontal Scroll */}
           <div
             ref={scrollRef}
-            className="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8"
+            className="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide px-2 md:px-8"
           >
             {getRandomProducts(products, 20).map((product) => (
               <div
                 key={product.productId}
                 className="flex-none w-[180px] md:w-[220px]"
               >
-                <ProductCardA product={product} />
+                {renderProductCard(product)}
               </div>
             ))}
           </div>

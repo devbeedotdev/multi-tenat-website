@@ -15,9 +15,9 @@ const primaryImage = (product: Product) =>
 
 export function ProductCardB({ product }: ProductCardProps) {
   const price =
-  product.discountPrice == undefined || product.discountPrice === 0
-    ? product.productAmount
-    : product.discountPrice;
+    product.discountPrice == undefined || product.discountPrice === 0
+      ? product.productAmount
+      : product.discountPrice;
   const currency = product.currency ?? "₦";
 
   return (
@@ -49,7 +49,7 @@ export function ProductCardB({ product }: ProductCardProps) {
         {/* Content */}
         <div className="flex flex-col gap-1 p-3">
           {/* Product Name */}
-          <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">
+          <h3 className="line-clamp-1 text-sm font-semibold text-slate-900">
             {capitalizeFirstWords(product.productName)}
           </h3>
 
@@ -67,12 +67,13 @@ export function ProductCardB({ product }: ProductCardProps) {
                   {formatPrice(price)}
                 </p>
 
-                {product.discountPrice !== undefined && product.discountPrice > 0 &&(
-                  <p className="text-xs text-slate-400 line-through">
-                    {currency}
-                    {formatPrice(product.productAmount)}
-                  </p>
-                )}
+                {product.discountPrice !== undefined &&
+                  product.discountPrice > 0 && (
+                    <p className="text-xs text-slate-400 line-through">
+                      {currency}
+                      {formatPrice(product.productAmount)}
+                    </p>
+                  )}
               </div>
 
               <p className="text-[11px] text-slate-500">

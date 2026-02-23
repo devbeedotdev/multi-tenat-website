@@ -76,7 +76,7 @@ export default function VariantBHeader({ tenant }: TenantPageProps) {
       <div className="w-full">
         {/* Passing a custom height class if your SearchProductForm accepts className */}
         <div className="h-10 md:h-12 w-full">
-          <SearchProductForm height="h-10 md:h-12"/>
+          <SearchProductForm height="h-10 md:h-12" isClearButtonActive/>
         </div>
       </div>
     </div>

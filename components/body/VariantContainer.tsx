@@ -1,5 +1,7 @@
 "use client";
 
+import { ProductCardB } from "@/components/cards/ProductCardB";
+import { ProductCardC } from "@/components/cards/ProductCardC";
 import { getProductsAction } from "@/lib/actions";
 import { getRandomProducts } from "@/src/utils/string.utils";
 import { Product } from "@/types/product";
@@ -8,24 +10,37 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 import { ProductCardA } from "../cards/ProductCardA";
 import { ProductGridSkeleton } from "../cards/ProductCardASkeleton";
-import CategoryAListView from "./CategoryAListView";
-import CategorySection from "./CategorySection";
+import CategoryAListView from "../scroll_view/CategoryAListView";
+import CategorySection from "../scroll_view/CategorySection";
 
-type VariantAContainer = {
+type VariantContainer = {
   tenant: Tenant;
   categories: string[];
 };
 
-export default function VariantAContainer({
+export default function VariantContainer({
   tenant,
   categories,
-}: VariantAContainer) {
+}: VariantContainer) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [products, setProducts] = useState<Product[]>([]);
   const [isPending, startTransition] = useTransition();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const renderProductCard = (product: Product) => {
+    switch (tenant.variant) {
+      case "A":
+        return <ProductCardA product={product} />;
+      case "B":
+        return <ProductCardB product={product} />;
+      case "C":
+        return <ProductCardC product={product} />;
+      default:
+        return null; // Avoid calling notFound() inside a map loop
+    }
+  };
 
   useEffect(() => {
     startTransition(async () => {
@@ -67,8 +82,17 @@ export default function VariantAContainer({
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-1 md:px-6 py-6">
+    <section
+      className={
+        tenant.variant === "A"
+          ? "max-w-7xl mx-auto px-1 md:px-6 py-6"
+          : tenant.variant === "B"
+            ? "mx-auto max-w-8xl px-3 md:px-5 py-4"
+            : "flex-1 min-w-0  px-2 md:px-3 py-1 mt-16 md:mt-0 pt-5"
+      }
+    >
       {/* Top Category Scroller */}
+
       <CategoryAListView
         categories={categories}
         currentCategory={selectedCategory}
@@ -76,7 +100,7 @@ export default function VariantAContainer({
       />
 
       {/* 🔥 Highlighted Products - 2 Rows with Arrows */}
-      <Suspense fallback={<ProductGridSkeleton />}>
+      <Suspense fallback={<ProductGridSkeleton tenant={tenant} />}>
         {products.length > 0 ? (
           <div className="relative pt-6">
             {/* LEFT ARROW */}
@@ -96,14 +120,14 @@ export default function VariantAContainer({
             {/* SCROLL CONTAINER */}
             <div
               ref={scrollRef}
-              className="overflow-x-auto scrollbar-hide scroll-smooth px-4 md:px-3"
+              className="overflow-x-auto scrollbar-hide scroll-smooth px-2 md:px-3"
             >
               <div
                 className={`grid
                   grid-rows-1
                   ${products.length >= 5 ? "md:grid-rows-2" : "md:grid-rows-1"}
                   grid-flow-col
-                  gap-4
+                  gap-2
                   auto-cols-[180px]
                   md:auto-cols-[220px]
                 `}
@@ -113,7 +137,7 @@ export default function VariantAContainer({
                     key={product.productId}
                     className="w-[180px] md:w-[220px]"
                   >
-                    <ProductCardA product={product} />
+                    {renderProductCard(product)}
                   </div>
                 ))}
               </div>
@@ -138,7 +162,7 @@ export default function VariantAContainer({
             )}
           </div>
         ) : (
-          <ProductGridSkeleton />
+          <ProductGridSkeleton tenant={tenant} />
         )}
       </Suspense>
 
@@ -148,11 +172,7 @@ export default function VariantAContainer({
           .filter((cat) => cat !== selectedCategory && cat !== "All") // 1. Remove unwanted items
           // 2. Limit the remaining list to 20
           .map((cat) => (
-            <CategorySection
-              key={cat}
-              tenantId={tenant.tenantId}
-              category={cat}
-            />
+            <CategorySection key={cat} tenant={tenant} category={cat} />
           ))}
     </section>
   );

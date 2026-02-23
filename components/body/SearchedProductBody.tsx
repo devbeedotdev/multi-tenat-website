@@ -48,9 +48,7 @@ export default async function SearchedProductBody({
                p-4"
         >
           {searchedProducts.map((product) => (
-            <div key={product.productId} className="w-full flex justify-center">
-              {renderProductCard(product)}
-            </div>
+            <div key={product.productId}>{renderProductCard(product)}</div>
           ))}
         </div>
       ) : (
