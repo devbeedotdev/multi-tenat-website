@@ -6,12 +6,13 @@ import {
 } from "@/src/utils/string.utils";
 import type { Product, ProductCardProps } from "@/types/product";
 import Image from "next/image";
+import Link from "next/link";
 
 const primaryImage = (product: Product) =>
   product.productImageUrls[0] ??
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
-export function ProductCardA({ product }: ProductCardProps) {
+export function ProductCardA({ product}: ProductCardProps) {
   const price =
     product.discountPrice == undefined || product.discountPrice === 0
       ? product.productAmount
@@ -104,9 +105,15 @@ export function ProductCardA({ product }: ProductCardProps) {
         )}
 
         {/* Button at bottom */}
-        <button className="mt-2 w-full rounded-lg bg-primary py-2 text-xs font-semibold text-white transition hover:opacity-90">
+
+        <Link
+          href={""}
+          className="mt-2 block w-full rounded-lg bg-primary py-2 text-xs font-semibold text-white text-center transition hover:opacity-90"
+        >
           View Product
-        </button>
+        </Link>
+
+        
       </div>
     </article>
   );
