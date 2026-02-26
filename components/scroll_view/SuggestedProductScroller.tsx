@@ -69,10 +69,10 @@ export default function SuggestedScroller({
         <button
           onClick={() => scroll("left")}
           disabled={!canScrollLeft}
-          className={`absolute left-1 top-1/2 -translate-y-1/2 z-20
-        rounded-full bg-white/80 backdrop-blur-md shadow-md
-        p-2 transition hover:scale-110 active:scale-95
-       `}
+          className={`hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20
+            rounded-full bg-white/80 backdrop-blur-md shadow-md
+            p-2 transition hover:scale-110 active:scale-95
+          `}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -83,10 +83,10 @@ export default function SuggestedScroller({
         <button
           onClick={() => scroll("right")}
           disabled={!canScrollRight}
-          className={`absolute right-2 top-1/2 -translate-y-1/2 z-20
-      rounded-full bg-white/80 backdrop-blur-md shadow-md
-      p-2 transition hover:scale-110 active:scale-95
-      `}
+          className={`hidden md:flex absolute left-1 top-1/2 -translate-y-1/2 z-20
+            rounded-full bg-white/80 backdrop-blur-md shadow-md
+            p-2 transition hover:scale-110 active:scale-95
+          `}
         >
           <ChevronRight className="w-5 h-5" />
         </button>

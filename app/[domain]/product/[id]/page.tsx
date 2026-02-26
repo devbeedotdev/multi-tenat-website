@@ -161,7 +161,7 @@ export default async function VariantAProductPage({
                 style={{ backgroundColor: "var(--primary)" }}
                 className="inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 md:w-auto"
               >
-                Order via WhatsApp
+                Add to Cart
               </button>
 
               <div className="flex items-center gap-4 text-sm text-slate-700">
