@@ -6,6 +6,7 @@ export const tenants: Record<string, Tenant> = {
     businessName: "Localhost Demo Store - First",
     variant: "A",
     tenantId: "localhost",
+    businessPhoneNumber: "09025570361",
     primaryColor: "#964B00",
     isLogoHorizontal: false,
     businessDescription:
@@ -18,6 +19,7 @@ export const tenants: Record<string, Tenant> = {
   "client-a.com": {
     businessName: "Client A Boutique - Second",
     isLogoHorizontal: true,
+    businessPhoneNumber: "08089474706",
     logoUrl: "/images/paripulse.png",
     tenantId: "client-a.com",
     variant: "B",
@@ -30,7 +32,8 @@ export const tenants: Record<string, Tenant> = {
   "client-b.com": {
     businessName: "Arike's Online Store",
     isLogoHorizontal: false,
-    logoUrl:  "/images/logo.jpg",
+    businessPhoneNumber: "08055456053",
+    logoUrl: "/images/logo.jpg",
     variant: "C",
     tenantId: "client-b.com",
     primaryColor: "#000000",
@@ -102,6 +105,15 @@ export const categories = [
 const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
+const PLACEHOLDER_IMAGE2 =
+  "https://images.unsplash.com/photo-1461988320302-91bde64fc8e4";
+
+const PLACEHOLDER_IMAGE3 =
+  "https://images.unsplash.com/photo-1520975916090-3105956dac38";
+
+const PLACEHOLDER_Video4 =
+  "https://samplelib.com/lib/preview/mp4/sample-5s.mp4";
+
 const productCategories = categories.filter((c) => c !== "All");
 
 export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
@@ -114,10 +126,38 @@ export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
     productAmount: 100 + (i % 10) * 600000,
     discountPrice: i % 3 === 0 ? 10 : 0,
     quantityAvailable: 5 + (i % 12),
+    isDetailsTabular: i % 2 === 0,
     isNegotiable: i % 2 === 0,
     isPromo: i % 4 === 0,
     isBestSelling: i % 5 === 0,
-    productImageUrls: [PLACEHOLDER_IMAGE],
+    mediaUrls: [
+      PLACEHOLDER_IMAGE,
+      PLACEHOLDER_IMAGE2,
+      PLACEHOLDER_IMAGE3,
+      PLACEHOLDER_Video4,
+    ],
+    productDetails: [
+      { RAM: "8GB" },
+      { Storage: "128GB" },
+      { Processor: "A15 Bionic" },
+      { Camera: "12MP" },
+      { Battery: "3000mAh" },
+      { Display: "6.1 inches" },
+      { Resolution: "1170 x 2556 pixels" },
+      { "Refresh Rate": "120Hz" },
+      { Connectivity: "Wi-Fi, Bluetooth, NFC" },
+      { Sensors: "Face ID, Touch ID" },
+      {
+        "Key Features": [
+          "Smart Control",
+          "Durable Battery",
+          "Smart Control",
+          "Durable Battery",
+          "Smart Control",
+          "Durable Battery",
+        ],
+      },
+    ],
     shortDescription: `Premium ${category.toLowerCase()} designed for everyday use, combining quality materials with modern styling and long-lasting performance.`,
     fullDescription: `This high-quality ${category.toLowerCase()} item is built with durability and style in mind. Perfect for both casual and premium use cases. Designed for comfort, reliability, and long-term performance.`,
     videoUrl: undefined,

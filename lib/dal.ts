@@ -85,6 +85,19 @@ export async function getProductsByTenant(
   return products;
 }
 
+export async function getProductById(
+  tenantId: string,
+  productId: string,
+): Promise<Product | null> {
+  const tenantProducts = await getProductsByTenant(tenantId);
+
+  const product = tenantProducts.find(
+    (p) => p.productId === productId,
+  );
+
+  return product || null;
+}
+
 export async function getProductsByCategoryAndTenant(
   tenantId: string,
   category?: string,

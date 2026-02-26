@@ -1,3 +1,5 @@
+"use client";
+
 import {
   capitalize,
   capitalizeFirstWords,
@@ -6,12 +8,30 @@ import {
 } from "@/src/utils/string.utils";
 import type { Product, ProductCardProps } from "@/types/product";
 import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 const primaryImage = (product: Product) =>
-  product.productImageUrls[0] ??
+  product.mediaUrls[0] ??
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export function ProductCardA({ product }: ProductCardProps) {
+  const params = useParams();
+
+  const rawDomain = (params as Record<string, string | string[] | undefined>)
+    ?.domain;
+
+  const domain =
+    typeof rawDomain === "string"
+      ? rawDomain
+      : Array.isArray(rawDomain)
+        ? rawDomain[0]
+        : undefined;
+
+  const href = domain
+    ? `/${domain}/product/${product.productId}`
+    : `/products/${product.productId}`;
+
   const price =
     product.discountPrice == undefined || product.discountPrice === 0
       ? product.productAmount
@@ -104,9 +124,13 @@ export function ProductCardA({ product }: ProductCardProps) {
         )}
 
         {/* Button at bottom */}
-        <button className="mt-2 w-full rounded-lg bg-primary py-2 text-xs font-semibold text-white transition hover:opacity-90">
+
+        <Link
+          href={href}
+          className="mt-2 block w-full rounded-lg bg-primary py-2 text-xs font-semibold text-white text-center transition hover:opacity-90"
+        >
           View Product
-        </button>
+        </Link>
       </div>
     </article>
   );

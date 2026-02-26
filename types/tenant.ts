@@ -3,6 +3,7 @@ export type TenantVariant = "A" | "B" | "C";
 export type Tenant = {
   businessName: string;
   tenantId: string;
+  businessPhoneNumber: string;
   variant: TenantVariant;
   primaryColor: string;
   businessDescription: string;
