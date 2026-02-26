@@ -1,3 +1,4 @@
+import { ProductDetailItem } from "@/components/table/product_detail_description";
 import { Tenant } from "./tenant";
 
 export interface Product {
@@ -6,11 +7,13 @@ export interface Product {
   productCategory: string;
   productAmount: number;
   discountPrice?: number;
+  isDetailsTabular: boolean;
   quantityAvailable: number;
   isNegotiable: boolean;
   isPromo: boolean;
   isBestSelling: boolean;
-  productImageUrls: string[];
+  productDetails: ProductDetailItem[];
+  mediaUrls: string[];
   videoUrl?: string;
   shortDescription: string;
   fullDescription: string;

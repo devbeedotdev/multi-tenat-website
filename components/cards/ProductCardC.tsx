@@ -9,7 +9,7 @@ import {
 } from "@/src/utils/string.utils";
 
 const primaryImage = (product: Product) =>
-  product.productImageUrls[0] ??
+  product.mediaUrls[0] ??
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export function ProductCardC({ product }: ProductCardProps) {

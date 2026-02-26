@@ -10,7 +10,7 @@ import {
 import type { Product, ProductCardProps } from "@/types/product";
 
 const primaryImage = (product: Product) =>
-  product.productImageUrls[0] ??
+  product.mediaUrls[0] ??
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export function ProductCardB({ product }: ProductCardProps) {

@@ -1,5 +1,6 @@
 import VariantAHeader from "@/components/headers/VariantAHeader";
 import SuggestedScroller from "@/components/scroll_view/SuggestedProductScroller";
+import ProductDetailDescription from "@/components/table/product_detail_description";
 import MediaGallery from "@/components/viewer/MediaGallery";
 import {
   getProductById,
@@ -13,6 +14,7 @@ import {
 } from "@/src/utils/string.utils";
 import type { Product } from "@/types/product";
 import type { Tenant } from "@/types/tenant";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type ProductPageParams = {
@@ -58,8 +60,8 @@ export default async function VariantAProductPage({
   const { effective, currency } = getDisplayPrice(product);
 
   const media =
-    product.productImageUrls?.length && product.productImageUrls[0]
-      ? product.productImageUrls
+    product.mediaUrls?.length && product.mediaUrls[0]
+      ? product.mediaUrls
       : [PLACEHOLDER_IMAGE];
 
   const categoryProducts = await getProductsByCategoryAndTenant(
@@ -74,16 +76,22 @@ export default async function VariantAProductPage({
 
   return (
     <main className="min-h-screen bg-white">
-      <VariantAHeader tenant={tenant} />
+      <VariantAHeader tenant={tenant} showSearchField={false} />
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-3 py-6 md:px-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 md:text-sm">
-          <span className="cursor-pointer hover:text-slate-800">Home</span>
+        <nav className="sticky top-[60px] md:top-[65px] z-40 bg-white flex items-center gap-2 text-xs text-slate-500 md:text-sm py-2">
+          <Link
+            href={`/${params.domain}`}
+            className="cursor-pointer hover:text-slate-800 transition-colors"
+          >
+            Home
+          </Link>
+
           <span className="text-slate-300">/</span>
+
           <span className="font-medium text-slate-700">Product Page</span>
         </nav>
-
         {/* Top: Media then Info (single column on all breakpoints) */}
         <section className="flex flex-col gap-6">
           {/* Media */}
@@ -190,49 +198,7 @@ export default async function VariantAProductPage({
             </div>
 
             {/* Product details table */}
-            <div className="mt-8">
-              <h2 className="text-sm font-semibold text-slate-900 md:text-base">
-                Product Detail
-              </h2>
-              <div className="mt-3 overflow-hidden rounded-xl border border-slate-100">
-                <dl className="divide-y divide-slate-100 text-sm text-slate-700">
-                  <div className="grid grid-cols-2 bg-slate-50 px-4 py-3 md:grid-cols-3">
-                    <dt className="font-medium text-slate-500">Category</dt>
-                    <dd className="col-span-1 font-semibold md:col-span-2">
-                      {product.productCategory}
-                    </dd>
-                  </div>
-                  <div className="grid grid-cols-2 px-4 py-3 md:grid-cols-3">
-                    <dt className="font-medium text-slate-500">
-                      Short Description
-                    </dt>
-                    <dd className="col-span-1 md:col-span-2">
-                      {product.shortDescription}
-                    </dd>
-                  </div>
-                  <div className="grid grid-cols-2 bg-slate-50 px-4 py-3 md:grid-cols-3">
-                    <dt className="font-medium text-slate-500">
-                      Full Description
-                    </dt>
-                    <dd className="col-span-1 md:col-span-2">
-                      {product.fullDescription}
-                    </dd>
-                  </div>
-                  <div className="grid grid-cols-2 px-4 py-3 md:grid-cols-3">
-                    <dt className="font-medium text-slate-500">Negotiable</dt>
-                    <dd className="col-span-1 md:col-span-2">
-                      {product.isNegotiable ? "Yes" : "No"}
-                    </dd>
-                  </div>
-                  <div className="grid grid-cols-2 bg-slate-50 px-4 py-3 md:grid-cols-3">
-                    <dt className="font-medium text-slate-500">Promo</dt>
-                    <dd className="col-span-1 md:col-span-2">
-                      {product.isPromo ? "Yes" : "No"}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
+            <ProductDetailDescription product={product} />
           </div>
         </section>
 
