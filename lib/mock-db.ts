@@ -105,6 +105,15 @@ export const categories = [
 const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
+const PLACEHOLDER_IMAGE2 =
+  "https://images.unsplash.com/photo-1461988320302-91bde64fc8e4";
+
+const PLACEHOLDER_IMAGE3 =
+  "https://images.unsplash.com/photo-1520975916090-3105956dac38";
+
+const PLACEHOLDER_Video4 =
+  "https://samplelib.com/lib/preview/mp4/sample-5s.mp4";
+
 const productCategories = categories.filter((c) => c !== "All");
 
 export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
@@ -120,7 +129,12 @@ export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
     isNegotiable: i % 2 === 0,
     isPromo: i % 4 === 0,
     isBestSelling: i % 5 === 0,
-    productImageUrls: [PLACEHOLDER_IMAGE],
+    productImageUrls: [
+      PLACEHOLDER_IMAGE,
+      PLACEHOLDER_IMAGE2,
+      PLACEHOLDER_IMAGE3,
+      PLACEHOLDER_Video4,
+    ],
     shortDescription: `Premium ${category.toLowerCase()} designed for everyday use, combining quality materials with modern styling and long-lasting performance.`,
     fullDescription: `This high-quality ${category.toLowerCase()} item is built with durability and style in mind. Perfect for both casual and premium use cases. Designed for comfort, reliability, and long-term performance.`,
     videoUrl: undefined,
