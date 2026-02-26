@@ -156,9 +156,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import SearchProductForm from "../forms/SearchForm";
 
-type VariantAHeaderProps = TenantPageProps & {
-  showSearchField?: boolean;
-};
+type VariantAHeaderProps = TenantPageProps;
 
 export default function VariantAHeader({
   tenant,

@@ -74,7 +74,7 @@ export default function SuggestedScroller({
             p-2 transition hover:scale-110 active:scale-95
           `}
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronRight className="w-5 h-5" />
         </button>
       )}
 
@@ -88,7 +88,7 @@ export default function SuggestedScroller({
             p-2 transition hover:scale-110 active:scale-95
           `}
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
       )}
 

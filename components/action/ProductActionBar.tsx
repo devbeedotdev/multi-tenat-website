@@ -1,18 +1,20 @@
 "use client";
 
 import type { Product } from "@/types/product";
-import type { Tenant } from "@/types/tenant";
+import type { Tenant, TenantVariant } from "@/types/tenant";
 import { Minus, Phone, Plus, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 
 type ProductActionBarProps = {
   tenant: Tenant;
   product: Product;
+  variant?: TenantVariant;
 };
 
 export default function ProductActionBar({
   tenant,
   product,
+  variant = "A",
 }: ProductActionBarProps) {
   const [quantity, setQuantity] = useState(1);
   const [hasRevealedPhone, setHasRevealedPhone] = useState(false);
@@ -45,8 +47,23 @@ export default function ProductActionBar({
   const isMinusDisabled = quantity <= 1;
   const isPlusDisabled = quantity >= maxQty;
 
+  const containerLayoutClass =
+    variant === "A"
+      ? "flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+      : "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between";
+
+  const primaryButtonClass =
+    variant === "A"
+      ? "inline-flex w-full gap-2 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 md:w-auto"
+      : "inline-flex w-full gap-2 items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 sm:w-auto";
+
+  const secondaryButtonClass =
+    variant === "A"
+      ? "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50 md:w-auto"
+      : "inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/60 px-4 py-2.5 text-sm font-medium text-slate-700 backdrop-blur-sm transition hover:bg-white disabled:pointer-events-none disabled:opacity-50 sm:w-auto";
+
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className={containerLayoutClass}>
       {/* Quantity Selector */}
       <div className="flex items-center gap-3">
         <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -93,7 +110,7 @@ export default function ProductActionBar({
         <button
           type="button"
           style={{ backgroundColor: "var(--primary)" }}
-          className="inline-flex w-full gap-2 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 md:w-auto"
+          className={primaryButtonClass}
         >
           <ShoppingCart className="h-4 w-4" />
           Add to Cart
@@ -103,7 +120,7 @@ export default function ProductActionBar({
           type="button"
           onClick={handleCallVendor}
           disabled={!tenant.businessPhoneNumber}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50 md:w-auto"
+          className={secondaryButtonClass}
         >
           <Phone className="h-4 w-4" />
           {hasRevealedPhone && tenant.businessPhoneNumber

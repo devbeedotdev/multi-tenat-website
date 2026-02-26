@@ -1,6 +1,7 @@
 import { getTenantByDomain } from "@/lib/dal";
 import { notFound } from "next/navigation";
 import VariantAProductDetailPage from "./product_detail_pages/VariantAProductDetailPage";
+import VariantBProductDetailPage from "./product_detail_pages/VariantBProductDetailPage";
 
 export type ProductPageParams = {
   params: {
@@ -25,7 +26,7 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
       return <VariantAProductDetailPage tenant={tenant} params={params} />;
 
     case "B":
-      return <div>Helloo World </div>;
+    return <VariantBProductDetailPage tenant={tenant} params={params} />;
 
     // case "C":
     //   return <VariantCPage tenant={tenant} searchParams={searchParams} />;

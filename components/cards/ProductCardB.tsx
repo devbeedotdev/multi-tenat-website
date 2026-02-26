@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 import {
   capitalizeFirstWords,
@@ -16,7 +17,34 @@ const primaryImage = (product: Product) =>
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export function ProductCardB({ product }: ProductCardProps) {
-  const href = "";
+  const params = useParams();
+  const rawDomain = (params as Record<string, string | string[] | undefined>)?.domain;
+  const domain =
+    typeof rawDomain === "string"
+      ? rawDomain
+      : Array.isArray(rawDomain)
+        ? rawDomain[0]
+        : undefined;
+  const href = domain
+    ? `/${domain}/product/${product.productId}`
+    : `/product/${product.productId}`;
+
+  // #region agent log
+  fetch("http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: `log_${Date.now()}_cardB_href`,
+      runId: "fix",
+      hypothesisId: "H1",
+      location: "components/cards/ProductCardB.tsx:href",
+      message: "ProductCardB link target",
+      data: { productId: product.productId, domain, href },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+
   const price =
     product.discountPrice == undefined || product.discountPrice === 0
       ? product.productAmount

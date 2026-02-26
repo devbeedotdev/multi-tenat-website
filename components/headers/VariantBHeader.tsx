@@ -5,7 +5,10 @@ import { Headset, HelpCircle, Home } from "lucide-react";
 import Image from "next/image";
 import SearchProductForm from "../forms/SearchForm";
 
-export default function VariantBHeader({ tenant }: TenantPageProps) {
+export default function VariantBHeader({
+  tenant,
+  showSearchField = true,
+}: TenantPageProps) {
   return (
     <div className="flex flex-col gap-2 px-3 md:px-4  py-2 bg-white sticky top-0 z-50 border-b shadow-sm">
       {/* Top Row: Logo and Action Buttons */}
@@ -75,9 +78,11 @@ export default function VariantBHeader({ tenant }: TenantPageProps) {
       {/* Bottom Row: Search Form (Spans full width) */}
       <div className="w-full">
         {/* Passing a custom height class if your SearchProductForm accepts className */}
-        <div className="h-10 md:h-12 w-full">
-          <SearchProductForm height="h-10 md:h-12" isClearButtonActive/>
-        </div>
+        {showSearchField && (
+          <div className="h-10 md:h-12 w-full">
+            <SearchProductForm height="h-10 md:h-12" isClearButtonActive />
+          </div>
+        )}
       </div>
     </div>
   );

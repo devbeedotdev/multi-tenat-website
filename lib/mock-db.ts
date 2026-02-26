@@ -126,7 +126,7 @@ export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
     productAmount: 100 + (i % 10) * 600000,
     discountPrice: i % 3 === 0 ? 10 : 0,
     quantityAvailable: 5 + (i % 12),
-    isDetailsTabular: i % 2 === 0,
+    isDetailsTabular: false,
     isNegotiable: i % 2 === 0,
     isPromo: i % 4 === 0,
     isBestSelling: i % 5 === 0,
