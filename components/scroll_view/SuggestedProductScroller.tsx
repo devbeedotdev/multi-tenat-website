@@ -61,8 +61,8 @@ export default function SuggestedScroller({
   return (
     <div className="relative group pb-6">
       {/* Gradient fades */}
-      <div className="pointer-events-none absolute left-0 top-0 h-full w-4 bg-gradient-to-r from-white to-transparent z-10" />
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-5 bg-gradient-to-l from-white to-transparent z-10" />
+      <div className="hidden md:block pointer-events-none absolute left-0 top-0 h-full w-4 bg-gradient-to-r from-white to-transparent z-10" />
+      <div className="hidden md:block pointer-events-none absolute right-0 top-0 h-full w-5 bg-gradient-to-l from-white to-transparent z-10" />
 
       {/* LEFT ARROW */}
       {canScrollLeft && (

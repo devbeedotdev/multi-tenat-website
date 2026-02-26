@@ -1,3 +1,5 @@
+import ProductActionBar from "@/components/action/ProductActionBar";
+import WhatsappMessageBox from "@/components/forms/WhatsappMessageBox";
 import VariantAHeader from "@/components/headers/VariantAHeader";
 import SuggestedScroller from "@/components/scroll_view/SuggestedProductScroller";
 import ProductDetailDescription from "@/components/table/product_detail_description";
@@ -155,47 +157,13 @@ export default async function VariantAProductPage({
               </div>
             </div>
 
-            {/* Action + quantity */}
-            <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <button
-                style={{ backgroundColor: "var(--primary)" }}
-                className="inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 md:w-auto"
-              >
-                Add to Cart
-              </button>
-
-              <div className="flex items-center gap-4 text-sm text-slate-700">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Quantity Available
-                </span>
-                <span className="rounded-lg border border-slate-200 px-3 py-1 text-sm font-semibold">
-                  {product.quantityAvailable}
-                </span>
-              </div>
+            {/* Action Bar: quantity + vendor contact */}
+            <div className="mt-5">
+              <ProductActionBar tenant={tenant} product={product} />
             </div>
 
             {/* Message box */}
-            <div className="mt-6 space-y-2">
-              <label
-                htmlFor="vendor-message"
-                className="flex items-center gap-2 text-xs font-medium text-slate-700 md:text-sm"
-              >
-                Send vendor a direct message
-              </label>
-              <div className="flex flex-col gap-3 md:flex-row">
-                <textarea
-                  id="vendor-message"
-                  placeholder="Write a message to vendor..."
-                  className="min-h-[80px] flex-1 resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200"
-                />
-                <button
-                  type="button"
-                  className="mt-2 w-full rounded-lg bg-slate-900 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 md:mt-0 md:w-auto"
-                >
-                  Send
-                </button>
-              </div>
-            </div>
+            <WhatsappMessageBox tenant={tenant} product={product} />
 
             {/* Product details table */}
             <ProductDetailDescription product={product} />

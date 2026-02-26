@@ -152,7 +152,7 @@ export default function MediaGallery({ media, className }: MediaGalleryProps) {
                   onClick={() => setActiveIndex(index)}
                   className={`relative shrink-0 w-10 h-10 md:w-20 md:h-20 rounded-md overflow-hidden border-2 ${
                     activeIndex === index
-                      ? "border-black"
+                      ? "border-primary"
                       : "border-transparent"
                   }`}
                 >
