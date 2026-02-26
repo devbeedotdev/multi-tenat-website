@@ -1,11 +1,11 @@
 import { getTenantByDomain } from "@/lib/dal";
 import { TenantPageProps } from "@/types/tenant";
 import { notFound } from "next/navigation";
-import VariantAPage from "./VairantAPage";
-import VariantBPage from "./VariantBPage";
-import VariantCPage from "./VariantCPage";
+import VariantAPage from "./home_pages/VairantAPage";
+import VariantBPage from "./home_pages/VariantBPage";
+import VariantCPage from "./home_pages/VariantCPage";
 
-type DomainPageProps = {
+export type DomainPageProps = {
   params: {
     domain: string;
   };
