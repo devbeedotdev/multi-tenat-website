@@ -7,11 +7,13 @@ import Image from "next/image";
 
 type VariantCTopBarProps = {
   tenant: Tenant;
+  showSearchField?: boolean;
   onOpenSidebar: () => void;
 };
 
 export default function VariantCTopBar({
   tenant,
+  showSearchField = true,
   onOpenSidebar,
 }: VariantCTopBarProps) {
   return (
@@ -47,9 +49,9 @@ export default function VariantCTopBar({
           <Home className="w-4 h-4" />
           Home
         </button>
-        )}
-     
-      <SearchProductForm height="h-10" />
+      )}
+
+      {showSearchField && <SearchProductForm height="h-10" />}
     </div>
   );
 }

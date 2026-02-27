@@ -96,7 +96,7 @@ export default function SuggestedScroller({
       <div
         ref={scrollRef}
         onScroll={updateScrollState}
-        className="flex flex-nowrap overflow-x-auto gap-4 p-4 pt-2 scrollbar-hide snap-x snap-mandatory scroll-smooth"
+        className="flex flex-nowrap overflow-x-auto gap-2 p-4 pt-2 scrollbar-hide snap-x snap-mandatory scroll-smooth"
       >
         {products.map((product) => (
           <div

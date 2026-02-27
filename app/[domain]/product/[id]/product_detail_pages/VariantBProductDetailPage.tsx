@@ -71,7 +71,7 @@ export default async function VariantBProductDetailPage({
     <main className="min-h-screen bg-white">
       <VariantBHeader tenant={tenant} showSearchField={false} />
 
-      <div className="mx-auto flex w-full max-w-7xl 2xl:max-w-[80%] flex-col gap-8 px-3 pb-32 pt-4 md:px-6 md:pb-8">
+      <div className="mx-auto flex w-full max-w-7xl 2xl:max-w-[80%] flex-col gap-8 px-3 pt-4 md:px-6 md:pb-8 pb-[max(12rem,env(safe-area-inset-bottom)+10rem)]">
         {/* Mobile: title + price above image */}
         <section className="md:hidden space-y-4">
         <Breadcrumb domain={params.domain} />
@@ -245,7 +245,7 @@ export default async function VariantBProductDetailPage({
       </div>
 
       {/* Floating mobile action bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md md:hidden pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto max-w-7xl px-3 py-3">
           <ProductActionBar tenant={tenant} product={product} variant="B" />
         </div>

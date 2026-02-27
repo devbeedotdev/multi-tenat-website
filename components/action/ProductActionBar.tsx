@@ -9,11 +9,13 @@ type ProductActionBarProps = {
   tenant: Tenant;
   product: Product;
   variant?: TenantVariant;
+  useSecondLayout?: boolean;
 };
 
 export default function ProductActionBar({
   tenant,
   product,
+  useSecondLayout = false,
   variant = "A",
 }: ProductActionBarProps) {
   const [quantity, setQuantity] = useState(1);
@@ -70,50 +72,117 @@ export default function ProductActionBar({
           Quantity
         </span>
 
-        <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-1">
-          <button
-            type="button"
-            onClick={decrement}
-            disabled={isMinusDisabled}
-            className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
-              isMinusDisabled
-                ? "opacity-40 pointer-events-none"
-                : "hover:bg-slate-100"
-            }`}
-          >
-            <Minus className="h-4 w-4" />
-          </button>
+        {useSecondLayout ? (
+          <div className="inline-flex items-center gap-4">
+            {/* Decrease Button */}
+            <button
+              type="button"
+              onClick={decrement}
+              disabled={isMinusDisabled}
+              className={`group flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white transition-all duration-150
+             ${
+               isMinusDisabled
+                 ? "opacity-100 cursor-not-allowed"
+                 : "hover:border-gray-300 hover:shadow-sm active:scale-95"
+             }`}
+            >
+              <Minus
+                className={`h-5 w-5 transition-colors ${
+                  isMinusDisabled
+                    ? "text-gray-400"
+                    : "text-gray-700 group-hover:text-black"
+                }`}
+              />
+            </button>
 
-          <span className="mx-3 w-8 text-center text-sm font-semibold text-slate-900">
-            {quantity}
-          </span>
+            {/* Quantity Display */}
+            <div className="min-w-[32px] text-center text-lg font-semibold text-gray-900">
+              {quantity}
+            </div>
 
-          <button
-            type="button"
-            onClick={increment}
-            disabled={isPlusDisabled}
-            className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
-              isPlusDisabled
-                ? "opacity-40 pointer-events-none"
-                : "hover:bg-slate-100"
-            }`}
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
+            {/* Increase Button */}
+            <button
+              type="button"
+              onClick={increment}
+              disabled={isPlusDisabled}
+              className={`group flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white transition-all duration-150
+             ${
+               isPlusDisabled
+                 ? "opacity-100 cursor-not-allowed"
+                 : "hover:border-gray-300 hover:shadow-sm active:scale-95"
+             }`}
+            >
+              <Plus
+                className={`h-5 w-5 transition-colors ${
+                  isPlusDisabled
+                    ? "text-gray-400"
+                    : "text-gray-700 group-hover:text-black"
+                }`}
+              />
+            </button>
+          </div>
+        ) : (
+          <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-1">
+            (
+            <button
+              type="button"
+              onClick={decrement}
+              disabled={isMinusDisabled}
+              className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
+                isMinusDisabled
+                  ? "opacity-40 pointer-events-none"
+                  : "hover:bg-slate-100"
+              }`}
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            )
+            <span className="mx-3 w-8 text-center text-sm font-semibold text-slate-900">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={increment}
+              disabled={isPlusDisabled}
+              className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
+                isPlusDisabled
+                  ? "opacity-40 pointer-events-none"
+                  : "hover:bg-slate-100"
+              }`}
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         <span className="text-xs text-slate-500">of {maxQty} available</span>
       </div>
 
       {/* Primary & Secondary Actions */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-end">
+      {/* Primary & Secondary Actions */}
+      <div
+        className={
+          useSecondLayout
+            ? "flex items-center gap-3"
+            : "flex flex-col gap-3 md:flex-row md:items-center md:justify-end"
+        }
+      >
         <button
           type="button"
           style={{ backgroundColor: "var(--primary)" }}
-          className={primaryButtonClass}
+          className={
+            useSecondLayout
+              ? "inline-flex h-11 w-15 px-4 md:w-auto md:px-6 items-center justify-center rounded-xl text-white shadow-sm transition hover:opacity-95"
+              : primaryButtonClass
+          }
         >
           <ShoppingCart className="h-4 w-4" />
-          Add to Cart
+
+          {useSecondLayout && (
+            <span className="hidden md:inline ml-2">Add to Cart</span>
+          )}
+
+          {!useSecondLayout && "Add to Cart"}
         </button>
 
         <button
