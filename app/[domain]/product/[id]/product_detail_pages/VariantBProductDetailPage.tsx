@@ -11,7 +11,7 @@ import {
   getRandomProducts,
 } from "@/src/utils/string.utils";
 import type { Product } from "@/types/product";
-import { Tenant } from "@/types/tenant";
+import type { ProductDetailPageProps } from "@/types/page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -32,18 +32,10 @@ function getDisplayPrice(product: Product) {
   };
 }
 
-export type VariantBProductDetailPageProps = {
-  params: {
-    domain: string;
-    id: string;
-  };
-  tenant: Tenant;
-};
-
 export default async function VariantBProductDetailPage({
   tenant,
   params,
-}: VariantBProductDetailPageProps) {
+}: ProductDetailPageProps) {
   const product = await getProductById(tenant.tenantId, params.id);
 
   if (!product) {

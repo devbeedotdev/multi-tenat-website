@@ -1,16 +1,8 @@
 "use client";
 
-import type { Product } from "@/types/product";
-import type { Tenant, TenantVariant } from "@/types/tenant";
+import type { ProductActionBarProps } from "@/types/components";
 import { Minus, Phone, Plus, ShoppingCart } from "lucide-react";
 import { useState } from "react";
-
-type ProductActionBarProps = {
-  tenant: Tenant;
-  product: Product;
-  variant?: TenantVariant;
-  useSecondLayout?: boolean;
-};
 
 export default function ProductActionBar({
   tenant,
@@ -123,7 +115,6 @@ export default function ProductActionBar({
           </div>
         ) : (
           <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-1">
-            (
             <button
               type="button"
               onClick={decrement}
@@ -136,7 +127,7 @@ export default function ProductActionBar({
             >
               <Minus className="h-4 w-4" />
             </button>
-            )
+
             <span className="mx-3 w-8 text-center text-sm font-semibold text-slate-900">
               {quantity}
             </span>

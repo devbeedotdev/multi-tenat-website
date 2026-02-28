@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 
-import { Product } from "@/types/product";
-import { Tenant } from "@/types/tenant";
+import type { WhatsappMessageBoxProps } from "@/types/components";
 import { Mail } from "lucide-react";
-
-type WhatsappMessageBoxProps = {
-  tenant: Tenant;
-  product: Product;
-};
 
 export default function WhatsappMessageBox({
   tenant,

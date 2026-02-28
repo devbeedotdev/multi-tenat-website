@@ -1,4 +1,4 @@
-import { ProductDetailItem } from "@/components/table/product_detail_description";
+import { ProductDetailItem } from "./product-detail";
 import { Tenant } from "./tenant";
 
 export interface Product {

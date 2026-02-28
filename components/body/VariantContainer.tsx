@@ -4,8 +4,8 @@ import { ProductCardB } from "@/components/cards/ProductCardB";
 import { ProductCardC } from "@/components/cards/ProductCardC";
 import { getProductsAction } from "@/lib/actions";
 import { getRandomProducts } from "@/src/utils/string.utils";
-import { Product } from "@/types/product";
-import { Tenant } from "@/types/tenant";
+import type { VariantContainerProps } from "@/types/components";
+import type { Product } from "@/types/product";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 import { ProductCardA } from "../cards/ProductCardA";
@@ -13,15 +13,10 @@ import { ProductGridSkeleton } from "../cards/ProductCardASkeleton";
 import CategoryAListView from "../scroll_view/CategoryAListView";
 import CategorySection from "../scroll_view/CategorySection";
 
-type VariantContainer = {
-  tenant: Tenant;
-  categories: string[];
-};
-
 export default function VariantContainer({
   tenant,
   categories,
-}: VariantContainer) {
+}: VariantContainerProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [products, setProducts] = useState<Product[]>([]);
   const [isPending, startTransition] = useTransition();

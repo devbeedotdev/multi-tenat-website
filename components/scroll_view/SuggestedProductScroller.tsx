@@ -1,17 +1,12 @@
 "use client";
 
+import type { SuggestedScrollerProps } from "@/types/components";
 import type { Product } from "@/types/product";
-import { Tenant } from "@/types/tenant";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ProductCardA } from "../cards/ProductCardA";
 import { ProductCardB } from "../cards/ProductCardB";
 import { ProductCardC } from "../cards/ProductCardC";
-
-interface SuggestedScrollerProps {
-  products: Product[];
-  tenant: Tenant;
-}
 
 export default function SuggestedScroller({
   products,

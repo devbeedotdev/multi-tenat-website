@@ -1,15 +1,9 @@
 "use client";
 
 import SearchProductForm from "@/components/forms/SearchForm";
-import { Tenant } from "@/types/tenant";
+import type { VariantCTopBarProps } from "@/types/components";
 import { Home, Menu } from "lucide-react";
 import Image from "next/image";
-
-type VariantCTopBarProps = {
-  tenant: Tenant;
-  showSearchField?: boolean;
-  onOpenSidebar: () => void;
-};
 
 export default function VariantCTopBar({
   tenant,
