@@ -5,13 +5,20 @@
  * All UI components and Page files must fetch data through this layer.
  */
 
+import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
 import type { Tenant } from "@/types/tenant";
 import {
+  cloudCarts,
+  cloudCartPasswords,
   getTenantByDomain as getTenantByDomainFromMock,
   products,
   tenants,
 } from "./mock-db";
+
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, "");
+}
 
 /**
  * Get tenant configuration by domain
@@ -138,4 +145,56 @@ export async function getProductsBySearchAndTenant(
       product.productCategory.toLowerCase().includes(normalizedSearch)
     );
   });
+}
+
+/**
+ * Get cart from cloud (mock DB) by phone number.
+ * Used for cross-device cart retrieval and conflict resolution.
+ */
+export async function getCartById(phone: string): Promise<CartItem[] | null> {
+  const key = normalizePhone(phone);
+  if (!key) return null;
+  const items = cloudCarts[key];
+  return items && items.length >= 0 ? [...items] : null;
+}
+
+/**
+ * Sync cart to cloud (mock DB) for the given phone (cartId).
+ * Replaces any existing cloud cart for that phone.
+ */
+export async function syncCartToCloud(
+  cartId: string,
+  items: CartItem[],
+): Promise<void> {
+  const key = normalizePhone(cartId);
+  if (!key) return;
+  cloudCarts[key] = items.length ? [...items] : [];
+}
+
+/**
+ * Verify password for a cart (phone). Does not return the password to the client.
+ * If no password is set yet (e.g. legacy cart), accepts and stores the first one.
+ */
+export async function verifyCartPassword(
+  phone: string,
+  password: string,
+): Promise<boolean> {
+  const key = normalizePhone(phone);
+  if (!key || !password) return false;
+  const stored = cloudCartPasswords[key];
+  if (stored != null) return stored === password;
+  cloudCartPasswords[key] = password;
+  return true;
+}
+
+/**
+ * Set or update the password for a cart (phone). Used on sign up.
+ */
+export async function setCartPassword(
+  phone: string,
+  password: string,
+): Promise<void> {
+  const key = normalizePhone(phone);
+  if (!key || !password) return;
+  cloudCartPasswords[key] = password;
 }

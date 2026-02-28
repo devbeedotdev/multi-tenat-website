@@ -278,6 +278,7 @@ export default function VariantAHeader({
               <HelpCircle className="w-4 h-4 shrink-0" />
               <span className="ml-1 text-sm">Help</span>
             </button>
+
           </div>
         </div>
 

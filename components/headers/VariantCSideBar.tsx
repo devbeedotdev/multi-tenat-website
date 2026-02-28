@@ -9,7 +9,6 @@ import {
   HelpCircle,
   Home,
   Info,
-  ShoppingCart,
   X,
 } from "lucide-react";
 import Image from "next/image";
@@ -91,13 +90,6 @@ export default function VariantCSidebar({
             <div className={navItemClass("/")}>
               <Home className={iconClass("/")} />
               <span>Home</span>
-            </div>
-          </Link>
-
-          <Link href="/cart" className="group" onClick={onClose}>
-            <div className={navItemClass("/cart")}>
-              <ShoppingCart className={iconClass("/cart")} />
-              <span>Cart</span>
             </div>
           </Link>
 

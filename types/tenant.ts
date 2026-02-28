@@ -8,6 +8,8 @@ export type Tenant = {
   primaryColor: string;
   businessDescription: string;
   websiteDisplayName: string;
+  bankAccountNumber: string;
+  bankName: string;
   favIcon: string;
   logoUrl?: string;
   isLogoHorizontal: boolean;

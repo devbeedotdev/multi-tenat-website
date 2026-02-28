@@ -1,5 +1,12 @@
+import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
 import { Tenant } from "@/types/tenant";
+
+/** Cloud carts keyed by normalized phone number (digits only) for cross-device sync */
+export const cloudCarts: Record<string, CartItem[]> = {};
+
+/** Cloud cart passwords keyed by normalized phone (mock: plain; production would use hashes) */
+export const cloudCartPasswords: Record<string, string> = {};
 
 export const tenants: Record<string, Tenant> = {
   localhost: {
@@ -7,6 +14,8 @@ export const tenants: Record<string, Tenant> = {
     variant: "A",
     tenantId: "localhost",
     businessPhoneNumber: "09025570361",
+    bankAccountNumber: "2104259047",
+    bankName: "UBA Bank",
     primaryColor: "#964B00",
     isLogoHorizontal: false,
     businessDescription:
@@ -20,6 +29,8 @@ export const tenants: Record<string, Tenant> = {
     businessName: "Client A Boutique - Second",
     isLogoHorizontal: true,
     businessPhoneNumber: "08089474706",
+    bankAccountNumber: "6558608577",
+    bankName: "Fidelity Bank",
     logoUrl: "/images/paripulse.png",
     tenantId: "client-a.com",
     variant: "B",
@@ -31,6 +42,8 @@ export const tenants: Record<string, Tenant> = {
   },
   "client-b.com": {
     businessName: "Arike's Online Store",
+    bankAccountNumber: "9025570361",
+    bankName: "Opay Wallet",
     isLogoHorizontal: false,
     businessPhoneNumber: "08055456053",
     logoUrl: "/images/logo.jpg",

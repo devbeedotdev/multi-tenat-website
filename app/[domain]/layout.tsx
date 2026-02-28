@@ -1,3 +1,4 @@
+import CartProviderWithSync from "@/components/cart/CartProviderWithSync";
 import { getTenantByDomain } from "@/lib/dal";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -53,7 +54,7 @@ export default function DomainLayout({ children, params }: DomainLayoutProps) {
           __html: `body { --primary: ${tenant.primaryColor}; }`,
         }}
       />
-      {children}
+      <CartProviderWithSync domain={params.domain}>{children}</CartProviderWithSync>
     </>
   );
 }

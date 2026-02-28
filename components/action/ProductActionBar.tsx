@@ -1,6 +1,14 @@
 "use client";
 
+import ConflictDialog from "@/components/cart/ConflictDialog";
+import IdentityModal from "@/components/cart/IdentityModal";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
+import { getCartById, setCartPassword, verifyCartPassword } from "@/lib/actions";
+import { mergeCartItems } from "@/lib/cart-utils";
 import type { ProductActionBarProps } from "@/types/components";
+import type { CartItem } from "@/types/cart";
+import type { Product } from "@/types/product";
 import { Minus, Phone, Plus, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 
@@ -10,8 +18,24 @@ export default function ProductActionBar({
   useSecondLayout = false,
   variant = "A",
 }: ProductActionBarProps) {
+  const {
+    addToCart,
+    cartId,
+    cartName,
+    setIdentity,
+    setAuthenticated,
+    replaceCart,
+    items,
+    syncCartToCloud,
+  } = useCart();
+  const { showToast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [hasRevealedPhone, setHasRevealedPhone] = useState(false);
+  const [showIdentityModal, setShowIdentityModal] = useState(false);
+  const [showConflict, setShowConflict] = useState(false);
+  const [pendingAdd, setPendingAdd] = useState<{ product: Product; quantity: number } | null>(null);
+  const [conflictCloudItems, setConflictCloudItems] = useState<CartItem[]>([]);
+  const [identityError, setIdentityError] = useState("");
 
   const maxQty = Math.max(1, product.quantityAvailable);
 
@@ -35,6 +59,67 @@ export default function ProductActionBar({
 
     if (typeof window !== "undefined") {
       window.location.href = `tel:${tenant.businessPhoneNumber}`;
+    }
+  };
+
+  const performAddToCart = (prod: Product, qty: number) => {
+    addToCart(prod, qty);
+    setPendingAdd(null);
+    showToast(`${prod.productName} added to cart`);
+  };
+
+  const handleIdentitySubmit = async (phone: string, name: string, password: string) => {
+    setIdentityError("");
+    const cloudCart = await getCartById(phone);
+    const cloudHasCart = cloudCart != null && cloudCart.length > 0;
+    if (!cloudHasCart) {
+      await setCartPassword(phone, password);
+      setIdentity(phone, name);
+      setAuthenticated(true);
+      setShowIdentityModal(false);
+      if (pendingAdd) {
+        performAddToCart(pendingAdd.product, pendingAdd.quantity);
+      }
+      return;
+    }
+    const ok = await verifyCartPassword(phone, password);
+    if (!ok) {
+      setIdentityError("Password mismatch for this phone number. Please try again to sync your cloud items.");
+      return;
+    }
+    setIdentity(phone, name);
+    setAuthenticated(true);
+    setShowIdentityModal(false);
+    setShowConflict(true);
+    setConflictCloudItems(cloudCart);
+  };
+
+  const handleAddToCartClick = () => {
+    if (!cartId || !cartName) {
+      setPendingAdd({ product, quantity });
+      setIdentityError("");
+      setShowIdentityModal(true);
+      return;
+    }
+    performAddToCart(product, quantity);
+  };
+
+  const handleConflictMerge = () => {
+    const merged = mergeCartItems(items, conflictCloudItems);
+    replaceCart(merged);
+    setConflictCloudItems([]);
+    if (pendingAdd) {
+      performAddToCart(pendingAdd.product, pendingAdd.quantity);
+    }
+  };
+
+  const handleConflictOverwrite = async () => {
+    if (syncCartToCloud && cartId) {
+      await syncCartToCloud(cartId, items);
+    }
+    setConflictCloudItems([]);
+    if (pendingAdd) {
+      performAddToCart(pendingAdd.product, pendingAdd.quantity);
     }
   };
 
@@ -160,6 +245,7 @@ export default function ProductActionBar({
       >
         <button
           type="button"
+          onClick={handleAddToCartClick}
           style={{ backgroundColor: "var(--primary)" }}
           className={
             useSecondLayout
@@ -175,6 +261,27 @@ export default function ProductActionBar({
 
           {!useSecondLayout && "Add to Cart"}
         </button>
+
+        <IdentityModal
+          open={showIdentityModal}
+          onClose={() => {
+            setShowIdentityModal(false);
+            setPendingAdd(null);
+            setIdentityError("");
+          }}
+          onSubmit={handleIdentitySubmit}
+          errorMessage={identityError}
+        />
+        <ConflictDialog
+          open={showConflict}
+          onClose={() => {
+            setShowConflict(false);
+            setConflictCloudItems([]);
+            setPendingAdd(null);
+          }}
+          onMerge={handleConflictMerge}
+          onOverwrite={handleConflictOverwrite}
+        />
 
         <button
           type="button"
