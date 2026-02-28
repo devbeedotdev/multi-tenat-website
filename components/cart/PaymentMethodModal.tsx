@@ -82,7 +82,7 @@ export default function PaymentMethodModal({
       cartName ?? "Customer",
     );
     const encoded = encodeURIComponent(message);
-    const url = `https://wa.me/+234${phone}?text=${encoded}`;
+    const url = `https://wa.me/${phone}?text=${encoded}`;
     window.open(url, "_blank", "noopener,noreferrer");
     onClose();
   }, [tenant, items, total, cartName, onClose]);

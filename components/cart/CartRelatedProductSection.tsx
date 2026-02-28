@@ -16,7 +16,7 @@ export default function CardRelatedProductsSection({
   return (
     <section className="mt-12">
       <h2 className="px-1 md:px-4 text-lg font-semibold text-gray-800 mb-3 md:mb-5">
-        Related Products
+        Available Products
       </h2>
 
       <SuggestedScroller tenant={tenant} products={products} />

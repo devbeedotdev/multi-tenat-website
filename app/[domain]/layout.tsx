@@ -54,7 +54,9 @@ export default function DomainLayout({ children, params }: DomainLayoutProps) {
           __html: `body { --primary: ${tenant.primaryColor}; }`,
         }}
       />
-      <CartProviderWithSync domain={params.domain}>{children}</CartProviderWithSync>
+      <CartProviderWithSync domain={params.domain} variant={tenant.variant}>
+        {children}
+      </CartProviderWithSync>
     </>
   );
 }

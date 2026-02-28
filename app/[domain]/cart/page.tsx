@@ -1,4 +1,6 @@
 import CartAPage from "@/components/cart/pages/CartAPage";
+import CartBPage from "@/components/cart/pages/CartBPage";
+import CartCPage from "@/components/cart/pages/CartCPage";
 import { getTenantConfig } from "@/lib/dal";
 import { notFound } from "next/navigation";
 
@@ -18,12 +20,9 @@ export default async function CartPage({ params }: CartPageProps) {
     case "A":
       return CartAPage({ tenant, domain });
     case "B":
+      return CartBPage({ tenant, domain });
     case "C":
-      return (
-        <main className="min-h-screen flex items-center justify-center bg-white">
-          <h1 className="text-2xl font-semibold text-slate-800">Coming Soon</h1>
-        </main>
-      );
+      return CartCPage({ tenant, domain });
     default:
       notFound();
   }

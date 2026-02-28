@@ -3,17 +3,57 @@
 
 "use client";
 
+import { useCart } from "@/context/CartContext";
 import { Tenant } from "@/types/tenant";
 import {
   Headset,
   HelpCircle,
   Home,
   Info,
+  ShoppingCart,
   X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+function CartSidebarLink({
+  pathname,
+  navItemClass,
+  iconClass,
+  onClose,
+}: {
+  pathname: string | null;
+  navItemClass: (path: string) => string;
+  iconClass: (path: string) => string;
+  onClose: () => void;
+}) {
+  const domain = pathname?.split("/").filter(Boolean)[0] ?? "";
+  const cartPath = domain ? `/${domain}/cart` : "/cart";
+  const { items } = useCart();
+  const count = items.reduce((sum, item) => sum + item.selectedQuantity, 0);
+  const isActive = pathname === cartPath;
+
+  return (
+    <Link href={cartPath} className="group" onClick={onClose}>
+      <div className={navItemClass(cartPath)}>
+        <div className="relative">
+          <ShoppingCart className={iconClass(cartPath)} />
+          {count > 0 && (
+            <span
+              className={`absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-sm ${
+                isActive ? "bg-white/90 text-[var(--primary)]" : "bg-[var(--primary)] text-white"
+              }`}
+            >
+              {count > 99 ? "99+" : count}
+            </span>
+          )}
+        </div>
+        <span>Cart</span>
+      </div>
+    </Link>
+  );
+}
 
 type VariantCSideBarProps = {
   tenant: Tenant;
@@ -92,6 +132,8 @@ export default function VariantCSidebar({
               <span>Home</span>
             </div>
           </Link>
+
+          <CartSidebarLink pathname={pathname} navItemClass={navItemClass} iconClass={iconClass} onClose={onClose} />
 
           <Link href="/about" className="group" onClick={onClose}>
             <div className={navItemClass("/about")}>

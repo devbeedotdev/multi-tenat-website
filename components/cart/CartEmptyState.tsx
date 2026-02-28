@@ -1,6 +1,6 @@
 "use client";
 
-import { Cloud, ShoppingBag } from "lucide-react";
+import { Cloud, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 
 type CartEmptyStateProps = {
@@ -22,7 +22,7 @@ export default function CartEmptyState({
             "color-mix(in srgb, var(--primary) 20%, transparent)",
         }}
       >
-        <ShoppingBag className="h-9 w-9" style={{ color: "var(--primary)" }} />
+        <ShoppingCart className="h-9 w-9" style={{ color: "var(--primary)" }} />
       </div>
 
       {/* Heading */}

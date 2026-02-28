@@ -17,20 +17,23 @@ export default function WhatsappMessageBox({
       setError("Please write a message before sending.");
       return;
     }
-
+  
     setError("");
-
+  
+    // Remove all non-digits (keeps international format)
     const phone = tenant.businessPhoneNumber.replace(/\D/g, "");
-
+  
     const fullMessage = `Hello ${tenant.businessName}, I'm interested in "${product.productName}".\n\n${message}`;
-
+  
     const encoded = encodeURIComponent(fullMessage);
-
-    const whatsappUrl = `https://wa.me/+234${phone}?text=${encoded}`;
-
-    window.open(whatsappUrl, "_blank");
+  
+    // IMPORTANT: Do NOT add + here
+    const whatsappUrl = `https://wa.me/${phone}?text=${encoded}`;
+  
+    // Opens in new tab
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   }
-
+  
   return (
     <div className="mt-6 space-y-2">
       {/* Message box */}

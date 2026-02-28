@@ -1,16 +1,23 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { usePathname } from "next/navigation";
+import type { TenantVariant } from "@/types/tenant";
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 
 type CartFABProps = {
   domain: string;
+  variant?: TenantVariant;
 };
 
-export default function CartFAB({ domain }: CartFABProps) {
+export default function CartFAB({ domain, variant = "A" }: CartFABProps) {
+  const pathname = usePathname();
   const { items } = useCart();
   const count = items.reduce((sum, item) => sum + item.selectedQuantity, 0);
+
+  const isCartPage = pathname?.includes("/cart") ?? false;
+  if (isCartPage || variant === "C") return null;
 
   return (
     <Link
