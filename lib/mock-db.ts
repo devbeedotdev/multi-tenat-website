@@ -1,12 +1,21 @@
+import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
 import { Tenant } from "@/types/tenant";
+
+/** Cloud carts keyed by normalized phone number (digits only) for cross-device sync */
+export const cloudCarts: Record<string, CartItem[]> = {};
+
+/** Cloud cart passwords keyed by normalized phone (mock: plain; production would use hashes) */
+export const cloudCartPasswords: Record<string, string> = {};
 
 export const tenants: Record<string, Tenant> = {
   localhost: {
     businessName: "Localhost Demo Store - First",
     variant: "A",
     tenantId: "localhost",
-    businessPhoneNumber: "09025570361",
+    businessPhoneNumber: "23409025570361",
+    bankAccountNumber: "2104259047",
+    bankName: "UBA Bank",
     primaryColor: "#964B00",
     isLogoHorizontal: false,
     businessDescription:
@@ -19,7 +28,9 @@ export const tenants: Record<string, Tenant> = {
   "client-a.com": {
     businessName: "Client A Boutique - Second",
     isLogoHorizontal: true,
-    businessPhoneNumber: "08089474706",
+    businessPhoneNumber: "23408089474706",
+    bankAccountNumber: "6558608577",
+    bankName: "Fidelity Bank",
     logoUrl: "/images/paripulse.png",
     tenantId: "client-a.com",
     variant: "B",
@@ -31,8 +42,10 @@ export const tenants: Record<string, Tenant> = {
   },
   "client-b.com": {
     businessName: "Arike's Online Store",
+    bankAccountNumber: "9025570361",
+    bankName: "Opay Wallet",
     isLogoHorizontal: false,
-    businessPhoneNumber: "08055456053",
+    businessPhoneNumber: "23408055456053",
     logoUrl: "/images/logo.jpg",
     variant: "C",
     tenantId: "client-b.com",
@@ -126,7 +139,7 @@ export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
     productAmount: 100 + (i % 10) * 600000,
     discountPrice: i % 3 === 0 ? 10 : 0,
     quantityAvailable: 5 + (i % 12),
-    isDetailsTabular: i % 2 === 0,
+    isDetailsTabular: false,
     isNegotiable: i % 2 === 0,
     isPromo: i % 4 === 0,
     isBestSelling: i % 5 === 0,

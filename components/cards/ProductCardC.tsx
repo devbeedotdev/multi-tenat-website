@@ -1,3 +1,5 @@
+"use client";
+
 import type { Product, ProductCardProps } from "@/types/product";
 import Image from "next/image";
 
@@ -7,6 +9,8 @@ import {
   formatPrice,
   toUpper,
 } from "@/src/utils/string.utils";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 const primaryImage = (product: Product) =>
   product.mediaUrls[0] ??
@@ -18,6 +22,22 @@ export function ProductCardC({ product }: ProductCardProps) {
       ? product.productAmount
       : product.discountPrice;
   const currency = product.currency ?? "₦";
+
+  const params = useParams();
+
+  const rawDomain = (params as Record<string, string | string[] | undefined>)
+    ?.domain;
+
+  const domain =
+    typeof rawDomain === "string"
+      ? rawDomain
+      : Array.isArray(rawDomain)
+        ? rawDomain[0]
+        : undefined;
+
+  const href = domain
+    ? `/${domain}/product/${product.productId}`
+    : `/products/${product.productId}`;
 
   return (
     <div className="group relative rounded-2xl border border-gray-200 bg-white p-3 shadow-sm transition hover:shadow-md">
@@ -95,9 +115,12 @@ export function ProductCardC({ product }: ProductCardProps) {
       )}
 
       {/* Button */}
-      <button className="mt-5 w-full rounded-lg bg-primary py-2 text-xs font-semibold text-white transition hover:opacity-90">
+      <Link
+        href={href}
+        className="mt-5 block w-full rounded-lg bg-primary py-2 text-xs font-semibold text-white text-center transition hover:opacity-90"
+      >
         View Product
-      </button>
+      </Link>
     </div>
   );
 }

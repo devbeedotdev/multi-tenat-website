@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 import {
   capitalizeFirstWords,
@@ -14,6 +17,18 @@ const primaryImage = (product: Product) =>
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export function ProductCardB({ product }: ProductCardProps) {
+  const params = useParams();
+  const rawDomain = (params as Record<string, string | string[] | undefined>)?.domain;
+  const domain =
+    typeof rawDomain === "string"
+      ? rawDomain
+      : Array.isArray(rawDomain)
+        ? rawDomain[0]
+        : undefined;
+  const href = domain
+    ? `/${domain}/product/${product.productId}`
+    : `/product/${product.productId}`;
+
   const price =
     product.discountPrice == undefined || product.discountPrice === 0
       ? product.productAmount
@@ -21,7 +36,7 @@ export function ProductCardB({ product }: ProductCardProps) {
   const currency = product.currency ?? "₦";
 
   return (
-    <Link href={`/products/${product.productId}`} className="group block">
+    <Link href={href} className="group block">
       <article className="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition hover:shadow-md hover:-translate-y-1">
         {/* Image */}
         <div className="relative w-full h-36 sm:h-40 md:h-44 overflow-hidden bg-slate-100">

@@ -1,10 +1,7 @@
 "use client";
 
 import { ProductDetailLayoutProps } from "./product_detail_col_layout";
-import {
-  DetailValue,
-  ProductDetailsDescriptionProps,
-} from "./product_detail_description";
+import { DetailValue } from "@/types/product-detail";
 
 export default function ProductDetailsTablularLayout({
   title = "Product Detail",

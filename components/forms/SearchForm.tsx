@@ -3,25 +3,22 @@
 import { Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-interface Props {
-  initialSearch?: string;
-  height?: string;
-  useAutoSearch?: boolean;
-  isClearButtonActive?: boolean;
-}
+import type { SearchProductFormProps } from "@/types/components";
 
 export default function SearchProductForm({
   height = "h-11 md:h-12",
   useAutoSearch = false,
   isClearButtonActive = false,
-}: Props) {
+  initialSearch,
+}: SearchProductFormProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // 1. Initialize state from URL to keep sync
-  const [value, setValue] = useState(searchParams.get("search") ?? "");
+  const [value, setValue] = useState(
+    initialSearch ?? searchParams.get("search") ?? "",
+  );
 
   // 2. The Core Search Logic - Stable with useCallback
   const handleSearch = useCallback(
@@ -79,14 +76,19 @@ export default function SearchProductForm({
           className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
         />
 
-        {isClearButtonActive && value && (
-          <button
-            type="button"
-            className="ml-2 text-gray-400 hover:text-gray-600 transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
+        {isClearButtonActive &&
+          value && (
+            <button
+              type="button"
+              onClick={() => {
+                setValue("");
+                handleSearch("");
+              }}
+              className="ml-2 text-gray-400 hover:text-gray-600 transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
       </div>
 
       {!useAutoSearch && (

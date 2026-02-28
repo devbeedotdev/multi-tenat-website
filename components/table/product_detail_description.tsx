@@ -1,12 +1,7 @@
 import { Product } from "@/types/product";
+import { ProductDetailItem } from "@/types/product-detail";
 import ProductDetailsColLayout from "./product_detail_col_layout";
 import ProductDetailsTablularLayout from "./product_detail_table";
-
-export type DetailValue = string | number | boolean | string[];
-
-export type ProductDetailItem = {
-  [key: string]: DetailValue | undefined;
-};
 
 export type ProductDetailsDescriptionProps = {
   title?: string;

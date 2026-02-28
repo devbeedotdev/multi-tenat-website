@@ -1,6 +1,6 @@
 "use client";
 
-import { DetailValue, ProductDetailItem } from "./product_detail_description";
+import { DetailValue, ProductDetailItem } from "@/types/product-detail";
 
 export type ProductDetailLayoutProps = {
   title?: string;

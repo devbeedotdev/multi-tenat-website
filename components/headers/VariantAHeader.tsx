@@ -156,9 +156,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import SearchProductForm from "../forms/SearchForm";
 
-type VariantAHeaderProps = TenantPageProps & {
-  showSearchField?: boolean;
-};
+type VariantAHeaderProps = TenantPageProps;
 
 export default function VariantAHeader({
   tenant,
@@ -280,6 +278,7 @@ export default function VariantAHeader({
               <HelpCircle className="w-4 h-4 shrink-0" />
               <span className="ml-1 text-sm">Help</span>
             </button>
+
           </div>
         </div>
 
