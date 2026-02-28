@@ -23,6 +23,8 @@ type CartContextValue = {
   cartName: string | null;
   isAuthenticated: boolean;
   isSyncing: boolean;
+  /** True until localStorage has hydrated and (if applicable) getCartById sync is complete. */
+  isLoading: boolean;
   addToCart: (product: Product, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -171,22 +173,6 @@ export function CartProvider({ children, domain, syncCartToCloud }: CartProvider
   }, [domain, items, hydrated]);
 
   useEffect(() => {
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch("http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "6f50f1" },
-        body: JSON.stringify({
-          sessionId: "6f50f1",
-          location: "CartContext.tsx:sync-effect",
-          message: "Sync effect ran",
-          data: { hydrated: !!hydrated, cartId: !!cartId, isAuthenticated, itemsLength: items?.length ?? 0 },
-          hypothesisId: "H1_H3_H5",
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-    }
-    // #endregion
     if (!hydrated || !cartId || !isAuthenticated) return;
     if (cartPageMounted && !pullCompleted) return;
     const sync = syncRef.current;
@@ -262,6 +248,9 @@ export function CartProvider({ children, domain, syncCartToCloud }: CartProvider
     clearIdentityStored(domain);
   }, [domain]);
 
+  const isLoading =
+    !hydrated || (!!cartId && isAuthenticated && !pullCompleted);
+
   const value = useMemo<CartContextValue>(
     () => ({
       items,
@@ -269,6 +258,7 @@ export function CartProvider({ children, domain, syncCartToCloud }: CartProvider
       cartName,
       isAuthenticated,
       isSyncing,
+      isLoading,
       addToCart,
       removeFromCart,
       updateQuantity,
@@ -287,6 +277,7 @@ export function CartProvider({ children, domain, syncCartToCloud }: CartProvider
       cartName,
       isAuthenticated,
       isSyncing,
+      isLoading,
       addToCart,
       removeFromCart,
       updateQuantity,

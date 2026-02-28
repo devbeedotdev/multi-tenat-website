@@ -16,6 +16,7 @@ import CartAboutCard from "./CartAbout";
 import CartEmptyState from "./CartEmptyState";
 import CardRelatedProductsSection from "./CartRelatedProductSection";
 import CartSummarySection from "./CartSummarySection";
+import CartSummarySkeleton from "./CartSummarySkeleton";
 import CartTotalCard from "./CartTotalCard";
 import ConflictDialog from "./ConflictDialog";
 import ContactVendorCard from "./ContactVendorCard";
@@ -38,6 +39,7 @@ export default function CartPageContent({
     cartId,
     cartName,
     isAuthenticated,
+    isLoading,
     setAuthenticated,
     setIdentity,
     replaceCart,
@@ -60,55 +62,11 @@ export default function CartPageContent({
   useEffect(() => {
     mountRef.current = true;
     setCartPageMounted(true);
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch(
-        "http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "6f50f1",
-          },
-          body: JSON.stringify({
-            sessionId: "6f50f1",
-            location: "CartPageContent.tsx:mount",
-            message: "CartPageContent mounted",
-            data: {},
-            hypothesisId: "H2_H4",
-            timestamp: Date.now(),
-          }),
-        },
-      ).catch(() => {});
-    }
-    // #endregion
     return () => {
       mountRef.current = false;
       setCartPageMounted(false);
       setPullCompleted(false);
       setSyncChecked(false);
-      // #region agent log
-      if (typeof window !== "undefined") {
-        fetch(
-          "http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Debug-Session-Id": "6f50f1",
-            },
-            body: JSON.stringify({
-              sessionId: "6f50f1",
-              location: "CartPageContent.tsx:unmount",
-              message: "CartPageContent unmounted",
-              data: {},
-              hypothesisId: "H4",
-              timestamp: Date.now(),
-            }),
-          },
-        ).catch(() => {});
-      }
-      // #endregion
     };
   }, [setCartPageMounted, setPullCompleted]);
 
@@ -132,82 +90,11 @@ export default function CartPageContent({
   };
 
   useEffect(() => {
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch(
-        "http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "6f50f1",
-          },
-          body: JSON.stringify({
-            sessionId: "6f50f1",
-            location: "CartPageContent.tsx:silent-pull-effect",
-            message: "Silent pull effect ran",
-            data: {
-              cartId: !!cartId,
-              isAuthenticated,
-              syncChecked,
-              willRun: !!(cartId && isAuthenticated && !syncChecked),
-            },
-            hypothesisId: "H2_H4_H5",
-            timestamp: Date.now(),
-          }),
-        },
-      ).catch(() => {});
-    }
-    // #endregion
     if (!cartId || !isAuthenticated || syncChecked) return;
     let cancelled = false;
     (async () => {
-      // #region agent log
-      if (typeof window !== "undefined") {
-        fetch(
-          "http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Debug-Session-Id": "6f50f1",
-            },
-            body: JSON.stringify({
-              sessionId: "6f50f1",
-              location: "CartPageContent.tsx:getCartById-call",
-              message: "getCartById started",
-              data: {},
-              hypothesisId: "H2_H5",
-              timestamp: Date.now(),
-            }),
-          },
-        ).catch(() => {});
-      }
-      // #endregion
       const cloudCart = await getCartById(cartId);
       if (cancelled) return;
-      // #region agent log
-      if (typeof window !== "undefined") {
-        fetch(
-          "http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Debug-Session-Id": "6f50f1",
-            },
-            body: JSON.stringify({
-              sessionId: "6f50f1",
-              location: "CartPageContent.tsx:replaceCart-call",
-              message: "replaceCart(cloud) called",
-              data: { cloudLength: cloudCart?.length ?? 0 },
-              hypothesisId: "H5",
-              timestamp: Date.now(),
-            }),
-          },
-        ).catch(() => {});
-      }
-      // #endregion
       setSyncChecked(true);
       setPullCompleted(true);
       replaceCart(cloudCart ?? []);
@@ -275,6 +162,10 @@ export default function CartPageContent({
       setSyncConflictCloudItems(cloudCart);
     }
   };
+
+  if (isLoading) {
+    return <CartSummarySkeleton />;
+  }
 
   if (items.length === 0 && !showSyncConflict) {
     return (
