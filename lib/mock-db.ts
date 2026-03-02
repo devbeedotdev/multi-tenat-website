@@ -16,6 +16,7 @@ export const tenants: Record<string, Tenant> = {
     tenantId: "localhost",
     businessPhoneNumber: "23409025570361",
     businessEmail: "admin@localhost",
+    currency: "$",
     adminPassword: "Pass@123",
     bankAccountNumber: "2104259047",
     bankName: "UBA Bank",
@@ -31,6 +32,7 @@ export const tenants: Record<string, Tenant> = {
   "client-a.com": {
     businessName: "Client A Boutique - Second",
     accountName: "Olabisi Ayeni",
+    currency: "$",
     isLogoHorizontal: true,
     businessPhoneNumber: "23408089474706",
     businessEmail: "admin@client-a.com",
@@ -48,6 +50,7 @@ export const tenants: Record<string, Tenant> = {
   },
   "client-b.com": {
     businessName: "Arike's Online Store",
+    currency: "$",
     accountName: "Arike Olaniyi Precious",
     bankAccountNumber: "9025570361",
     bankName: "Opay Wallet",

@@ -9,8 +9,8 @@ import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
 import type { Tenant } from "@/types/tenant";
 import {
-  cloudCarts,
   cloudCartPasswords,
+  cloudCarts,
   getTenantByDomain as getTenantByDomainFromMock,
   products,
   tenants,
@@ -150,10 +150,10 @@ export async function createProductForTenant(
     isBestSelling: false,
     productDetails: [],
     mediaUrls: [mediaUrl],
-    videoUrl: undefined,
+
     shortDescription,
     fullDescription,
-    currency: "₦",
+   
   };
 
   products.push(newProduct);
@@ -198,15 +198,40 @@ export async function updateProductForTenant(
   return product;
 }
 
+/**
+ * Bulk update a collection of products for a tenant.
+ * Only products matching both tenantId and productId will be updated.
+ */
+export async function updateProductCollection(
+  tenantId: string,
+  updates: Product[],
+): Promise<void> {
+  for (const updated of updates) {
+    const existing = products.find(
+      (p) => p.productId === updated.productId && p.tenantId === tenantId,
+    );
+    if (!existing) continue;
+
+    existing.productName = updated.productName;
+    existing.productCategory = updated.productCategory;
+    existing.productAmount = updated.productAmount;
+    existing.quantityAvailable = updated.quantityAvailable;
+    existing.isPromo = updated.isPromo;
+    existing.isNegotiable = updated.isNegotiable;
+    existing.shortDescription = updated.shortDescription;
+    existing.fullDescription = updated.fullDescription;
+    existing.mediaUrls = [...updated.mediaUrls];
+    existing.productDetails = [...updated.productDetails];
+  }
+}
+
 export async function getProductById(
   tenantId: string,
   productId: string,
 ): Promise<Product | null> {
   const tenantProducts = await getProductsByTenant(tenantId);
 
-  const product = tenantProducts.find(
-    (p) => p.productId === productId,
-  );
+  const product = tenantProducts.find((p) => p.productId === productId);
 
   return product || null;
 }

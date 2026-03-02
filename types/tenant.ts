@@ -16,6 +16,7 @@ export type Tenant = {
   favIcon: string;
   logoUrl?: string;
   isLogoHorizontal: boolean;
+  currency: string;
 };
 
 export type TenantPageProps = {
