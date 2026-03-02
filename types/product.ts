@@ -3,6 +3,7 @@ import { Tenant } from "./tenant";
 
 export interface Product {
   productId: string;
+  tenantId: string;
   productName: string;
   productCategory: string;
   productAmount: number;

@@ -180,7 +180,7 @@ export default function PaymentMethodModal({
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Account name
               </p>
-              <p className="mt-1 font-medium text-slate-900">{tenant.businessName}</p>
+              <p className="mt-1 font-medium text-slate-900">{tenant.accountName}</p>
               <p className="mt-3 text-xs font-medium uppercase tracking-wide text-slate-500">
                 Account number
               </p>

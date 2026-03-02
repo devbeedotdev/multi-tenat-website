@@ -87,9 +87,7 @@ export async function getCategoriesByTenant(
 export async function getProductsByTenant(
   tenantId: string,
 ): Promise<Product[]> {
-  // TODO: When migrating to real DB, filter products by tenantId
-  // For now, return all products as they're not tenant-specific in mock data
-  return products;
+  return products.filter((p) => p.tenantId === tenantId);
 }
 
 export async function getProductById(
@@ -110,7 +108,6 @@ export async function getProductsByCategoryAndTenant(
   category?: string,
 ): Promise<Product[]> {
   const normalizedCategory = (category ?? "all").trim().toLowerCase();
-  console.log(`This category - ${category}`);
 
   // If "All", return tenant products
   if (normalizedCategory === "all") {

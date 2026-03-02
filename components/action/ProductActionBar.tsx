@@ -2,9 +2,9 @@
 
 import ConflictDialog from "@/components/cart/ConflictDialog";
 import IdentityModal from "@/components/cart/IdentityModal";
+import { resolveCartIdentity } from "@/components/cart/identity-core";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
-import { getCartById, setCartPassword, verifyCartPassword } from "@/lib/actions";
 import { mergeCartItems } from "@/lib/cart-utils";
 import type { ProductActionBarProps } from "@/types/components";
 import type { CartItem } from "@/types/cart";
@@ -70,28 +70,23 @@ export default function ProductActionBar({
 
   const handleIdentitySubmit = async (phone: string, name: string, password: string) => {
     setIdentityError("");
-    const cloudCart = await getCartById(phone);
-    const cloudHasCart = cloudCart != null && cloudCart.length > 0;
-    if (!cloudHasCart) {
-      await setCartPassword(phone, password);
-      setIdentity(phone, name);
-      setAuthenticated(true);
-      setShowIdentityModal(false);
+    const result = await resolveCartIdentity(phone, name, password, setIdentity, setAuthenticated);
+    if (result.status === "password_mismatch") {
+      setIdentityError(
+        "Password mismatch for this phone number. Please try again to sync your cloud items.",
+      );
+      return;
+    }
+    setShowIdentityModal(false);
+    if (result.status === "new_cart") {
       if (pendingAdd) {
         performAddToCart(pendingAdd.product, pendingAdd.quantity);
       }
       return;
     }
-    const ok = await verifyCartPassword(phone, password);
-    if (!ok) {
-      setIdentityError("Password mismatch for this phone number. Please try again to sync your cloud items.");
-      return;
-    }
-    setIdentity(phone, name);
-    setAuthenticated(true);
-    setShowIdentityModal(false);
+    // existing_cart
     setShowConflict(true);
-    setConflictCloudItems(cloudCart);
+    setConflictCloudItems(result.cloudCart);
   };
 
   const handleAddToCartClick = () => {

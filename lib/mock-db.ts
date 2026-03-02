@@ -11,6 +11,7 @@ export const cloudCartPasswords: Record<string, string> = {};
 export const tenants: Record<string, Tenant> = {
   localhost: {
     businessName: "Localhost Demo Store - First",
+    accountName: "Localhost Demo Store",
     variant: "A",
     tenantId: "localhost",
     businessPhoneNumber: "23409025570361",
@@ -27,6 +28,7 @@ export const tenants: Record<string, Tenant> = {
   },
   "client-a.com": {
     businessName: "Client A Boutique - Second",
+    accountName: "Client A Boutique",
     isLogoHorizontal: true,
     businessPhoneNumber: "23408089474706",
     bankAccountNumber: "6558608577",
@@ -42,6 +44,7 @@ export const tenants: Record<string, Tenant> = {
   },
   "client-b.com": {
     businessName: "Arike's Online Store",
+    accountName: "Arike's Online Store",
     bankAccountNumber: "9025570361",
     bankName: "Opay Wallet",
     isLogoHorizontal: false,
@@ -128,12 +131,15 @@ const PLACEHOLDER_Video4 =
   "https://samplelib.com/lib/preview/mp4/sample-5s.mp4";
 
 const productCategories = categories.filter((c) => c !== "All");
+const tenantKeys = Object.keys(tenants);
 
-export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
+export const products: Product[] = Array.from({ length: 60 }, (_, i) => {
   const category = productCategories[i % productCategories.length];
+  const tenantKey = tenantKeys[i % tenantKeys.length];
 
   return {
-    productId: `prod-${i + 1}`,
+    productId: `prod-${tenantKey}-${i + 1}`,
+    tenantId: tenantKey,
     productName: `${category} Item ${i + 1}`,
     productCategory: i === 0 ? "Shoes" : "Accessories",
     productAmount: 100 + (i % 10) * 600000,
