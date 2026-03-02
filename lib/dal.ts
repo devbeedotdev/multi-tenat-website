@@ -160,6 +160,14 @@ export async function createProductForTenant(
   return newProduct;
 }
 
+/**
+ * Add a fully constructed product for a tenant.
+ * Used by the admin add-product flow when all fields are prepared on the server.
+ */
+export async function addProductForTenant(product: Product): Promise<void> {
+  products.push(product);
+}
+
 export async function updateProductForTenant(
   input: UpdateProductInput,
 ): Promise<Product | null> {
