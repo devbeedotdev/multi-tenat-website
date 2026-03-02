@@ -16,6 +16,17 @@ import {
   tenants,
 } from "./mock-db";
 
+type PasswordResetRecord = {
+  tenantId: string;
+  otpHash: string;
+  createdAt: number;
+};
+
+const PASSWORD_RESET_TTL_MS = 10 * 60 * 1000;
+
+// In-memory password reset store keyed by tenantId (domain)
+const passwordResets: Record<string, PasswordResetRecord> = {};
+
 function normalizePhone(phone: string): string {
   return phone.replace(/\D/g, "");
 }
@@ -90,6 +101,103 @@ export async function getProductsByTenant(
   return products.filter((p) => p.tenantId === tenantId);
 }
 
+type CreateProductInput = {
+  tenantId: string;
+  productName: string;
+  productCategory: string;
+  productAmount: number;
+  quantityAvailable: number;
+  shortDescription: string;
+  fullDescription: string;
+  imageUrl?: string;
+};
+
+type UpdateProductInput = CreateProductInput & {
+  productId: string;
+};
+
+const FALLBACK_IMAGE_URL =
+  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
+
+export async function createProductForTenant(
+  input: CreateProductInput,
+): Promise<Product> {
+  const {
+    tenantId,
+    productName,
+    productCategory,
+    productAmount,
+    quantityAvailable,
+    shortDescription,
+    fullDescription,
+    imageUrl,
+  } = input;
+
+  const productId = `admin-${tenantId}-${Date.now()}-${products.length + 1}`;
+  const mediaUrl = imageUrl?.trim() || FALLBACK_IMAGE_URL;
+
+  const newProduct: Product = {
+    productId,
+    tenantId,
+    productName,
+    productCategory,
+    productAmount,
+    discountPrice: 0,
+    isDetailsTabular: false,
+    quantityAvailable,
+    isNegotiable: false,
+    isPromo: false,
+    isBestSelling: false,
+    productDetails: [],
+    mediaUrls: [mediaUrl],
+    videoUrl: undefined,
+    shortDescription,
+    fullDescription,
+    currency: "₦",
+  };
+
+  products.push(newProduct);
+  return newProduct;
+}
+
+export async function updateProductForTenant(
+  input: UpdateProductInput,
+): Promise<Product | null> {
+  const {
+    tenantId,
+    productId,
+    productName,
+    productCategory,
+    productAmount,
+    quantityAvailable,
+    shortDescription,
+    fullDescription,
+    imageUrl,
+  } = input;
+
+  const product = products.find(
+    (p) => p.productId === productId && p.tenantId === tenantId,
+  );
+
+  if (!product) {
+    return null;
+  }
+
+  product.productName = productName;
+  product.productCategory = productCategory;
+  product.productAmount = productAmount;
+  product.quantityAvailable = quantityAvailable;
+  product.shortDescription = shortDescription;
+  product.fullDescription = fullDescription;
+
+  const mediaUrl = imageUrl?.trim();
+  if (mediaUrl) {
+    product.mediaUrls = [mediaUrl];
+  }
+
+  return product;
+}
+
 export async function getProductById(
   tenantId: string,
   productId: string,
@@ -142,6 +250,60 @@ export async function getProductsBySearchAndTenant(
       product.productCategory.toLowerCase().includes(normalizedSearch)
     );
   });
+}
+
+/**
+ * Admin authentication helpers
+ */
+export async function verifyAdminCredentials(
+  domain: string,
+  password: string,
+): Promise<Tenant | null> {
+  const tenant = getTenantByDomainFromMock(domain);
+  if (!tenant) return null;
+  if (!password || tenant.adminPassword !== password) return null;
+  return tenant;
+}
+
+export async function updateAdminPassword(
+  domain: string,
+  newPassword: string,
+): Promise<Tenant | null> {
+  const tenant = getTenantByDomainFromMock(domain);
+  if (!tenant) return null;
+  if (!newPassword) return null;
+  tenant.adminPassword = newPassword;
+  return tenant;
+}
+
+export async function createPasswordReset(
+  tenantId: string,
+  otpHash: string,
+): Promise<void> {
+  passwordResets[tenantId] = {
+    tenantId,
+    otpHash,
+    createdAt: Date.now(),
+  };
+}
+
+export async function getValidPasswordReset(
+  tenantId: string,
+): Promise<PasswordResetRecord | null> {
+  const record = passwordResets[tenantId];
+  if (!record) return null;
+
+  const isExpired = Date.now() - record.createdAt > PASSWORD_RESET_TTL_MS;
+  if (isExpired) {
+    delete passwordResets[tenantId];
+    return null;
+  }
+
+  return record;
+}
+
+export async function clearPasswordReset(tenantId: string): Promise<void> {
+  delete passwordResets[tenantId];
 }
 
 /**

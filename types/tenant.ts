@@ -5,6 +5,8 @@ export type Tenant = {
   tenantId: string;
   accountName: string;
   businessPhoneNumber: string;
+  businessEmail: string;
+  adminPassword: string;
   variant: TenantVariant;
   primaryColor: string;
   businessDescription: string;
