@@ -1,9 +1,34 @@
 import { AdminAddProductForm } from "@/components/admin/AdminAddProductForm";
 import { AdminProductPowerTable } from "@/components/admin/AdminProductPowerTable";
 import { getProductsByTenant, getTenantByDomain } from "@/lib/dal";
+import type { Tenant } from "@/types/tenant";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { handleBulkUpdate, handleCreateProduct } from "../actions";
+
+function isTenantSettingsComplete(tenant: Tenant): boolean {
+  const requiredFields = [
+    tenant.businessName,
+    tenant.websiteDisplayName,
+    tenant.businessEmail,
+    tenant.businessPhoneNumber,
+    tenant.businessDescription,
+    tenant.primaryColor,
+    tenant.accountName,
+    tenant.bankAccountNumber,
+    tenant.bankName,
+  ];
+
+  const allFilled = requiredFields.every(
+    (value) => typeof value === "string" && value.trim().length > 0,
+  );
+
+  const phoneLooksValid =
+    typeof tenant.businessPhoneNumber === "string" &&
+    tenant.businessPhoneNumber.trim().startsWith("234");
+
+  return allFilled && phoneLooksValid;
+}
 
 async function requireAdminTenantForDomain(domain: string) {
   const normalizedDomain = domain.toLowerCase();
@@ -17,6 +42,10 @@ async function requireAdminTenantForDomain(domain: string) {
   const tenant = getTenantByDomain(session);
   if (!tenant) {
     redirect(`/${normalizedDomain}/admin/login`);
+  }
+
+  if (!isTenantSettingsComplete(tenant)) {
+    redirect(`/${normalizedDomain}/admin/settings?incomplete=1`);
   }
 
   return tenant;
