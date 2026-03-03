@@ -15,7 +15,7 @@ export default async function VariantCPage({
         {/* Desktop Search */}
 
         <div className="hidden md:block sticky top-0 z-30 bg-gray-50 pb-4 pt-2">
-          <SearchProductForm useAutoSearch={true} />
+          <SearchProductForm useAutoSearch={false} />
         </div>
         {searchParams?.search?.length ? (
           <SearchedProductBody tenant={tenant} searchParams={searchParams} />

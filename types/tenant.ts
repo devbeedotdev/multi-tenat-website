@@ -3,7 +3,10 @@ export type TenantVariant = "A" | "B" | "C";
 export type Tenant = {
   businessName: string;
   tenantId: string;
+  accountName: string;
   businessPhoneNumber: string;
+  businessEmail: string;
+  adminPassword: string;
   variant: TenantVariant;
   primaryColor: string;
   businessDescription: string;
@@ -13,6 +16,7 @@ export type Tenant = {
   favIcon: string;
   logoUrl?: string;
   isLogoHorizontal: boolean;
+  currency: string;
 };
 
 export type TenantPageProps = {

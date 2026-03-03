@@ -10,15 +10,19 @@ export default function SearchProductForm({
   useAutoSearch = false,
   isClearButtonActive = false,
   initialSearch,
+  controlledValue,
+  onControlledChange,
 }: SearchProductFormProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // 1. Initialize state from URL to keep sync
-  const [value, setValue] = useState(
+  // 1. Initialize state from URL to keep sync (for uncontrolled mode)
+  const [uncontrolledValue, setUncontrolledValue] = useState(
     initialSearch ?? searchParams.get("search") ?? "",
   );
+  const isControlled = controlledValue !== undefined;
+  const value = isControlled ? controlledValue ?? "" : uncontrolledValue;
 
   // 2. The Core Search Logic - Stable with useCallback
   const handleSearch = useCallback(
@@ -47,9 +51,11 @@ export default function SearchProductForm({
 
     const timer = setTimeout(() => {
       // Only search if the value is different from the current URL param
-      if (value !== (searchParams.get("search") ?? "")) {
-        handleSearch(value);
-      }
+      const currentUrlSearch = searchParams.get("search") ?? "";
+      if (value === currentUrlSearch) return;
+      // Guard: avoid auto-clearing an existing search term back to home.
+      if (value === "" && currentUrlSearch) return;
+      handleSearch(value);
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timer);
@@ -71,7 +77,14 @@ export default function SearchProductForm({
         <input
           type="text"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            const next = e.target.value;
+            if (isControlled && onControlledChange) {
+              onControlledChange(next);
+            } else {
+              setUncontrolledValue(next);
+            }
+          }}
           placeholder="Search Product"
           className="ml-3 w-full outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
         />
@@ -81,7 +94,11 @@ export default function SearchProductForm({
             <button
               type="button"
               onClick={() => {
-                setValue("");
+                if (isControlled && onControlledChange) {
+                  onControlledChange("");
+                } else {
+                  setUncontrolledValue("");
+                }
                 handleSearch("");
               }}
               className="ml-2 text-gray-400 hover:text-gray-600 transition"

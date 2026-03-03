@@ -2,12 +2,9 @@
 
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
-import {
-  getCartById,
-  setCartPassword,
-  verifyCartPassword,
-} from "@/lib/actions";
+import { getCartById, verifyCartPassword } from "@/lib/actions";
 import { mergeCartItems } from "@/lib/cart-utils";
+import { resolveCartIdentity } from "@/components/cart/identity-core";
 import type { CartItem } from "@/types/cart";
 import { Product } from "@/types/product";
 import type { Tenant } from "@/types/tenant";
@@ -134,32 +131,25 @@ export default function CartPageContent({
     password: string,
   ) => {
     setSyncIdentityError("");
-    const cloudCart = await getCartById(phone);
-    const cloudHasCart = cloudCart != null && cloudCart.length > 0;
-    if (!cloudHasCart) {
-      await setCartPassword(phone, password);
-      setIdentity(phone, name);
-      setAuthenticated(true);
-      setShowSyncIdentityModal(false);
-      showToast("Securely synced with your cloud cart");
-      return;
-    }
-    const ok = await verifyCartPassword(phone, password);
-    if (!ok) {
+    const result = await resolveCartIdentity(phone, name, password, setIdentity, setAuthenticated);
+    if (result.status === "password_mismatch") {
       setSyncIdentityError(
         "Password mismatch for this phone number. Please try again to sync your cloud items.",
       );
       return;
     }
-    setIdentity(phone, name);
-    setAuthenticated(true);
     setShowSyncIdentityModal(false);
+    if (result.status === "new_cart") {
+      showToast("Securely synced with your cloud cart");
+      return;
+    }
+    // existing_cart
     if (items.length === 0) {
-      replaceCart(cloudCart);
+      replaceCart(result.cloudCart);
       showToast("Securely synced with your cloud cart");
     } else {
       setShowSyncConflict(true);
-      setSyncConflictCloudItems(cloudCart);
+      setSyncConflictCloudItems(result.cloudCart);
     }
   };
 

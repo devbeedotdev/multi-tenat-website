@@ -6,6 +6,9 @@ export type SearchProductFormProps = {
   height?: string;
   useAutoSearch?: boolean;
   isClearButtonActive?: boolean;
+  /** Optional controlled value for syncing multiple instances */
+  controlledValue?: string;
+  onControlledChange?: (value: string) => void;
 };
 
 export type WhatsappMessageBoxProps = {

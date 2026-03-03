@@ -3,6 +3,7 @@ import { Tenant } from "./tenant";
 
 export interface Product {
   productId: string;
+  tenantId: string;
   productName: string;
   productCategory: string;
   productAmount: number;
@@ -14,7 +15,7 @@ export interface Product {
   isBestSelling: boolean;
   productDetails: ProductDetailItem[];
   mediaUrls: string[];
-  videoUrl?: string;
+
   shortDescription: string;
   fullDescription: string;
   currency?: string;

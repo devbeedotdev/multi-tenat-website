@@ -11,9 +11,13 @@ export const cloudCartPasswords: Record<string, string> = {};
 export const tenants: Record<string, Tenant> = {
   localhost: {
     businessName: "Localhost Demo Store - First",
+    accountName: "Ayeni Abolaji Hamzat",
     variant: "A",
     tenantId: "localhost",
     businessPhoneNumber: "23409025570361",
+    businessEmail: "admin@localhost",
+    currency: "$",
+    adminPassword: "Pass@123",
     bankAccountNumber: "2104259047",
     bankName: "UBA Bank",
     primaryColor: "#964B00",
@@ -27,8 +31,12 @@ export const tenants: Record<string, Tenant> = {
   },
   "client-a.com": {
     businessName: "Client A Boutique - Second",
+    accountName: "Olabisi Ayeni",
+    currency: "$",
     isLogoHorizontal: true,
     businessPhoneNumber: "23408089474706",
+    businessEmail: "admin@client-a.com",
+    adminPassword: "Pass@123",
     bankAccountNumber: "6558608577",
     bankName: "Fidelity Bank",
     logoUrl: "/images/paripulse.png",
@@ -42,10 +50,14 @@ export const tenants: Record<string, Tenant> = {
   },
   "client-b.com": {
     businessName: "Arike's Online Store",
+    currency: "$",
+    accountName: "Arike Olaniyi Precious",
     bankAccountNumber: "9025570361",
     bankName: "Opay Wallet",
     isLogoHorizontal: false,
     businessPhoneNumber: "23408055456053",
+    businessEmail: "admin@client-b.com",
+    adminPassword: "Pass@123",
     logoUrl: "/images/logo.jpg",
     variant: "C",
     tenantId: "client-b.com",
@@ -56,11 +68,6 @@ export const tenants: Record<string, Tenant> = {
       "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=64&h=64&q=80",
   },
 };
-
-export function getTenantByDomain(domain: string): Tenant | undefined {
-  const normalized = domain.split(":")[0].toLowerCase();
-  return tenants[normalized];
-}
 
 export const categories = [
   "All",
@@ -115,39 +122,30 @@ export const categories = [
   "Gift Items",
 ];
 
-const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
-
-const PLACEHOLDER_IMAGE2 =
-  "https://images.unsplash.com/photo-1461988320302-91bde64fc8e4";
-
-const PLACEHOLDER_IMAGE3 =
-  "https://images.unsplash.com/photo-1520975916090-3105956dac38";
-
-const PLACEHOLDER_Video4 =
-  "https://samplelib.com/lib/preview/mp4/sample-5s.mp4";
-
 const productCategories = categories.filter((c) => c !== "All");
+const tenantKeys = Object.keys(tenants);
 
-export const products: Product[] = Array.from({ length: 40 }, (_, i) => {
+export const products: Product[] = Array.from({ length: 60 }, (_, i) => {
   const category = productCategories[i % productCategories.length];
+  const tenantKey = tenantKeys[i % tenantKeys.length];
 
   return {
-    productId: `prod-${i + 1}`,
+    productId: `prod-${tenantKey}-${i + 1}`,
+    tenantId: tenantKey,
     productName: `${category} Item ${i + 1}`,
     productCategory: i === 0 ? "Shoes" : "Accessories",
     productAmount: 100 + (i % 10) * 600000,
     discountPrice: i % 3 === 0 ? 10 : 0,
     quantityAvailable: 5 + (i % 12),
-    isDetailsTabular: false,
+    isDetailsTabular: true,
     isNegotiable: i % 2 === 0,
     isPromo: i % 4 === 0,
     isBestSelling: i % 5 === 0,
     mediaUrls: [
-      PLACEHOLDER_IMAGE,
-      PLACEHOLDER_IMAGE2,
-      PLACEHOLDER_IMAGE3,
-      PLACEHOLDER_Video4,
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+      "https://images.unsplash.com/photo-1461988320302-91bde64fc8e4",
+      "https://images.unsplash.com/photo-1520975916090-3105956dac38",
+      "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
     ],
     productDetails: [
       { RAM: "8GB" },
