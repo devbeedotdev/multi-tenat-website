@@ -2,6 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
+import { processCheckout } from "@/lib/services/payments";
 import { formatPrice } from "@/src/utils/string.utils";
 import type { CartItem } from "@/types/cart";
 import type { Tenant } from "@/types/tenant";
@@ -63,14 +64,30 @@ export default function PaymentMethodModal({
     if (!cartId || !syncCartToCloud) return;
     setIsPaystackProcessing(true);
     setView("paystack_loading");
-    // Simulate Paystack flow: 2s loading then success
-    await new Promise((r) => setTimeout(r, 2000));
-    showToast("Payment Successful!");
-    await syncCartToCloud(cartId, []);
-    clearCart();
-    setIsPaystackProcessing(false);
-    onClose();
-  }, [cartId, syncCartToCloud, clearCart, showToast, onClose]);
+
+    const result = await processCheckout(tenant, items, total);
+
+    if (result.success) {
+      showToast("Payment Successful!");
+      await syncCartToCloud(cartId, []);
+      clearCart();
+      setIsPaystackProcessing(false);
+      onClose();
+    } else {
+      setIsPaystackProcessing(false);
+      setView("choice");
+      showToast("Unable to process payment. Please try again.");
+    }
+  }, [
+    cartId,
+    syncCartToCloud,
+    clearCart,
+    showToast,
+    onClose,
+    tenant,
+    items,
+    total,
+  ]);
 
   const handleBankTransferConfirm = useCallback(() => {
     if (!tenant.businessPhoneNumber || items.length === 0) return;

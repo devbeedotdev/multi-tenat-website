@@ -15,9 +15,6 @@ import type { ProductDetailPageProps } from "@/types/page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
-
 function getDisplayPrice(product: Product) {
   const effective =
     product.discountPrice == null || product.discountPrice === 0
@@ -45,10 +42,7 @@ export default async function VariantAProductDetailPage({
 
   const { effective, currency } = getDisplayPrice(product);
 
-  const media =
-    product.mediaUrls?.length && product.mediaUrls[0]
-      ? product.mediaUrls
-      : [PLACEHOLDER_IMAGE];
+  const media = product.mediaUrls;
 
   const categoryProducts = await getProductsByCategoryAndTenant(
     tenant.tenantId,

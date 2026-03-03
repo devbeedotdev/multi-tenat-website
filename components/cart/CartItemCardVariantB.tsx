@@ -5,9 +5,6 @@ import type { CartItem } from "@/types/cart";
 import { Minus, Plus, X } from "lucide-react";
 import Image from "next/image";
 
-const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
-
 function getUnitPrice(item: CartItem): number {
   return item.discountPrice != null && item.discountPrice > 0
     ? item.discountPrice
@@ -49,7 +46,7 @@ export default function CartItemCardVariantB({
       <div className="flex flex-col items-center">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-neutral-100 md:h-24 md:w-24">
           <Image
-            src={item.mediaUrls?.[0] || PLACEHOLDER_IMAGE}
+            src={item.mediaUrls[0]}
             alt={item.productName}
             fill
             className="object-cover"

@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -19,9 +19,7 @@ export default function AdminLayout({ children, params }: AdminLayoutProps) {
             Admin Console
           </span>
           <span className="text-slate-400">/</span>
-          <span className="font-mono text-[11px] text-slate-700">
-            {domain}
-          </span>
+          <span className="font-mono text-[11px] text-slate-700">{domain}</span>
         </div>
         <Link
           href={`/${domain}`}
@@ -36,4 +34,3 @@ export default function AdminLayout({ children, params }: AdminLayoutProps) {
     </div>
   );
 }
-

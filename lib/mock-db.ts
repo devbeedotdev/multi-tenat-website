@@ -69,11 +69,6 @@ export const tenants: Record<string, Tenant> = {
   },
 };
 
-export function getTenantByDomain(domain: string): Tenant | undefined {
-  const normalized = domain.split(":")[0].toLowerCase();
-  return tenants[normalized];
-}
-
 export const categories = [
   "All",
   "Shoes",
@@ -127,18 +122,6 @@ export const categories = [
   "Gift Items",
 ];
 
-const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
-
-const PLACEHOLDER_IMAGE2 =
-  "https://images.unsplash.com/photo-1461988320302-91bde64fc8e4";
-
-const PLACEHOLDER_IMAGE3 =
-  "https://images.unsplash.com/photo-1520975916090-3105956dac38";
-
-const PLACEHOLDER_Video4 =
-  "https://samplelib.com/lib/preview/mp4/sample-5s.mp4";
-
 const productCategories = categories.filter((c) => c !== "All");
 const tenantKeys = Object.keys(tenants);
 
@@ -154,15 +137,15 @@ export const products: Product[] = Array.from({ length: 60 }, (_, i) => {
     productAmount: 100 + (i % 10) * 600000,
     discountPrice: i % 3 === 0 ? 10 : 0,
     quantityAvailable: 5 + (i % 12),
-    isDetailsTabular: false,
+    isDetailsTabular: true,
     isNegotiable: i % 2 === 0,
     isPromo: i % 4 === 0,
     isBestSelling: i % 5 === 0,
     mediaUrls: [
-      PLACEHOLDER_IMAGE,
-      PLACEHOLDER_IMAGE2,
-      PLACEHOLDER_IMAGE3,
-      PLACEHOLDER_Video4,
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+      "https://images.unsplash.com/photo-1461988320302-91bde64fc8e4",
+      "https://images.unsplash.com/photo-1520975916090-3105956dac38",
+      "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
     ],
     productDetails: [
       { RAM: "8GB" },

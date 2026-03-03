@@ -17,7 +17,8 @@ export default function CartFAB({ domain, variant = "A" }: CartFABProps) {
   const count = items.reduce((sum, item) => sum + item.selectedQuantity, 0);
 
   const isCartPage = pathname?.includes("/cart") ?? false;
-  if (isCartPage || variant === "C") return null;
+  const isAdminPage = pathname?.includes("/admin/") ?? false;
+  if (isCartPage || isAdminPage || variant === "C") return null;
 
   return (
     <Link

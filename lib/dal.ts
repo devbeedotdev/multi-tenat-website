@@ -7,11 +7,11 @@
 
 import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
+import type { Order, OrderStatus } from "@/types/order";
 import type { Tenant } from "@/types/tenant";
 import {
   cloudCartPasswords,
   cloudCarts,
-  getTenantByDomain as getTenantByDomainFromMock,
   products,
   tenants,
 } from "./mock-db";
@@ -23,6 +23,8 @@ type PasswordResetRecord = {
 };
 
 const PASSWORD_RESET_TTL_MS = 10 * 60 * 1000;
+
+const orders: Order[] = [];
 
 // In-memory password reset store keyed by tenantId (domain)
 const passwordResets: Record<string, PasswordResetRecord> = {};
@@ -37,7 +39,7 @@ function normalizePhone(phone: string): string {
  * @returns Tenant configuration or null if not found
  */
 export async function getTenantConfig(domain: string): Promise<Tenant | null> {
-  const tenant = getTenantByDomainFromMock(domain);
+  const tenant = getTenantByDomain(domain);
   return tenant || null;
 }
 
@@ -47,7 +49,8 @@ export async function getTenantConfig(domain: string): Promise<Tenant | null> {
  * @returns Tenant or undefined if not found
  */
 export function getTenantByDomain(domain: string): Tenant | undefined {
-  return getTenantByDomainFromMock(domain);
+  const normalized = domain.split(":")[0].toLowerCase();
+  return tenants[normalized];
 }
 
 /**
@@ -61,6 +64,32 @@ export function getTenantByDomain(domain: string): Tenant | undefined {
 export function tenantExists(domain: string): boolean {
   const normalized = domain.split(":")[0].toLowerCase();
   return normalized in tenants;
+}
+
+/**
+ * Update a tenant record in the in-memory store.
+ * Later, this will map to a real database update.
+ */
+export async function updateTenantInDB(
+  tenantId: string,
+  updates: Partial<Tenant>,
+): Promise<Tenant | null> {
+  const tenant = tenants[tenantId];
+  if (!tenant) return null;
+
+  // Never allow tenantId to be changed via this function.
+  const { tenantId: _ignoredTenantId, ...rest } = updates;
+
+  Object.assign(tenant, rest);
+  return tenant;
+}
+
+/**
+ * Get all active tenant domains.
+ * In production, this would query the database for enabled tenants.
+ */
+export async function getAllActiveDomains(): Promise<string[]> {
+  return Object.keys(tenants);
 }
 
 /**
@@ -116,9 +145,6 @@ type UpdateProductInput = CreateProductInput & {
   productId: string;
 };
 
-const FALLBACK_IMAGE_URL =
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
-
 export async function createProductForTenant(
   input: CreateProductInput,
 ): Promise<Product> {
@@ -134,7 +160,7 @@ export async function createProductForTenant(
   } = input;
 
   const productId = `admin-${tenantId}-${Date.now()}-${products.length + 1}`;
-  const mediaUrl = imageUrl?.trim() || FALLBACK_IMAGE_URL;
+  const mediaUrl = imageUrl?.trim();
 
   const newProduct: Product = {
     productId,
@@ -149,11 +175,9 @@ export async function createProductForTenant(
     isPromo: false,
     isBestSelling: false,
     productDetails: [],
-    mediaUrls: [mediaUrl],
-
+    mediaUrls: mediaUrl ? [mediaUrl] : [],
     shortDescription,
     fullDescription,
-   
   };
 
   products.push(newProduct);
@@ -292,7 +316,7 @@ export async function verifyAdminCredentials(
   domain: string,
   password: string,
 ): Promise<Tenant | null> {
-  const tenant = getTenantByDomainFromMock(domain);
+  const tenant = getTenantByDomain(domain);
   if (!tenant) return null;
   if (!password || tenant.adminPassword !== password) return null;
   return tenant;
@@ -302,7 +326,7 @@ export async function updateAdminPassword(
   domain: string,
   newPassword: string,
 ): Promise<Tenant | null> {
-  const tenant = getTenantByDomainFromMock(domain);
+  const tenant = getTenantByDomain(domain);
   if (!tenant) return null;
   if (!newPassword) return null;
   tenant.adminPassword = newPassword;
@@ -389,4 +413,41 @@ export async function setCartPassword(
   const key = normalizePhone(phone);
   if (!key || !password) return;
   cloudCartPasswords[key] = password;
+}
+
+export async function createOrder(
+  tenantId: string,
+  items: CartItem[],
+  totalAmount: number,
+  paystackReference?: string,
+): Promise<Order> {
+  const orderId = `order-${tenantId}-${Date.now()}-${orders.length + 1}`;
+
+  const order: Order = {
+    orderId,
+    tenantId,
+    items: [...items],
+    totalAmount,
+    status: "pending",
+    paystackReference,
+  };
+
+  orders.push(order);
+  return order;
+}
+
+export async function updateOrderStatus(
+  orderId: string,
+  status: OrderStatus,
+  paystackReference?: string,
+): Promise<Order | null> {
+  const order = orders.find((o) => o.orderId === orderId);
+  if (!order) return null;
+
+  order.status = status;
+  if (paystackReference !== undefined) {
+    order.paystackReference = paystackReference;
+  }
+
+  return order;
 }

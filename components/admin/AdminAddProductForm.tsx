@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import type { ProductDetailItem } from "@/types/product-detail";
+import { uploadProductMedia } from "@/lib/services/media";
+import type { DetailRow } from "@/lib/utils";
+import { rowsToProductDetails } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
 
 type AdminAddProductFormProps = {
   formId: string;
@@ -9,15 +13,6 @@ type AdminAddProductFormProps = {
   defaultCurrency: string;
   primaryColor: string;
 };
-
-type Mode = "manual" | "ai";
-
-type DetailRow = {
-  key: string;
-  value: string;
-};
-
-const EMPTY_MEDIA = ["", "", "", ""] as const;
 
 const HARDCODED_AI_PRODUCT_JSON =
   '{"productName":"Iphone 15","productCategory":"Smartphone","productAmount":900000,"discountPrice":90000,"isDetailsTabular":false,"quantityAvailable":30,"isNegotiable":false,"isPromo":true,"productDetails":[{"Specification1":"6.1-inch Super Retina XDR Display"},{"Specification2":"128GB Internal Storage"},{"Specification3":"48MP Dual Rear Camera System"},{"Key Features":["A16 Bionic chip for fast performance","Advanced 5G connectivity","All-day battery life","Durable aluminum and glass design"]}],"shortDescription":"Iphone 15 is a premium smartphone offering powerful performance, advanced camera capabilities, and sleek modern design.","fullDescription":"The Iphone 15 delivers exceptional performance powered by the advanced A16 Bionic chip, ensuring smooth multitasking and efficient energy use. Featuring a vibrant 6.1-inch Super Retina XDR display and a high-resolution 48MP dual camera system, it captures stunning photos and videos with remarkable clarity. With 5G connectivity, durable build quality, and long-lasting battery life, this smartphone is designed to meet the demands of modern users while providing a seamless mobile experience."}';
@@ -45,27 +40,6 @@ function normalizeMediaUrls(urls: string[]): string[] {
   return cleaned.filter((u) => !isVideoUrl(u)).concat(firstVideo);
 }
 
-function rowsToProductDetails(rows: DetailRow[]): ProductDetailItem[] {
-  const details: ProductDetailItem[] = [];
-  rows.forEach((row) => {
-    const key = row.key.trim();
-    if (!key) return;
-    const rawValue = row.value.trim();
-    if (!rawValue) return;
-
-    if (key.toLowerCase() === "key features") {
-      const items = rawValue
-        .split(",")
-        .map((part) => part.trim())
-        .filter(Boolean);
-      details.push({ [key]: items });
-    } else {
-      details.push({ [key]: rawValue });
-    }
-  });
-  return details;
-}
-
 function extractJsonFromMaybeMarkdown(input: string): string {
   let trimmed = input.trim();
   if (trimmed.startsWith("```")) {
@@ -87,7 +61,6 @@ export function AdminAddProductForm({
   defaultCurrency,
   primaryColor,
 }: AdminAddProductFormProps) {
-  const [mode, setMode] = useState<Mode>("manual");
   const [productName, setProductName] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [quantityAvailable, setQuantityAvailable] = useState(0);
@@ -96,12 +69,15 @@ export function AdminAddProductForm({
   const [isPromo, setIsPromo] = useState(false);
   const [isNegotiable, setIsNegotiable] = useState(false);
   const [isBestSelling, setIsBestSelling] = useState(false);
-  const [isDetailsTabular, setIsDetailsTabular] = useState(false);
-  const [mediaUrls, setMediaUrls] = useState<string[]>([...EMPTY_MEDIA]);
+  const [isDetailsTabular, setIsDetailsTabular] = useState(true);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [shortDescription, setShortDescription] = useState("");
   const [fullDescription, setFullDescription] = useState("");
   const [detailRows, setDetailRows] = useState<DetailRow[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const [detailsVisible, setDetailsVisible] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const applyAiProductToForm = (rawJson: string) => {
     const cleaned = extractJsonFromMaybeMarkdown(rawJson);
@@ -114,6 +90,7 @@ export function AdminAddProductForm({
       productDetails?: ProductDetailItem[];
       isPromo?: boolean;
       quantityAvailable?: number;
+      isNegotiable?: boolean;
     };
 
     if (parsed.productName) setProductName(parsed.productName);
@@ -126,6 +103,9 @@ export function AdminAddProductForm({
     }
     if (typeof parsed.isPromo === "boolean") {
       setIsPromo(parsed.isPromo);
+    }
+    if (typeof parsed.isNegotiable === "boolean") {
+      setIsNegotiable(parsed.isNegotiable);
     }
     if (parsed.shortDescription) setShortDescription(parsed.shortDescription);
     if (parsed.fullDescription) setFullDescription(parsed.fullDescription);
@@ -143,17 +123,48 @@ export function AdminAddProductForm({
       });
       setDetailRows(rows);
     }
+
+    setDetailsVisible(true);
   };
 
   const handleGenerateDetails = () => {
     setIsGenerating(true);
     setTimeout(() => {
       try {
+        // Dummy AI implementation – in production this will be replaced
+        // by a real API call that uses the seed data.
+        const _seed = {
+          productName,
+          quantityAvailable,
+          productAmount,
+          isNegotiable,
+        };
+        void _seed; // avoid unused for now
         applyAiProductToForm(HARDCODED_AI_PRODUCT_JSON);
       } finally {
         setIsGenerating(false);
       }
     }, 3000);
+  };
+
+  const handleOpenMediaPicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleMediaFilesSelected = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+
+    setIsUploadingMedia(true);
+    try {
+      const uploadedUrls = await uploadProductMedia(files);
+      const next = [...mediaUrls, ...uploadedUrls].slice(0, 4);
+      setMediaUrls(next);
+    } finally {
+      setIsUploadingMedia(false);
+    }
   };
 
   const handleAddDetailRow = () => {
@@ -179,6 +190,14 @@ export function AdminAddProductForm({
     });
 
     const productDetails = rowsToProductDetails(detailRows);
+
+    if (imageUrls.length === 0) {
+      // Require at least one image for every product.
+      // This mirrors the stricter Zod schema on the server.
+      // eslint-disable-next-line no-alert
+      alert("Please add at least one product image before saving.");
+      return;
+    }
 
     const payload = {
       productName,
@@ -212,121 +231,107 @@ export function AdminAddProductForm({
             Add new product
           </h2>
           <p className="mt-1 text-xs text-slate-500">
-            Use manual entry or generate a rich template via AI.
+            Use the AI-assisted generator, then review and adjust the details
+            below.
           </p>
-        </div>
-
-        <div className="inline-flex rounded-full bg-slate-100 p-1 text-[11px]">
-          <button
-            type="button"
-            onClick={() => setMode("manual")}
-            className={`px-3 py-1 rounded-full font-medium transition ${
-              mode === "manual"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500"
-            }`}
-          >
-            Manual entry
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("ai")}
-            className={`px-3 py-1 rounded-full font-medium transition ${
-              mode === "ai"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500"
-            }`}
-          >
-            AI-assisted
-          </button>
         </div>
       </div>
 
-      {mode === "ai" && (
-        <div className="space-y-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            AI-assisted (simulated)
-          </p>
+      <div className="space-y-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          AI-assisted (simulated)
+        </p>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-slate-700">
-                Product name
-              </label>
-              <input
-                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
-              />
-            </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-medium text-slate-700">
+              Product name
+            </label>
+            <input
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+            />
+          </div>
 
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-slate-700">
-                Quantity
-              </label>
-              <input
-                type="number"
-                min={0}
-                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                value={quantityAvailable}
-                onChange={(e) =>
-                  setQuantityAvailable(
-                    parseInt(e.target.value || "0", 10) || 0,
-                  )
-                }
-              />
-            </div>
+          <div className="space-y-1">
+            <label className="block text-[11px] font-medium text-slate-700">
+              Quantity
+            </label>
+            <input
+              type="number"
+              min={0}
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              value={quantityAvailable}
+              onChange={(e) =>
+                setQuantityAvailable(parseInt(e.target.value || "0", 10) || 0)
+              }
+            />
+          </div>
 
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-slate-700">
-                Price
-              </label>
-              <input
-                type="number"
-                min={0}
-                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                value={productAmount}
-                onChange={(e) =>
-                  setProductAmount(Number(e.target.value) || 0)
-                }
-              />
-            </div>
+          <div className="space-y-1">
+            <label className="block text-[11px] font-medium text-slate-700">
+              Price
+            </label>
+            <input
+              type="number"
+              min={0}
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              value={productAmount}
+              onChange={(e) => setProductAmount(Number(e.target.value) || 0)}
+            />
+          </div>
 
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-slate-700">
-                Promo
-              </label>
-              <select
-                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                value={isPromo ? "yes" : "no"}
-                onChange={(e) => setIsPromo(e.target.value === "yes")}
-              >
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-              </select>
+          <div className="space-y-1">
+            <label className="block text-[11px] font-medium text-slate-700">
+              Negotiable
+            </label>
+            <select
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              value={isNegotiable ? "yes" : "no"}
+              onChange={(e) => setIsNegotiable(e.target.value === "yes")}
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGenerateDetails}
+          disabled={isGenerating}
+          className="mt-2 inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
+          style={{ backgroundColor: primaryColor }}
+        >
+          {isGenerating ? (
+            <span className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              Generating...
+            </span>
+          ) : (
+            "Generate product details"
+          )}
+        </button>
+      </div>
+
+      {detailsVisible && (
+        <div
+          className="mt-4 space-y-4 rounded-2xl border-2 bg-slate-50/70 p-4 shadow-md"
+          style={{ borderColor: primaryColor }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                Generated product details
+              </p>
+              <p className="text-[11px] text-slate-500">
+                Review and fine-tune the AI-filled fields before saving.
+              </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleGenerateDetails}
-            disabled={isGenerating}
-            className="mt-2 inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
-            style={{ backgroundColor: primaryColor }}
-          >
-            {isGenerating ? (
-              <span className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                Generating...
-              </span>
-            ) : (
-              "Generate product details"
-            )}
-          </button>
-        </div>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)]">
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)]">
         <div className="space-y-3">
           <div className="space-y-1">
             <label className="block text-[11px] font-medium text-slate-700">
@@ -374,9 +379,7 @@ export function AdminAddProductForm({
                 min={0}
                 className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                 value={productAmount}
-                onChange={(e) =>
-                  setProductAmount(Number(e.target.value) || 0)
-                }
+                onChange={(e) => setProductAmount(Number(e.target.value) || 0)}
               />
             </div>
           </div>
@@ -442,27 +445,64 @@ export function AdminAddProductForm({
 
         <div className="space-y-3">
           <div className="space-y-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              className="hidden"
+              onChange={handleMediaFilesSelected}
+            />
             <label className="block text-[11px] font-medium text-slate-700">
-              Media URLs (max 4, max 1 video)
+              Media (max 4, max 1 video)
             </label>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {mediaUrls.map((url, idx) => (
-                <input
-                  key={idx}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[10px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                  placeholder={`Media URL ${idx + 1}`}
-                  value={url}
-                  onChange={(e) => {
-                    const next = [...mediaUrls];
-                    next[idx] = e.target.value;
-                    setMediaUrls(next);
-                  }}
-                />
-              ))}
-            </div>
+            <button
+              type="button"
+              onClick={handleOpenMediaPicker}
+              className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
+              disabled={isUploadingMedia}
+            >
+              {isUploadingMedia ? "Uploading..." : "Open gallery & pick media"}
+            </button>
+
+            {mediaUrls.length > 0 && (
+              <div className="mt-2 space-y-1">
+                <p className="text-[10px] font-medium text-slate-600">
+                  Selected media URLs
+                </p>
+                <div className="grid grid-cols-1 gap-1">
+                  {mediaUrls.map((url, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5"
+                    >
+                      <input
+                        className="w-full bg-transparent text-[10px] text-slate-900 outline-none"
+                        value={url}
+                        readOnly
+                      />
+                      <button
+                        type="button"
+                        aria-label="Remove media"
+                        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                        onClick={() =>
+                          setMediaUrls((prev) =>
+                            prev.filter((_, i) => i !== idx),
+                          )
+                        }
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <p className="text-[10px] text-slate-500">
-              Video URLs should be .mp4, .webm, or .ogg. If more than one video
-              is entered, only the first is kept as a video.
+              This environment uses a dummy gallery implementation that converts
+              selected files into temporary object URLs. In production, replace
+              this with a real upload + CDN URL workflow.
             </p>
           </div>
 
@@ -490,8 +530,11 @@ export function AdminAddProductForm({
             />
           </div>
         </div>
-      </div>
+          </div>
+        </div>
+      )}
 
+      {detailsVisible && (
       <div className="mt-3 space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -563,7 +606,9 @@ export function AdminAddProductForm({
           </table>
         </div>
       </div>
+      )}
 
+      {detailsVisible && (
       <div className="mt-4 flex justify-end">
         <button
           type="button"
@@ -574,7 +619,7 @@ export function AdminAddProductForm({
           Save product
         </button>
       </div>
+      )}
     </div>
   );
 }
-

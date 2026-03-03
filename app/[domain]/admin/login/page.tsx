@@ -8,6 +8,7 @@ import {
   updateAdminPassword,
   verifyAdminCredentials,
 } from "@/lib/dal";
+import { sendAdminOTP } from "@/lib/services/email";
 
 type SearchParams = {
   mode?: string;
@@ -61,6 +62,10 @@ async function startPasswordReset(domain: string, _formData: FormData) {
   const otpHash = crypto.createHash("sha256").update(otpPlain).digest("hex");
 
   await createPasswordReset(tenant.tenantId, otpHash);
+
+  if (tenant.businessEmail) {
+    await sendAdminOTP(tenant.businessEmail, otpPlain);
+  }
 
   redirect(
     `/${normalizedDomain}/admin/login?mode=forgot&step=verify&sent=1`,

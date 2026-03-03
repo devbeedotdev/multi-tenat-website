@@ -1,16 +1,9 @@
+import { AdminAddProductForm } from "@/components/admin/AdminAddProductForm";
+import { AdminProductPowerTable } from "@/components/admin/AdminProductPowerTable";
+import { getProductsByTenant, getTenantByDomain } from "@/lib/dal";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import {
-  addProductForTenant,
-  getProductsByTenant,
-  getTenantByDomain,
-  updateProductCollection,
-} from "@/lib/dal";
-import type { Product } from "@/types/product";
-import type { ProductDetailItem } from "@/types/product-detail";
-import { AdminProductPowerTable } from "@/components/admin/AdminProductPowerTable";
-import { AdminAddProductForm } from "@/components/admin/AdminAddProductForm";
+import { handleBulkUpdate, handleCreateProduct } from "../actions";
 
 async function requireAdminTenantForDomain(domain: string) {
   const normalizedDomain = domain.toLowerCase();
@@ -18,142 +11,15 @@ async function requireAdminTenantForDomain(domain: string) {
   const session = cookieStore.get("admin_session")?.value;
 
   if (!session || session !== normalizedDomain) {
-    cookieStore.delete("admin_session");
     redirect(`/${normalizedDomain}/admin/login`);
   }
 
   const tenant = getTenantByDomain(session);
   if (!tenant) {
-    cookieStore.delete("admin_session");
     redirect(`/${normalizedDomain}/admin/login`);
   }
 
   return tenant;
-}
-
-async function handleBulkUpdate(domain: string, formData: FormData) {
-  "use server";
-
-  const tenant = await requireAdminTenantForDomain(domain);
-  const payload = String(formData.get("payload") || "");
-  const basePath = `/${domain.toLowerCase()}/admin/dashboard`;
-
-  if (!payload) {
-    redirect(
-      `${basePath}?error=${encodeURIComponent(
-        "No changes detected in payload",
-      )}`,
-    );
-  }
-
-  let parsed: Product[];
-  try {
-    parsed = JSON.parse(payload) as Product[];
-  } catch {
-    redirect(
-      `${basePath}?error=${encodeURIComponent(
-        "Unable to parse changes payload",
-      )}`,
-    );
-  }
-
-  await updateProductCollection(tenant.tenantId, parsed);
-  revalidatePath(basePath);
-  redirect(
-    `${basePath}?success=${encodeURIComponent(
-      "Products updated successfully",
-    )}`,
-  );
-}
-
-async function handleCreateProduct(domain: string, formData: FormData) {
-  "use server";
-
-  const tenant = await requireAdminTenantForDomain(domain);
-  const basePath = `/${domain.toLowerCase()}/admin/dashboard`;
-
-  const payload = String(formData.get("payload") || "");
-  if (!payload) {
-    redirect(
-      `${basePath}?error=${encodeURIComponent(
-        "No product data provided",
-      )}#add-product`,
-    );
-  }
-
-  let parsed: {
-    productName: string;
-    productCategory: string;
-    productAmount: number;
-    quantityAvailable: number;
-    currency?: string;
-    isPromo: boolean;
-    isNegotiable: boolean;
-    isBestSelling: boolean;
-    isDetailsTabular: boolean;
-    mediaUrls: string[];
-    videoUrl?: string;
-    shortDescription: string;
-    fullDescription: string;
-    productDetails: ProductDetailItem[];
-  };
-
-  try {
-    parsed = JSON.parse(payload);
-  } catch {
-    redirect(
-      `${basePath}?error=${encodeURIComponent(
-        "Unable to parse product payload",
-      )}#add-product`,
-    );
-  }
-
-  const {
-    productName,
-    productCategory,
-    productAmount,
-    quantityAvailable,
-    currency,
-    isPromo,
-    isNegotiable,
-    isBestSelling,
-    isDetailsTabular,
-    mediaUrls,
-    shortDescription,
-    fullDescription,
-    productDetails,
-  } = parsed;
-
-  const productId = `admin-${tenant.tenantId}-${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2, 8)}`;
-
-  const newProduct: Product = {
-    productId,
-    tenantId: tenant.tenantId,
-    productName,
-    productCategory,
-    productAmount,
-    discountPrice: 0,
-    isDetailsTabular,
-    quantityAvailable,
-    isNegotiable,
-    isPromo,
-    isBestSelling,
-    productDetails: productDetails ?? [],
-    mediaUrls: mediaUrls ?? [],
-    shortDescription,
-    fullDescription,
-    currency: currency || "₦",
-  };
-
-  await addProductForTenant(newProduct);
-  revalidatePath(basePath);
-  redirect(
-    `${basePath}?success=${encodeURIComponent(
-      "Product created successfully",
-    )}`,
-  );
 }
 
 async function handleLogout(domain: string) {
@@ -203,6 +69,12 @@ export default async function AdminDashboardPage({
 
         <div className="flex flex-wrap items-center gap-3">
           <a
+            href={`/${domain}/admin/settings`}
+            className="inline-flex items-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            Store settings
+          </a>
+          <a
             href="#add-product"
             className="inline-flex items-center rounded-xl px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:opacity-95"
             style={{ backgroundColor: tenant.primaryColor }}
@@ -249,11 +121,10 @@ export default async function AdminDashboardPage({
         <AdminAddProductForm
           formId={addFormId}
           payloadInputId={addPayloadInputId}
-          defaultCurrency="₦"
+          defaultCurrency={tenant.currency}
           primaryColor={tenant.primaryColor}
         />
       </form>
     </div>
   );
 }
-
