@@ -126,7 +126,7 @@ export function AdminProductPowerTable({
             <tr className="border-b border-slate-200 bg-slate-50 uppercase tracking-wide text-slate-500">
               <th className="px-3 py-2 w-[180px]">Name</th>
               <th className="px-3 py-2 w-[140px]">Category</th>
-              <th className="px-3 py-2 w-[120px]">Price</th>
+              <th className="px-3 py-2 w-[120px]">Price </th>
               <th className="px-3 py-2 w-[120px]">
                 <div className="flex items-center justify-between gap-2">
                   <span>Qty</span>

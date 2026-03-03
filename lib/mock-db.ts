@@ -171,6 +171,5 @@ export const products: Product[] = Array.from({ length: 60 }, (_, i) => {
     ],
     shortDescription: `Premium ${category.toLowerCase()} designed for everyday use, combining quality materials with modern styling and long-lasting performance.`,
     fullDescription: `This high-quality ${category.toLowerCase()} item is built with durability and style in mind. Perfect for both casual and premium use cases. Designed for comfort, reliability, and long-term performance.`,
-    videoUrl: undefined,
   };
 });
