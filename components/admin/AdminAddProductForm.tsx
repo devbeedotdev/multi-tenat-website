@@ -271,7 +271,7 @@ export function AdminAddProductForm({
 
           <div className="space-y-1">
             <label className="block text-[11px] font-medium text-slate-700">
-              Price
+              Price 
             </label>
             <input
               type="number"
