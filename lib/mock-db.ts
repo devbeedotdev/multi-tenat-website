@@ -9,26 +9,26 @@ export const cloudCarts: Record<string, CartItem[]> = {};
 export const cloudCartPasswords: Record<string, string> = {};
 
 export const tenants: Record<string, Tenant> = {
-  // localhost: {
-  //   businessName: "Localhost Demo Store - First",
-  //   accountName: "Ayeni Abolaji Hamzat",
-  //   variant: "A",
-  //   tenantId: "localhost",
-  //   businessPhoneNumber: "23409025570361",
-  //   businessEmail: "admin@localhost",
-  //   currency: "$",
-  //   adminPassword: "Pass@123",
-  //   bankAccountNumber: "2104259047",
-  //   bankName: "UBA Bank",
-  //   primaryColor: "#964B00",
-  //   isLogoHorizontal: false,
-  //   businessDescription:
-  //     "A development tenant for local testing and UI exploration.",
-  //   websiteDisplayName: "Jumia Nigeria",
-  //   logoUrl: "/images/logo.jpeg",
-  //   favIcon:
-  //     "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
-  // },
+  localhost: {
+    businessName: "Localhost Demo Store - First",
+    accountName: "Ayeni Abolaji Hamzat",
+    variant: "A",
+    tenantId: "localhost",
+    businessPhoneNumber: "23409025570361",
+    businessEmail: "admin@localhost",
+    currency: "$",
+    adminPassword: "Pass@123",
+    bankAccountNumber: "2104259047",
+    bankName: "UBA Bank",
+    primaryColor: "#964B00",
+    isLogoHorizontal: false,
+    businessDescription:
+      "A development tenant for local testing and UI exploration.",
+    websiteDisplayName: "Jumia Nigeria",
+    logoUrl: "/images/logo.jpeg",
+    favIcon:
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
+  },
   "client-a.com": {
     businessName: "Client A Boutique - Second",
     accountName: "Olabisi Ayeni",
