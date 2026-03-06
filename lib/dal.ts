@@ -66,6 +66,16 @@ export function tenantExists(domain: string): boolean {
   return normalized in tenants;
 }
 
+
+/**
+ * Get all allowed tenant domains from the database.
+ * Used for domain allowlisting (e.g. Caddy On-Demand TLS).
+ * Add the main domain from env to get the full list of domains that should receive SSL.
+ */
+export function getAllowedDomains(): string[] {
+  return Object.keys(tenants);
+}
+
 /**
  * Update a tenant record in the in-memory store.
  * Later, this will map to a real database update.
