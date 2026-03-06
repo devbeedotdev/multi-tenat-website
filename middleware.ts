@@ -37,12 +37,11 @@ import { NextResponse } from "next/server";
 import { tenantExists } from "./lib/dal";
 
 export function middleware(request: NextRequest) {
-  const url = request.nextUrl;
-  const { pathname } = url;
+  const { pathname } = request.nextUrl;
 
-  // Skip API routes and static assets
+  // 1. NEVER apply tenant logic to API routes, static assets, or the Caddy check-domain endpoint
   if (
-    pathname.startsWith("/api/") ||
+    pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/images") ||
     pathname === "/favicon.ico"
@@ -53,16 +52,14 @@ export function middleware(request: NextRequest) {
   const hostHeader = request.headers.get("host") ?? "";
   const hostname = hostHeader.split(":")[0].toLowerCase();
   const mainDomain =
-    (process.env.NEXT_PUBLIC_MAIN_DOMAIN || process.env.MAIN_DOMAIN) ??
+    process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
+    process.env.MAIN_DOMAIN ??
     "getcheapecommerce.com";
 
-  console.log("-----------------------------------------");
-  console.log("DEBUG: Incoming Hostname:", hostname);
-  console.log(
-    "DEBUG: Expected Main Domain:",
-    process.env.NEXT_PUBLIC_MAIN_DOMAIN,
-  );
-  console.log("-----------------------------------------");
+  // 2. Never apply tenant rewrite to localhost/127.0.0.1 (Caddy ask, local dev, health checks)
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return NextResponse.next();
+  }
 
   // Main domain: serve root landing page / admin dashboard (no rewrite)
   if (hostname === mainDomain) {
@@ -91,7 +88,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // "/((?!_next/static|_next/image|favicon.ico|images).*)"
-    "/((?!api|_next/static|_next/image|favicon.ico|images).*)",
+    "/((?!api/|api$|_next/static|_next/image|favicon\\.ico|images/).*)",
   ],
 };
