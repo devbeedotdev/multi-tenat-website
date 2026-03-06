@@ -53,7 +53,16 @@ export function middleware(request: NextRequest) {
   const hostHeader = request.headers.get("host") ?? "";
   const hostname = hostHeader.split(":")[0].toLowerCase();
   const mainDomain =
-    process.env.NEXT_PUBLIC_MAIN_DOMAIN ?? "getcheapecommerce.com";
+    (process.env.NEXT_PUBLIC_MAIN_DOMAIN || process.env.MAIN_DOMAIN) ??
+    "getcheapecommerce.com";
+
+  console.log("-----------------------------------------");
+  console.log("DEBUG: Incoming Hostname:", hostname);
+  console.log(
+    "DEBUG: Expected Main Domain:",
+    process.env.NEXT_PUBLIC_MAIN_DOMAIN,
+  );
+  console.log("-----------------------------------------");
 
   // Main domain: serve root landing page / admin dashboard (no rewrite)
   if (hostname === mainDomain) {
