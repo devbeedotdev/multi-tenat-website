@@ -48,7 +48,7 @@ export const tenants: Record<string, Tenant> = {
     favIcon:
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
   },
-  "client-b.com": {
+  "getcheapecommerce.com": {
     businessName: "Arike's Online Store",
     currency: "$",
     accountName: "Arike Olaniyi Precious",
@@ -99,7 +99,8 @@ export const tenants: Record<string, Tenant> = {
     primaryColor: "#DC2626",
     isLogoHorizontal: false,
     variant: "B",
-    businessDescription: "A different shopping experience with unique offerings.",
+    businessDescription:
+      "A different shopping experience with unique offerings.",
     websiteDisplayName: "Another Store",
     logoUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
     favIcon:
