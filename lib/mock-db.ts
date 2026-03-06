@@ -67,6 +67,44 @@ export const tenants: Record<string, Tenant> = {
     favIcon:
       "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=64&h=64&q=80",
   },
+  "customer-shop.com": {
+    businessName: "Customer Shop",
+    accountName: "Customer Shop Owner",
+    currency: "$",
+    tenantId: "customer-shop.com",
+    businessPhoneNumber: "23408000000001",
+    businessEmail: "admin@customer-shop.com",
+    adminPassword: "Pass@123",
+    bankAccountNumber: "1234567890",
+    bankName: "Customer Bank",
+    primaryColor: "#2563EB",
+    isLogoHorizontal: true,
+    variant: "A",
+    businessDescription: "Your trusted customer-first marketplace.",
+    websiteDisplayName: "Customer Shop",
+    logoUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+    favIcon:
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
+  },
+  "another-store.com": {
+    businessName: "Another Store",
+    accountName: "Another Store Owner",
+    currency: "€",
+    tenantId: "another-store.com",
+    businessPhoneNumber: "23408000000002",
+    businessEmail: "admin@another-store.com",
+    adminPassword: "Pass@123",
+    bankAccountNumber: "0987654321",
+    bankName: "Another Bank",
+    primaryColor: "#DC2626",
+    isLogoHorizontal: false,
+    variant: "B",
+    businessDescription: "A different shopping experience with unique offerings.",
+    websiteDisplayName: "Another Store",
+    logoUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+    favIcon:
+      "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?auto=format&fit=crop&w=64&h=64&q=80",
+  },
 };
 
 export const categories = [
