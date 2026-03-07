@@ -9,7 +9,7 @@ export const cloudCarts: Record<string, CartItem[]> = {};
 export const cloudCartPasswords: Record<string, string> = {};
 
 export const tenants: Record<string, Tenant> = {
-  localhost: {
+  "client.com": {
     businessName: "Localhost Demo Store - First",
     accountName: "Ayeni Abolaji Hamzat",
     variant: "A",
