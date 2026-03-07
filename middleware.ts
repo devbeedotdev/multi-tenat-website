@@ -39,9 +39,13 @@ import { tenantExists } from "./lib/dal";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. NEVER apply tenant logic to API routes, static assets, or the Caddy check-domain endpoint
+  // 1. NEVER apply tenant logic to API routes — pass through immediately
+  if (pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
+  // 2. Pass through static assets
   if (
-    pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/images") ||
     pathname === "/favicon.ico"
@@ -56,8 +60,13 @@ export function middleware(request: NextRequest) {
     process.env.MAIN_DOMAIN ??
     "getcheapecommerce.com";
 
-  // 2. Never apply tenant rewrite to localhost/127.0.0.1 (Caddy ask, local dev, health checks)
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
+  // 3. Never apply tenant rewrite to localhost or server IP (Caddy check-domain, local dev, health checks)
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname === process.env.SERVER_IP
+  ) {
     return NextResponse.next();
   }
 
@@ -87,8 +96,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Exclude /api*, static assets, favicon — middleware must NOT run on these
   matcher: [
-    // "/((?!api/|api$|_next/static|_next/image|favicon\\.ico|images/).*)",
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/)(?!api$)(?!_next/static)(?!_next/image)(?!favicon\\.ico)(?!images/).*)",
   ],
 };
