@@ -17,6 +17,32 @@ function isBypassHost(hostname: string): boolean {
   );
 }
 
+/**
+ * Extracts the effective hostname from the request, handling:
+ * - Proxy: uses X-Forwarded-Host when Host is localhost (app behind Caddy, etc.)
+ * - Port stripping: host:3000 → host
+ * - Normalization: lowercase
+ */
+function getEffectiveHost(request: NextRequest): string {
+  const host = request.headers.get("host") ?? "";
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const hostnameRaw = host.split(":")[0].toLowerCase();
+  const effective =
+    isBypassHost(hostnameRaw) && forwardedHost
+      ? forwardedHost.split(",")[0].trim().split(":")[0].toLowerCase()
+      : hostnameRaw;
+  return effective;
+}
+
+/**
+ * Normalizes hostname for tenant lookup and path rewriting.
+ * Strips www. prefix so www.clientA.com and clientA.com resolve to the same tenant.
+ */
+function toCanonicalTenantHost(hostname: string): string {
+  const lower = hostname.toLowerCase();
+  return lower.startsWith("www.") ? lower.slice(4) : lower;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -34,12 +60,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const hostHeader = request.headers.get("host") ?? "";
-  const hostname = hostHeader.split(":")[0].toLowerCase();
+  const hostname = getEffectiveHost(request);
+  const canonicalHost = toCanonicalTenantHost(hostname);
   const mainDomain =
     process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
     process.env.MAIN_DOMAIN ??
     "getcheapecommerce.com";
+  const mainCanonical = toCanonicalTenantHost(mainDomain);
 
   // 3. Never apply tenant rewrite to localhost or server IP
   if (isBypassHost(hostname)) {
@@ -47,7 +74,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Main domain: serve root landing page / admin dashboard (no rewrite)
-  if (hostname === mainDomain) {
+  if (canonicalHost === mainCanonical) {
     return NextResponse.next();
   }
 
@@ -58,10 +85,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 4. Tenant domain: rewrite ONLY for real tenant domains (never localhost/server IP)
-  if (tenantExists(hostname) && !isBypassHost(hostname)) {
+  // 4. Tenant domain: rewrite to /{canonicalHost}/[path] — no localhost, no www in path
+  if (tenantExists(canonicalHost) && !isBypassHost(canonicalHost)) {
     const clonedUrl = request.nextUrl.clone();
-    clonedUrl.pathname = `/${hostname}${pathname === "/" ? "" : pathname}`;
+    clonedUrl.pathname = pathname === "/" ? `/${canonicalHost}` : `/${canonicalHost}${pathname}`;
     return NextResponse.rewrite(clonedUrl);
   }
 

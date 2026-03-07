@@ -48,25 +48,7 @@ export const tenants: Record<string, Tenant> = {
     favIcon:
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
   },
-  "getcheapecommerce.com": {
-    businessName: "Arike's Online Store",
-    currency: "$",
-    accountName: "Arike Olaniyi Precious",
-    bankAccountNumber: "9025570361",
-    bankName: "Opay Wallet",
-    isLogoHorizontal: false,
-    businessPhoneNumber: "23408055456053",
-    businessEmail: "admin@getcheapecommerce.com",
-    adminPassword: "Pass@123",
-    logoUrl: "/images/logo.jpg",
-    variant: "C",
-    tenantId: "getcheapecommerce.com",
-    primaryColor: "#000000",
-    businessDescription: "An energetic brand presence for Client B.",
-    websiteDisplayName: "Jiji Nigeria",
-    favIcon:
-      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=64&h=64&q=80",
-  },
+
   "customer-shop.com": {
     businessName: "Customer Shop",
     accountName: "Customer Shop Owner",
