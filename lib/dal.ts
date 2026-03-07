@@ -53,6 +53,9 @@ export function getTenantByDomain(domain: string): Tenant | undefined {
   return tenants[normalized];
 }
 
+/** Hosts that must never be treated as tenant domains for routing (Caddy, local dev) */
+const ROUTING_RESERVED_HOSTS = ["localhost", "127.0.0.1", "::1"];
+
 /**
  * Check if a tenant exists for the given domain
  * @param domain - The domain/hostname
@@ -60,9 +63,11 @@ export function getTenantByDomain(domain: string): Tenant | undefined {
  *
  * This is a lightweight function for middleware and other edge cases
  * that need to check tenant existence without fetching full tenant data.
+ * Returns false for localhost/server IP to prevent them from being rewritten as tenants.
  */
 export function tenantExists(domain: string): boolean {
   const normalized = domain.split(":")[0].toLowerCase();
+  if (ROUTING_RESERVED_HOSTS.includes(normalized)) return false;
   return normalized in tenants;
 }
 

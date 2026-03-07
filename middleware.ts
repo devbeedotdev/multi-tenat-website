@@ -3,14 +3,25 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { tenantExists } from "./lib/dal";
 
+/**
+ * Domains that must NEVER be rewritten as tenants (Caddy check-domain, local dev, health checks).
+ * Even if they exist in the tenants DB, they bypass tenant rewrite logic.
+ */
+const ROUTING_BYPASS_HOSTS = ["localhost", "127.0.0.1", "::1"];
+
+function isBypassHost(hostname: string): boolean {
+  const normalized = hostname.toLowerCase();
+  return (
+    ROUTING_BYPASS_HOSTS.includes(normalized) ||
+    normalized === (process.env.SERVER_IP ?? "").toLowerCase()
+  );
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  console.log("DEBUG: Middleware checking path:", pathname);
-
   // 1. NEVER apply tenant logic to API routes — pass through immediately
   if (pathname.startsWith("/api")) {
-    console.log("DEBUG: Allowing API route through...");
     return NextResponse.next();
   }
 
@@ -30,13 +41,8 @@ export function middleware(request: NextRequest) {
     process.env.MAIN_DOMAIN ??
     "getcheapecommerce.com";
 
-  // 3. Never apply tenant rewrite to localhost or server IP (Caddy check-domain, local dev, health checks)
-  if (
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "::1" ||
-    hostname === process.env.SERVER_IP
-  ) {
+  // 3. Never apply tenant rewrite to localhost or server IP
+  if (isBypassHost(hostname)) {
     return NextResponse.next();
   }
 
@@ -48,12 +54,12 @@ export function middleware(request: NextRequest) {
   // Path already prefixed with a known tenant domain
   const pathSegments = pathname.split("/").filter(Boolean);
   const firstSegment = pathSegments[0];
-  if (firstSegment && tenantExists(firstSegment)) {
+  if (firstSegment && tenantExists(firstSegment) && !isBypassHost(firstSegment)) {
     return NextResponse.next();
   }
 
-  // Tenant domain: rewrite internally to /[domain]/...
-  if (tenantExists(hostname)) {
+  // 4. Tenant domain: rewrite ONLY for real tenant domains (never localhost/server IP)
+  if (tenantExists(hostname) && !isBypassHost(hostname)) {
     const clonedUrl = request.nextUrl.clone();
     clonedUrl.pathname = `/${hostname}${pathname === "/" ? "" : pathname}`;
     return NextResponse.rewrite(clonedUrl);
@@ -66,8 +72,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Exclude /api*, static assets, favicon — middleware must NOT run on these
-  matcher: [
-    "/((?!api/)(?!api$)(?!_next/static)(?!_next/image)(?!favicon\\.ico)(?!images/).*)",
-  ],
+  // Official Next.js matcher: exclude /api, static assets, favicon — middleware must NOT run on these
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
