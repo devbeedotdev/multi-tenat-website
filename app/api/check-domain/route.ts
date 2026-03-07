@@ -25,8 +25,21 @@ import { NextRequest, NextResponse } from "next/server";
 //   });
 // }
 
-// app/api/check-domain/route.ts
-export async function GET(request: NextRequest) {
-  // If we get here, the API is ALIVE
-  return new NextResponse("API IS WORKING", { status: 200 });
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const domain = searchParams.get('domain');
+
+  // Hardcode your main domain for now to test the handshake
+  const allowedDomains = ['getcheapecommerce.com', 'localhost'];
+
+  if (domain && allowedDomains.includes(domain)) {
+    return new NextResponse('OK', { status: 200 });
+  }
+
+  // Once this works, you'll swap this with a Prisma check:
+  // const tenant = await prisma.tenant.findUnique({ where: { domain } });
+  // if (tenant) return new NextResponse('OK', { status: 200 });
+
+  return new NextResponse('Not Allowed', { status: 404 });
 }
