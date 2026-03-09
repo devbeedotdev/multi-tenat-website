@@ -1,8 +1,46 @@
 import LandingPage from "@/components/landing/LandingPage";
-import { createLandingOrder, getSuperAdminSettings, updateLandingOrderStatus } from "@/lib/dal";
+import { MAIN_DOMAIN } from "@/lib/config/platform";
+import {
+  createLandingOrder,
+  getSuperAdminSettings,
+  updateLandingOrderStatus,
+} from "@/lib/dal";
 import { sendSuperAdminLandingOrderEmail } from "@/lib/services/email";
 import type { LandingOrder } from "@/types/order";
 import type { Result } from "@/types/result";
+import type { Metadata } from "next";
+
+const OG_IMAGE_PLACEHOLDER =
+  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
+
+export const metadata: Metadata = {
+  title: "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce",
+  description:
+    "Launch your professional online store in 30 mins. Affordable ecommerce builder with WhatsApp ordering and Paystack integration for Nigerian vendors.",
+  openGraph: {
+    title: "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce",
+    description:
+      "Launch your professional online store in 30 mins. Affordable ecommerce builder with WhatsApp ordering and Paystack integration for Nigerian vendors.",
+    url: `https://${MAIN_DOMAIN}/`,
+    siteName: "GetCheapEcommerce",
+    type: "website",
+    images: [
+      {
+        url: OG_IMAGE_PLACEHOLDER,
+        width: 1200,
+        height: 630,
+        alt: "Preview of a professional ecommerce storefront built with GetCheapEcommerce",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce",
+    description:
+      "Launch your professional online store in 30 mins. Affordable ecommerce builder with WhatsApp ordering and Paystack integration for Nigerian vendors.",
+    images: [OG_IMAGE_PLACEHOLDER],
+  },
+};
 
 type CreateLandingOrderInput = {
   customerName: string;
@@ -88,5 +126,4 @@ export default async function Home() {
     />
   );
 }
-
 

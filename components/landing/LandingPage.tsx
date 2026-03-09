@@ -1,6 +1,7 @@
 "use client";
 
 import LandingOrderModal from "@/components/landing/LandingOrderModal";
+import FaqSection from "@/components/landing/FaqSection";
 import {
   PLATFORM_BRAND_NAME,
   PLATFORM_LOGO_URL,
@@ -433,56 +434,7 @@ export default function LandingPage({
             </div>
           </section>
 
-          <section className="relative border-t border-slate-800/60 bg-slate-950 px-4 py-12 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-5xl space-y-8">
-              <div className="space-y-2 text-center">
-                <h2 className="text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl">
-                  Frequently asked questions
-                </h2>
-                <p className="text-sm text-slate-300/90 sm:text-base">
-                  A few quick answers before you start your ecommerce journey.
-                </p>
-              </div>
-
-              <div className="space-y-4 text-sm text-slate-100">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <p className="font-semibold">
-                    How fast will my ecommerce website be ready?
-                  </p>
-                  <p className="mt-1 text-xs text-slate-300/90">
-                    In most cases, we provision and deliver your ecommerce store
-                    in about 30 minutes after your ₦50,000 payment is
-                    confirmed. You&apos;ll receive your store URL and login
-                    details immediately after setup.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <p className="font-semibold">
-                    Do I need any technical or coding knowledge?
-                  </p>
-                  <p className="mt-1 text-xs text-slate-300/90">
-                    No. GetCheapEcommerce is fully managed for you. The admin
-                    dashboard is designed for non-technical founders and small
-                    business owners – if you can use WhatsApp, you can manage
-                    your store.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <p className="font-semibold">
-                    Can I handle normal ecommerce things like products, orders
-                    and inventory?
-                  </p>
-                  <p className="mt-1 text-xs text-slate-300/90">
-                    Yes. You can add and edit products, manage categories, track
-                    orders, control stock levels and see key details for every
-                    customer purchase, all from your dashboard.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
+          <FaqSection />
 
           <section className="relative border-t border-slate-800/60 bg-slate-950 px-4 pb-14 pt-10 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-4xl text-center space-y-4">

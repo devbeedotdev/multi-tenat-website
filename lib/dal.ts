@@ -5,11 +5,11 @@
  * All UI components and Page files must fetch data through this layer.
  */
 
-import type { CartItem } from "@/types/cart";
-import type { Product } from "@/types/product";
-import type { LandingOrder, Order, OrderStatus } from "@/types/order";
-import type { Tenant } from "@/types/tenant";
 import { MAIN_DOMAIN } from "@/lib/config/platform";
+import type { CartItem } from "@/types/cart";
+import type { LandingOrder, Order, OrderStatus } from "@/types/order";
+import type { Product } from "@/types/product";
+import type { Tenant } from "@/types/tenant";
 import {
   cloudCartPasswords,
   cloudCarts,
@@ -121,13 +121,13 @@ export async function getPlatformSeoConfig(): Promise<{
   const settings = getSuperAdminSettings();
   const title =
     settings.landingSeoTitle ||
-    "GetCheapEcommerce – Launch Your Online Store Fast";
+    "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce";
   const description =
     settings.landingSeoDescription ||
     "Launch a professional ecommerce website in minutes with GetCheapEcommerce. Affordable, mobile-ready online stores with WhatsApp checkout and easy order management.";
   const keywordsString =
     settings.landingSeoKeywords ||
-    "ecommerce website, online store, nigeria ecommerce, cheap ecommerce, affordable online shop, launch store fast, getcheapecommerce";
+    "ecommerce website, online store,jumia, nigeria ecommerce, cheap ecommerce, affordable online shop, launch store fast, getcheapecommerce, price nigeria, ecommerce website cost lagos, sell on whatsapp nigeria, affordable web designer nigeria, paystack ecommerce website, getcheapecommerce, how to sell online nigeria";
 
   const keywords = keywordsString
     .split(",")
@@ -155,7 +155,6 @@ export async function verifySuperAdminPassword(
 export async function getAllTenants(): Promise<Tenant[]> {
   return Object.values(tenants);
 }
-
 
 /**
  * Get all allowed tenant domains from the database.
