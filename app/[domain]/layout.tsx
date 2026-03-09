@@ -1,5 +1,7 @@
 import CartProviderWithSync from "@/components/cart/CartProviderWithSync";
 import { getTenantByDomain } from "@/lib/dal";
+import { MAIN_DOMAIN } from "@/lib/config/platform";
+import { sanitizeColor } from "../../lib/theme";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
@@ -15,16 +17,8 @@ function toCanonicalHost(hostname: string): string {
   return lower.startsWith("www.") ? lower.slice(4) : lower;
 }
 
-function getMainDomain(): string {
-  return (
-    process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
-    process.env.MAIN_DOMAIN ??
-    "getcheapecommerce.com"
-  );
-}
-
 function isMainDomainParam(domain: string): boolean {
-  const main = toCanonicalHost(getMainDomain());
+  const main = toCanonicalHost(MAIN_DOMAIN);
   const candidate = toCanonicalHost(domain);
   return candidate === main;
 }
@@ -93,7 +87,7 @@ export default function DomainLayout({ children, params }: DomainLayoutProps) {
     <>
       <style
         dangerouslySetInnerHTML={{
-          __html: `body { --primary: ${tenant.primaryColor}; }`,
+          __html: `body { --primary: ${sanitizeColor(tenant.primaryColor)}; }`,
         }}
       />
       <CartProviderWithSync domain={params.domain} variant={tenant.variant}>

@@ -11,3 +11,16 @@ export interface Order {
   paystackReference?: string;
 }
 
+export interface LandingOrder {
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  businessName: string;
+  productType: string;
+  amount: number;
+  status: OrderStatus;
+  paystackReference?: string;
+  createdAt: string;
+}
+

@@ -1,7 +1,8 @@
 //[THIS CODE IS VERY IMPORTANT]
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { tenantExists } from "./lib/dal";
+import { MAIN_DOMAIN } from "./lib/config/platform";
+import { isMainPlatformDomain, tenantExists } from "./lib/dal";
 
 /**
  * Domains that must NEVER be rewritten as tenants (Caddy check-domain, local dev, health checks).
@@ -70,14 +71,12 @@ export function middleware(request: NextRequest) {
 
   const hostname = getEffectiveHost(request);
   const canonicalHost = toCanonicalTenantHost(hostname);
-  console.log(
-    `[Middleware Debug] Path: ${pathname} | Host: ${hostname} | Canonical: ${canonicalHost}`,
-  );
-  const mainDomain =
-    process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
-    process.env.MAIN_DOMAIN ??
-    "getcheapecommerce.com";
-  const mainCanonical = toCanonicalTenantHost(mainDomain);
+  if (process.env.NODE_ENV !== "production") {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Middleware Debug] Path: ${pathname} | Host: ${hostname} | Canonical: ${canonicalHost}`,
+    );
+  }
 
   // 4. Never apply tenant rewrite to localhost or server IP
   if (isBypassHost(hostname)) {
@@ -86,7 +85,7 @@ export function middleware(request: NextRequest) {
 
   // Main domain (e.g. getcheapecommerce.com): serve landing pages and
   // platform-level routes (including /super-admin) without tenant rewrites.
-  if (canonicalHost === mainCanonical) {
+  if (isMainPlatformDomain(hostname)) {
     return NextResponse.next();
   }
 
@@ -111,7 +110,7 @@ export function middleware(request: NextRequest) {
 
   // Unknown domain: redirect to main site
   const protocol = request.nextUrl.protocol;
-  const redirectUrl = `${protocol}//${mainDomain}/`;
+  const redirectUrl = `${protocol}//${MAIN_DOMAIN}/`;
   return NextResponse.redirect(redirectUrl, 302);
 }
 

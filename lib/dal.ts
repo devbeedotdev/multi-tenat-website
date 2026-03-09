@@ -7,8 +7,9 @@
 
 import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
-import type { Order, OrderStatus } from "@/types/order";
+import type { LandingOrder, Order, OrderStatus } from "@/types/order";
 import type { Tenant } from "@/types/tenant";
+import { MAIN_DOMAIN } from "@/lib/config/platform";
 import {
   cloudCartPasswords,
   cloudCarts,
@@ -24,8 +25,6 @@ type PasswordResetRecord = {
 };
 
 const PASSWORD_RESET_TTL_MS = 10 * 60 * 1000;
-
-const orders: Order[] = [];
 
 // In-memory password reset store keyed by tenantId (domain)
 const passwordResets: Record<string, PasswordResetRecord> = {};
@@ -77,22 +76,65 @@ function toCanonicalHost(hostname: string): string {
   return lower.startsWith("www.") ? lower.slice(4) : lower;
 }
 
-function getMainDomain(): string {
-  return (
-    process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
-    process.env.MAIN_DOMAIN ??
-    superAdmin.domain
-  );
-}
-
 /**
  * Check if a given hostname belongs to the main platform domain.
  * Used to gate access to the super admin console.
  */
 export function isMainPlatformDomain(domain: string): boolean {
-  const main = toCanonicalHost(getMainDomain());
+  const main = toCanonicalHost(MAIN_DOMAIN);
   const candidate = toCanonicalHost(domain.split(":")[0]);
   return candidate === main;
+}
+
+export type SuperAdminSettings = {
+  domain: string;
+  email: string;
+  phoneNumber?: string;
+  landingSeoTitle?: string;
+  landingSeoDescription?: string;
+  landingSeoKeywords?: string;
+};
+
+export function getSuperAdminSettings(): SuperAdminSettings {
+  return {
+    domain: superAdmin.domain,
+    email: superAdmin.email,
+    phoneNumber: superAdmin.phoneNumber,
+    landingSeoTitle: superAdmin.landingSeoTitle,
+    landingSeoDescription: superAdmin.landingSeoDescription,
+    landingSeoKeywords: superAdmin.landingSeoKeywords,
+  };
+}
+
+export async function updateSuperAdminSettings(
+  updates: Partial<Omit<SuperAdminSettings, "domain">>,
+): Promise<SuperAdminSettings> {
+  Object.assign(superAdmin, updates);
+  return getSuperAdminSettings();
+}
+
+export async function getPlatformSeoConfig(): Promise<{
+  title: string;
+  description: string;
+  keywords: string[];
+}> {
+  const settings = getSuperAdminSettings();
+  const title =
+    settings.landingSeoTitle ||
+    "GetCheapEcommerce – Launch Your Online Store Fast";
+  const description =
+    settings.landingSeoDescription ||
+    "Launch a professional ecommerce website in minutes with GetCheapEcommerce. Affordable, mobile-ready online stores with WhatsApp checkout and easy order management.";
+  const keywordsString =
+    settings.landingSeoKeywords ||
+    "ecommerce website, online store, nigeria ecommerce, cheap ecommerce, affordable online shop, launch store fast, getcheapecommerce";
+
+  const keywords = keywordsString
+    .split(",")
+    .map((k) => k.trim())
+    .filter(Boolean);
+
+  return { title, description, keywords };
 }
 
 /**
@@ -479,19 +521,10 @@ export async function createOrder(
   totalAmount: number,
   paystackReference?: string,
 ): Promise<Order> {
-  const orderId = `order-${tenantId}-${Date.now()}-${orders.length + 1}`;
-
-  const order: Order = {
-    orderId,
-    tenantId,
-    items: [...items],
-    totalAmount,
-    status: "pending",
+  const { tenantOrderRepository } = await import("./repositories/orders");
+  return tenantOrderRepository.createOrder(tenantId, items, totalAmount, {
     paystackReference,
-  };
-
-  orders.push(order);
-  return order;
+  });
 }
 
 export async function updateOrderStatus(
@@ -499,13 +532,35 @@ export async function updateOrderStatus(
   status: OrderStatus,
   paystackReference?: string,
 ): Promise<Order | null> {
-  const order = orders.find((o) => o.orderId === orderId);
-  if (!order) return null;
+  const { tenantOrderRepository } = await import("./repositories/orders");
+  return tenantOrderRepository.updateOrderStatus(orderId, status, {
+    paystackReference,
+  });
+}
 
-  order.status = status;
-  if (paystackReference !== undefined) {
-    order.paystackReference = paystackReference;
-  }
+type CreateLandingOrderInput = {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  businessName: string;
+  productType: string;
+  amount: number;
+};
 
-  return order;
+export async function createLandingOrder(
+  input: CreateLandingOrderInput,
+): Promise<LandingOrder> {
+  const { landingOrderRepository } = await import("./repositories/orders");
+  return landingOrderRepository.createLandingOrder(input);
+}
+
+export async function updateLandingOrderStatus(
+  orderId: string,
+  status: OrderStatus,
+  paystackReference?: string,
+): Promise<LandingOrder | null> {
+  const { landingOrderRepository } = await import("./repositories/orders");
+  return landingOrderRepository.updateLandingOrderStatus(orderId, status, {
+    paystackReference,
+  });
 }

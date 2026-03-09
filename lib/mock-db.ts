@@ -1,5 +1,6 @@
 import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
+import type { SuperAdmin } from "@/types/super-admin";
 import type { Tenant } from "@/types/tenant";
 
 /** Cloud carts keyed by normalized phone number (digits only) for cross-device sync */
@@ -110,13 +111,22 @@ export const tenants: Record<string, Tenant> = {
   },
 };
 
-export const superAdmin = {
+export const superAdmin: SuperAdmin = {
   /** Main platform domain that owns the super admin console */
   domain: "getcheapecommerce.com",
   /** Login identifier for the super admin */
   email: "superadmin@getcheapecommerce.com",
   /** Plain-text password for mock purposes only */
   password: "SuperAdmin@123",
+  /** Primary WhatsApp contact for the platform (format: 234...) */
+  phoneNumber: "23409025570361",
+  /** SEO + marketing copy for the main landing page */
+  landingSeoTitle:
+    "GetCheapEcommerce – Launch a Professional Online Store in 30 Minutes for ₦50,000",
+  landingSeoDescription:
+    "Get a beautiful, conversion-focused ecommerce website for just ₦50,000 and start selling online in under 30 minutes. Done‑for‑you setup, mobile‑ready storefronts, WhatsApp checkout, inventory management and a friendly admin dashboard included.",
+  landingSeoKeywords:
+    "ecommerce website, online store, nigeria ecommerce, cheap ecommerce, affordable online shop, launch store fast, getcheapecommerce, whatsapp checkout, small business ecommerce, sell online in nigeria, 50000 naira website",
 };
 
 export const categories = [

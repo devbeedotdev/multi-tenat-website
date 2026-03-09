@@ -1,4 +1,10 @@
-import { getAllTenants, isMainPlatformDomain, verifySuperAdminPassword } from "@/lib/dal";
+import {
+  getAllTenants,
+  getSuperAdminSettings,
+  isMainPlatformDomain,
+  updateSuperAdminSettings,
+  verifySuperAdminPassword,
+} from "@/lib/dal";
 import type { Tenant } from "@/types/tenant";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -102,6 +108,28 @@ async function handleUpdateTenant(formData: FormData) {
   redirect(`/super-admin?updated=${encodeURIComponent(tenantId)}`);
 }
 
+async function handleUpdatePlatformSettings(formData: FormData) {
+  "use server";
+
+  const cookieStore = cookies();
+  const superSession = cookieStore.get(SUPER_ADMIN_COOKIE)?.value;
+  if (!superSession) {
+    redirect("/super-admin?error=Super admin session required");
+  }
+
+  const get = (key: string, fallback: string): string =>
+    String(formData.get(key) ?? fallback).trim();
+
+  await updateSuperAdminSettings({
+    phoneNumber: get("phoneNumber", ""),
+    landingSeoTitle: get("landingSeoTitle", ""),
+    landingSeoDescription: get("landingSeoDescription", ""),
+    landingSeoKeywords: get("landingSeoKeywords", ""),
+  });
+
+  redirect("/super-admin?updated=platform");
+}
+
 export default async function SuperAdminPage({
   searchParams,
 }: {
@@ -160,6 +188,7 @@ export default async function SuperAdminPage({
     );
   }
 
+  const platformSettings = getSuperAdminSettings();
   const tenants = await getAllTenants();
 
   return (
@@ -184,10 +213,88 @@ export default async function SuperAdminPage({
 
         {updatedTenantId && (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-            Tenant <span className="font-mono">{updatedTenantId}</span> updated
-            successfully.
+            {updatedTenantId === "platform" ? (
+              <>Platform settings updated successfully.</>
+            ) : (
+              <>
+                Tenant <span className="font-mono">{updatedTenantId}</span> updated
+                successfully.
+              </>
+            )}
           </div>
         )}
+
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <div className="space-y-1">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Platform landing page & SEO
+              </h2>
+              <p className="text-xs text-slate-500">
+                Control the marketing copy, SEO and WhatsApp number for{" "}
+                <span className="font-medium">{platformSettings.domain}</span>.
+              </p>
+            </div>
+          </div>
+
+          <form action={handleUpdatePlatformSettings} className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="space-y-1 md:col-span-2">
+                <span className="block text-[11px] font-medium text-slate-700">
+                  WhatsApp phone (format: 234...)
+                </span>
+                <input
+                  name="phoneNumber"
+                  defaultValue={platformSettings.phoneNumber ?? ""}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </label>
+
+              <label className="space-y-1 md:col-span-2">
+                <span className="block text-[11px] font-medium text-slate-700">
+                  Landing page SEO title
+                </span>
+                <input
+                  name="landingSeoTitle"
+                  defaultValue={platformSettings.landingSeoTitle ?? ""}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </label>
+
+              <label className="space-y-1 md:col-span-2">
+                <span className="block text-[11px] font-medium text-slate-700">
+                  Landing page SEO description
+                </span>
+                <textarea
+                  name="landingSeoDescription"
+                  defaultValue={platformSettings.landingSeoDescription ?? ""}
+                  rows={3}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </label>
+
+              <label className="space-y-1 md:col-span-2">
+                <span className="block text-[11px] font-medium text-slate-700">
+                  Landing page SEO keywords (comma-separated)
+                </span>
+                <input
+                  name="landingSeoKeywords"
+                  defaultValue={platformSettings.landingSeoKeywords ?? ""}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </label>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+              >
+                Save platform settings
+              </button>
+            </div>
+          </form>
+        </section>
 
         <div className="grid gap-4 md:grid-cols-2">
           {tenants.map((tenant) => (
