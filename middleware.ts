@@ -51,7 +51,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Pass through static assets
+  // 2. Explicitly bypass super-admin console on all hosts.
+  //    This must always route directly to app/super-admin without
+  //    being treated as a tenant path or rewritten.
+  if (pathname === "/super-admin" || pathname.startsWith("/super-admin/")) {
+    return NextResponse.next();
+  }
+
+  // 3. Pass through static assets
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/images") ||
@@ -68,13 +75,13 @@ export function middleware(request: NextRequest) {
     "getcheapecommerce.com";
   const mainCanonical = toCanonicalTenantHost(mainDomain);
 
-  // 3. Never apply tenant rewrite to localhost or server IP
+  // 4. Never apply tenant rewrite to localhost or server IP
   if (isBypassHost(hostname)) {
     return NextResponse.next();
   }
 
-  // Main domain (e.g. getcheapecommerce.com): serve landing pages, marketing
-  // routes, and super-admin console without tenant rewrites.
+  // Main domain (e.g. getcheapecommerce.com): serve landing pages and
+  // platform-level routes (including /super-admin) without tenant rewrites.
   if (canonicalHost === mainCanonical) {
     return NextResponse.next();
   }

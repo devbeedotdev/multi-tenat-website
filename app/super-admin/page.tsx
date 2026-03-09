@@ -189,11 +189,11 @@ export default async function SuperAdminPage({
           </div>
         )}
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {tenants.map((tenant) => (
             <section
               key={tenant.tenantId}
-              className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="space-y-1">
@@ -204,228 +204,242 @@ export default async function SuperAdminPage({
                     <span className="font-mono">{tenant.tenantId}</span>
                   </p>
                 </div>
-                <form action={handleImpersonateTenant}>
-                  <input
-                    type="hidden"
-                    name="tenantId"
-                    value={tenant.tenantId}
-                  />
-                  <button
-                    type="submit"
-                    className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                  >
-                    Open products
-                  </button>
-                </form>
-              </div>
-
-              <form action={handleUpdateTenant} className="space-y-3 text-xs">
-                <input
-                  type="hidden"
-                  name="tenantId"
-                  value={tenant.tenantId}
-                />
-
-                <div className="grid gap-2 md:grid-cols-2">
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Business name
-                    </span>
+                <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+                  <form action={handleImpersonateTenant}>
                     <input
-                      name="businessName"
-                      defaultValue={tenant.businessName}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                      type="hidden"
+                      name="tenantId"
+                      value={tenant.tenantId}
                     />
-                  </label>
-
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Website display name
-                    </span>
-                    <input
-                      name="websiteDisplayName"
-                      defaultValue={tenant.websiteDisplayName}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Business email
-                    </span>
-                    <input
-                      name="businessEmail"
-                      type="email"
-                      defaultValue={tenant.businessEmail}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Business phone
-                    </span>
-                    <input
-                      name="businessPhoneNumber"
-                      defaultValue={tenant.businessPhoneNumber}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-                </div>
-
-                <label className="space-y-1">
-                  <span className="block text-[11px] font-medium text-slate-700">
-                    Business description
-                  </span>
-                  <textarea
-                    name="businessDescription"
-                    defaultValue={tenant.businessDescription}
-                    rows={2}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                  />
-                </label>
-
-                <div className="grid gap-2 md:grid-cols-2">
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Variant
-                    </span>
-                    <select
-                      name="variant"
-                      defaultValue={tenant.variant}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                    <button
+                      type="submit"
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
                     >
-                      <option value="A">A</option>
-                      <option value="B">B</option>
-                      <option value="C">C</option>
-                    </select>
-                  </label>
+                      Open products
+                    </button>
+                  </form>
 
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Primary color
-                    </span>
-                    <input
-                      name="primaryColor"
-                      defaultValue={tenant.primaryColor}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-mono text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
+                  <details className="group w-full sm:w-auto">
+                    <summary className="list-none">
+                      <button
+                        type="button"
+                        className="w-full rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 group-open:rounded-b-none"
+                      >
+                        Edit tenant
+                      </button>
+                    </summary>
+                    <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-900 group-open:rounded-t-none">
+                      <form action={handleUpdateTenant} className="space-y-3">
+                        <input
+                          type="hidden"
+                          name="tenantId"
+                          value={tenant.tenantId}
+                        />
+
+                        <div className="grid gap-2 md:grid-cols-2">
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Business name
+                            </span>
+                            <input
+                              name="businessName"
+                              defaultValue={tenant.businessName}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Website display name
+                            </span>
+                            <input
+                              name="websiteDisplayName"
+                              defaultValue={tenant.websiteDisplayName}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Business email
+                            </span>
+                            <input
+                              name="businessEmail"
+                              type="email"
+                              defaultValue={tenant.businessEmail}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Business phone
+                            </span>
+                            <input
+                              name="businessPhoneNumber"
+                              defaultValue={tenant.businessPhoneNumber}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+                        </div>
+
+                        <label className="space-y-1">
+                          <span className="block text-[11px] font-medium text-slate-700">
+                            Business description
+                          </span>
+                          <textarea
+                            name="businessDescription"
+                            defaultValue={tenant.businessDescription}
+                            rows={2}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                          />
+                        </label>
+
+                        <div className="grid gap-2 md:grid-cols-2">
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Variant
+                            </span>
+                            <select
+                              name="variant"
+                              defaultValue={tenant.variant}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            >
+                              <option value="A">A</option>
+                              <option value="B">B</option>
+                              <option value="C">C</option>
+                            </select>
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Primary color
+                            </span>
+                            <input
+                              name="primaryColor"
+                              defaultValue={tenant.primaryColor}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-mono text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+                        </div>
+
+                        <div className="grid gap-2 md:grid-cols-2">
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Logo URL
+                            </span>
+                            <input
+                              name="logoUrl"
+                              defaultValue={tenant.logoUrl ?? ""}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Favicon URL
+                            </span>
+                            <input
+                              name="favIcon"
+                              defaultValue={tenant.favIcon}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+                        </div>
+
+                        <div className="grid gap-2 md:grid-cols-2">
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Account name
+                            </span>
+                            <input
+                              name="accountName"
+                              defaultValue={tenant.accountName}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Bank account
+                            </span>
+                            <input
+                              name="bankAccountNumber"
+                              defaultValue={tenant.bankAccountNumber}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Bank name
+                            </span>
+                            <input
+                              name="bankName"
+                              defaultValue={tenant.bankName}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[11px] font-medium text-slate-700">
+                              Currency
+                            </span>
+                            <input
+                              name="currency"
+                              defaultValue={tenant.currency}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                            />
+                          </label>
+                        </div>
+
+                        <div className="space-y-1">
+                          <span className="block text-[11px] font-medium text-slate-700">
+                            SEO title
+                          </span>
+                          <input
+                            name="seoTitle"
+                            defaultValue={tenant.seoTitle ?? ""}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <span className="block text-[11px] font-medium text-slate-700">
+                            SEO description
+                          </span>
+                          <textarea
+                            name="seoDescription"
+                            defaultValue={tenant.seoDescription ?? ""}
+                            rows={2}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <span className="block text-[11px] font-medium text-slate-700">
+                            SEO keywords (comma-separated)
+                          </span>
+                          <input
+                            name="seoKeywords"
+                            defaultValue={tenant.seoKeywords ?? ""}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                          />
+                        </div>
+
+                        <div className="flex justify-end pt-1">
+                          <button
+                            type="submit"
+                            className="inline-flex items-center rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                          >
+                            Save tenant
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </details>
                 </div>
-
-                <div className="grid gap-2 md:grid-cols-2">
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Logo URL
-                    </span>
-                    <input
-                      name="logoUrl"
-                      defaultValue={tenant.logoUrl ?? ""}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Favicon URL
-                    </span>
-                    <input
-                      name="favIcon"
-                      defaultValue={tenant.favIcon}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-                </div>
-
-                <div className="grid gap-2 md:grid-cols-2">
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Account name
-                    </span>
-                    <input
-                      name="accountName"
-                      defaultValue={tenant.accountName}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Bank account
-                    </span>
-                    <input
-                      name="bankAccountNumber"
-                      defaultValue={tenant.bankAccountNumber}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Bank name
-                    </span>
-                    <input
-                      name="bankName"
-                      defaultValue={tenant.bankName}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-
-                  <label className="space-y-1">
-                    <span className="block text-[11px] font-medium text-slate-700">
-                      Currency
-                    </span>
-                    <input
-                      name="currency"
-                      defaultValue={tenant.currency}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                    />
-                  </label>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="block text-[11px] font-medium text-slate-700">
-                    SEO title
-                  </span>
-                  <input
-                    name="seoTitle"
-                    defaultValue={tenant.seoTitle ?? ""}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <span className="block text-[11px] font-medium text-slate-700">
-                    SEO description
-                  </span>
-                  <textarea
-                    name="seoDescription"
-                    defaultValue={tenant.seoDescription ?? ""}
-                    rows={2}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <span className="block text-[11px] font-medium text-slate-700">
-                    SEO keywords (comma-separated)
-                  </span>
-                  <input
-                    name="seoKeywords"
-                    defaultValue={tenant.seoKeywords ?? ""}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                  />
-                </div>
-
-                <div className="flex justify-end pt-1">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                  >
-                    Save tenant
-                  </button>
-                </div>
-              </form>
+              </div>
             </section>
           ))}
         </div>

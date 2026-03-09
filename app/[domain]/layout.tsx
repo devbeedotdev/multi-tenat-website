@@ -10,11 +10,38 @@ type DomainLayoutProps = {
   };
 };
 
+function toCanonicalHost(hostname: string): string {
+  const lower = hostname.toLowerCase();
+  return lower.startsWith("www.") ? lower.slice(4) : lower;
+}
+
+function getMainDomain(): string {
+  return (
+    process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
+    process.env.MAIN_DOMAIN ??
+    "getcheapecommerce.com"
+  );
+}
+
+function isMainDomainParam(domain: string): boolean {
+  const main = toCanonicalHost(getMainDomain());
+  const candidate = toCanonicalHost(domain);
+  return candidate === main;
+}
+
 export function generateMetadata({
   params,
 }: {
   params: { domain: string };
 }): Metadata {
+  // Guard: never attempt tenant lookup for the platform main domain.
+  if (isMainDomainParam(params.domain)) {
+    return {
+      title: "Platform",
+      description: "Multi-tenant ecommerce platform",
+    };
+  }
+
   const tenant = getTenantByDomain(params.domain);
 
   if (!tenant) {
@@ -40,6 +67,13 @@ export function generateMetadata({
 }
 
 export default function DomainLayout({ children, params }: DomainLayoutProps) {
+  // Guard: if someone accidentally routes the main platform domain
+  // through this layout, render children without tenant styling instead
+  // of throwing a "Tenant not found" error.
+  if (isMainDomainParam(params.domain)) {
+    return <>{children}</>;
+  }
+
   const tenant = getTenantByDomain(params.domain);
 
   if (!tenant) {
