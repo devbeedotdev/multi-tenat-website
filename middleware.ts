@@ -70,6 +70,9 @@ export function middleware(request: NextRequest) {
 
   const hostname = getEffectiveHost(request);
   const canonicalHost = toCanonicalTenantHost(hostname);
+  console.log(
+    `[Middleware Debug] Path: ${pathname} | Host: ${hostname} | Canonical: ${canonicalHost}`,
+  );
   const mainDomain =
     process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
     process.env.MAIN_DOMAIN ??
