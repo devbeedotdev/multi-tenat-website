@@ -24,14 +24,15 @@ function isBypassHost(hostname: string): boolean {
  * - Normalization: lowercase
  */
 function getEffectiveHost(request: NextRequest): string {
-  const host = request.headers.get("host") ?? "";
+  // 1. Try X-Forwarded-Host first (Standard for proxies)
   const forwardedHost = request.headers.get("x-forwarded-host");
-  const hostnameRaw = host.split(":")[0].toLowerCase();
-  const effective =
-    isBypassHost(hostnameRaw) && forwardedHost
-      ? forwardedHost.split(",")[0].trim().split(":")[0].toLowerCase()
-      : hostnameRaw;
-  return effective;
+  if (forwardedHost) {
+    return forwardedHost.split(",")[0].trim().split(":")[0].toLowerCase();
+  }
+
+  // 2. Fallback to standard Host header
+  const host = request.headers.get("host") ?? "";
+  return host.split(":")[0].toLowerCase();
 }
 
 /**
@@ -89,14 +90,19 @@ export function middleware(request: NextRequest) {
   // Path already prefixed with a known tenant domain
   const pathSegments = pathname.split("/").filter(Boolean);
   const firstSegment = pathSegments[0];
-  if (firstSegment && tenantExists(firstSegment) && !isBypassHost(firstSegment)) {
+  if (
+    firstSegment &&
+    tenantExists(firstSegment) &&
+    !isBypassHost(firstSegment)
+  ) {
     return NextResponse.next();
   }
 
   // 4. Tenant domain: rewrite to /{canonicalHost}/[path] — no localhost, no www in path
   if (tenantExists(canonicalHost) && !isBypassHost(canonicalHost)) {
     const clonedUrl = request.nextUrl.clone();
-    clonedUrl.pathname = pathname === "/" ? `/${canonicalHost}` : `/${canonicalHost}${pathname}`;
+    clonedUrl.pathname =
+      pathname === "/" ? `/${canonicalHost}` : `/${canonicalHost}${pathname}`;
     return NextResponse.rewrite(clonedUrl);
   }
 
