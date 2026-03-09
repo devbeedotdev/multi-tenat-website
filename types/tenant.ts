@@ -17,6 +17,10 @@ export type Tenant = {
   logoUrl?: string;
   isLogoHorizontal: boolean;
   currency: string;
+  /** Optional SEO metadata for the tenant storefront */
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 };
 
 export type TenantPageProps = {

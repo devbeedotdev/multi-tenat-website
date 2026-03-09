@@ -73,7 +73,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Main domain: serve root landing page / admin dashboard (no rewrite)
+  // Main domain (e.g. getcheapecommerce.com): serve landing pages, marketing
+  // routes, and super-admin console without tenant rewrites.
   if (canonicalHost === mainCanonical) {
     return NextResponse.next();
   }

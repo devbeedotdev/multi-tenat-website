@@ -23,8 +23,16 @@ export function generateMetadata({
     };
   }
 
+  const keywords =
+    tenant.seoKeywords
+      ?.split(",")
+      .map((k) => k.trim())
+      .filter(Boolean) ?? [];
+
   return {
-    title: tenant.websiteDisplayName,
+    title: tenant.seoTitle || tenant.websiteDisplayName,
+    description: tenant.seoDescription || tenant.businessDescription,
+    keywords: keywords.length ? keywords : undefined,
     icons: {
       icon: [{ url: tenant.favIcon }],
     },

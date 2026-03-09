@@ -35,6 +35,9 @@ export default async function AdminSettingsPage({
   const domain = params.domain.toLowerCase();
   const tenant = await requireAdminTenantForDomain(domain);
   const settingsSaved = searchParams.settingsSaved === "1";
+  const cookieStore = cookies();
+  const isSuperAdmin =
+    cookieStore.get("super_admin_session")?.value != null;
 
   return (
     <div className="space-y-6">
@@ -68,7 +71,7 @@ export default async function AdminSettingsPage({
       )}
 
       <form action={updateTenantSettings.bind(null, domain)}>
-        <AdminStoreSettingsForm tenant={tenant} />
+        <AdminStoreSettingsForm tenant={tenant} isSuperAdmin={isSuperAdmin} />
       </form>
     </div>
   );

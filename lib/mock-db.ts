@@ -1,6 +1,6 @@
 import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
-import { Tenant } from "@/types/tenant";
+import type { Tenant } from "@/types/tenant";
 
 /** Cloud carts keyed by normalized phone number (digits only) for cross-device sync */
 export const cloudCarts: Record<string, CartItem[]> = {};
@@ -28,6 +28,11 @@ export const tenants: Record<string, Tenant> = {
     logoUrl: "/images/logo.jpeg",
     favIcon:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
+    seoTitle: "Jumia Nigeria – Localhost Demo Store",
+    seoDescription:
+      "Explore the Localhost Demo Store with Jumia Nigeria – a playground for testing modern multi-tenant ecommerce experiences.",
+    seoKeywords:
+      "ecommerce, demo store, localhost, jumia nigeria, multi-tenant, online shopping",
   },
   "client-a.com": {
     businessName: "Client A Boutique - Second",
@@ -47,6 +52,11 @@ export const tenants: Record<string, Tenant> = {
     websiteDisplayName: "Pari Pulse",
     favIcon:
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
+    seoTitle: "Pari Pulse – Client A Boutique",
+    seoDescription:
+      "Pari Pulse is a modern boutique experience for fashion-forward shoppers, powered by our multi-tenant ecommerce engine.",
+    seoKeywords:
+      "pari pulse, client a, boutique, fashion, ecommerce, multi-tenant",
   },
 
   "customer-shop.com": {
@@ -67,6 +77,11 @@ export const tenants: Record<string, Tenant> = {
     logoUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
     favIcon:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
+    seoTitle: "Customer Shop – Customer-First Marketplace",
+    seoDescription:
+      "Customer Shop is a trusted, customer-first marketplace showcasing a wide range of everyday products.",
+    seoKeywords:
+      "customer shop, marketplace, online store, ecommerce, multi-tenant",
   },
   "another-store.com": {
     businessName: "Another Store",
@@ -87,7 +102,21 @@ export const tenants: Record<string, Tenant> = {
     logoUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
     favIcon:
       "https://images.unsplash.com/photo-1454625233598-f29d597eea1e?auto=format&fit=crop&w=64&h=64&q=80",
+    seoTitle: "Another Store – Alternative Shopping Experience",
+    seoDescription:
+      "Another Store offers a different shopping experience with unique products and bold branding.",
+    seoKeywords:
+      "another store, alternative shopping, ecommerce, online store, multi-tenant",
   },
+};
+
+export const superAdmin = {
+  /** Main platform domain that owns the super admin console */
+  domain: "getcheapecommerce.com",
+  /** Login identifier for the super admin */
+  email: "superadmin@getcheapecommerce.com",
+  /** Plain-text password for mock purposes only */
+  password: "SuperAdmin@123",
 };
 
 export const categories = [

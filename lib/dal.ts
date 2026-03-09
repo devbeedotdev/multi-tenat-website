@@ -13,6 +13,7 @@ import {
   cloudCartPasswords,
   cloudCarts,
   products,
+  superAdmin,
   tenants,
 } from "./mock-db";
 
@@ -69,6 +70,48 @@ export function tenantExists(domain: string): boolean {
   const normalized = domain.split(":")[0].toLowerCase();
   if (ROUTING_RESERVED_HOSTS.includes(normalized)) return false;
   return normalized in tenants;
+}
+
+function toCanonicalHost(hostname: string): string {
+  const lower = hostname.toLowerCase();
+  return lower.startsWith("www.") ? lower.slice(4) : lower;
+}
+
+function getMainDomain(): string {
+  return (
+    process.env.NEXT_PUBLIC_MAIN_DOMAIN ??
+    process.env.MAIN_DOMAIN ??
+    superAdmin.domain
+  );
+}
+
+/**
+ * Check if a given hostname belongs to the main platform domain.
+ * Used to gate access to the super admin console.
+ */
+export function isMainPlatformDomain(domain: string): boolean {
+  const main = toCanonicalHost(getMainDomain());
+  const candidate = toCanonicalHost(domain.split(":")[0]);
+  return candidate === main;
+}
+
+/**
+ * Verify super admin credentials against the mock DB record.
+ * Intended only for use on the main platform domain.
+ */
+export async function verifySuperAdminPassword(
+  password: string,
+): Promise<boolean> {
+  if (!password) return false;
+  return password === superAdmin.password;
+}
+
+/**
+ * Get all tenants as an array.
+ * Only intended for super admin consoles or background tasks.
+ */
+export async function getAllTenants(): Promise<Tenant[]> {
+  return Object.values(tenants);
 }
 
 

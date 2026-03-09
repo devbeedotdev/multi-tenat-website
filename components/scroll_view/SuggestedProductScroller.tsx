@@ -62,20 +62,6 @@ export default function SuggestedScroller({
       {/* LEFT ARROW */}
       {canScrollLeft && (
         <button
-          onClick={() => scroll("left")}
-          disabled={!canScrollLeft}
-          className={`hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20
-            rounded-full bg-white/80 backdrop-blur-md shadow-md
-            p-2 transition hover:scale-110 active:scale-95
-          `}
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* RIGHT ARROW */}
-      {canScrollRight && (
-        <button
           onClick={() => scroll("right")}
           disabled={!canScrollRight}
           className={`hidden md:flex absolute left-1 top-1/2 -translate-y-1/2 z-20
@@ -84,6 +70,20 @@ export default function SuggestedScroller({
           `}
         >
           <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* RIGHT ARROW */}
+      {canScrollRight && (
+        <button
+          onClick={() => scroll("left")}
+          disabled={!canScrollLeft}
+          className={`hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20
+            rounded-full bg-white/80 backdrop-blur-md shadow-md
+            p-2 transition hover:scale-110 active:scale-95
+          `}
+        >
+          <ChevronRight className="w-5 h-5" />
         </button>
       )}
 

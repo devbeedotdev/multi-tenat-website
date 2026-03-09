@@ -6,10 +6,13 @@ import { useRef, useState } from "react";
 
 type AdminStoreSettingsFormProps = {
   tenant: Tenant;
+  /** When true, branding fields that are normally locked become editable. */
+  isSuperAdmin?: boolean;
 };
 
 export function AdminStoreSettingsForm({
   tenant,
+  isSuperAdmin = false,
 }: AdminStoreSettingsFormProps) {
   const [businessName, setBusinessName] = useState(tenant.businessName);
   const [websiteDisplayName, setWebsiteDisplayName] = useState(
@@ -38,6 +41,14 @@ export function AdminStoreSettingsForm({
     tenant.bankAccountNumber,
   );
   const [bankName, setBankName] = useState(tenant.bankName);
+
+  const isVariantLocked = !isSuperAdmin && !!tenant.variant;
+  const isCurrencyLocked = !isSuperAdmin && !!tenant.currency;
+
+  const isPrimaryColorLocked =
+    !isSuperAdmin && typeof tenant.primaryColor === "string"
+      ? tenant.primaryColor.trim().length > 0
+      : false;
 
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const faviconInputRef = useRef<HTMLInputElement | null>(null);
@@ -182,7 +193,8 @@ export function AdminStoreSettingsForm({
                 name="variant"
                 value={variant}
                 onChange={(e) => setVariant(e.target.value as TenantVariant)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                disabled={isVariantLocked}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300 disabled:cursor-not-allowed disabled:bg-slate-50"
               >
                 <option value="A">Variant A</option>
                 <option value="B">Variant B</option>
@@ -200,12 +212,14 @@ export function AdminStoreSettingsForm({
                   name="primaryColor"
                   value={primaryColor}
                   onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="h-9 w-12 cursor-pointer rounded border border-slate-200 bg-white"
+                  disabled={isPrimaryColorLocked}
+                  className="h-9 w-12 cursor-pointer rounded border border-slate-200 bg-white disabled:cursor-not-allowed disabled:bg-slate-50"
                 />
                 <input
                   value={primaryColor}
                   onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  disabled={isPrimaryColorLocked}
+                  className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300 disabled:cursor-not-allowed disabled:bg-slate-50"
                 />
               </div>
             </div>
@@ -218,6 +232,7 @@ export function AdminStoreSettingsForm({
                 <input
                   name="logoUrl"
                   value={logoUrl}
+                  disabled={true}
                   onChange={(e) => setLogoUrl(e.target.value)}
                   className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                 />
@@ -246,6 +261,7 @@ export function AdminStoreSettingsForm({
                 <input
                   name="favIcon"
                   value={favIcon}
+                  disabled={true}
                   onChange={(e) => setFavIcon(e.target.value)}
                   className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                 />
@@ -294,6 +310,7 @@ export function AdminStoreSettingsForm({
                   name="currency"
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
+                  disabled={isCurrencyLocked}
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                 >
                   <option value="₦">₦</option>
