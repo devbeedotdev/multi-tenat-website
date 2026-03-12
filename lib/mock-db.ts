@@ -34,6 +34,8 @@ export const tenants: Record<string, Tenant> = {
       "Explore the Localhost Demo Store with Jumia Nigeria – a playground for testing modern multi-tenant ecommerce experiences.",
     seoKeywords:
       "ecommerce, demo store, localhost, jumia nigeria, multi-tenant, online shopping",
+    updatedAt: Date.now().toString(),
+    createdAt: Date.now().toString(),
   },
   "client-a.com": {
     businessName: "Client A Boutique - Second",
@@ -58,6 +60,8 @@ export const tenants: Record<string, Tenant> = {
       "Pari Pulse is a modern boutique experience for fashion-forward shoppers, powered by our multi-tenant ecommerce engine.",
     seoKeywords:
       "pari pulse, client a, boutique, fashion, ecommerce, multi-tenant",
+    updatedAt: Date.now().toString(),
+    createdAt: Date.now().toString(),
   },
 
   "customer-shop.com": {
@@ -83,6 +87,8 @@ export const tenants: Record<string, Tenant> = {
       "Customer Shop is a trusted, customer-first marketplace showcasing a wide range of everyday products.",
     seoKeywords:
       "customer shop, marketplace, online store, ecommerce, multi-tenant",
+    updatedAt: Date.now().toString(),
+    createdAt: Date.now().toString(),
   },
   "another-store.com": {
     businessName: "Another Store",
@@ -108,6 +114,8 @@ export const tenants: Record<string, Tenant> = {
       "Another Store offers a different shopping experience with unique products and bold branding.",
     seoKeywords:
       "another store, alternative shopping, ecommerce, online store, multi-tenant",
+    updatedAt: Date.now().toString(),
+    createdAt: Date.now().toString(),
   },
 };
 
@@ -231,5 +239,6 @@ export const products: Product[] = Array.from({ length: 60 }, (_, i) => {
     ],
     shortDescription: `Premium ${category.toLowerCase()} designed for everyday use, combining quality materials with modern styling and long-lasting performance.`,
     fullDescription: `This high-quality ${category.toLowerCase()} item is built with durability and style in mind. Perfect for both casual and premium use cases. Designed for comfort, reliability, and long-term performance.`,
+   
   };
 });

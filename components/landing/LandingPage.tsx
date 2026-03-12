@@ -1,7 +1,7 @@
 "use client";
 
-import LandingOrderModal from "@/components/landing/LandingOrderModal";
 import FaqSection from "@/components/landing/FaqSection";
+import LandingOrderModal from "@/components/landing/LandingOrderModal";
 import {
   PLATFORM_BRAND_NAME,
   PLATFORM_LOGO_URL,
@@ -31,9 +31,6 @@ type LandingPageProps = {
     paystackReference: string,
   ) => Promise<Result<LandingOrder>>;
 };
-
-const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30";
 
 export default function LandingPage({
   superAdminPhone,
@@ -149,7 +146,8 @@ export default function LandingPage({
                           {PLATFORM_BRAND_NAME}
                         </p>
                         <p className="text-[10px] text-slate-400">
-                          Personal custom ecommerce website for serious online shops
+                          Personal custom ecommerce website for serious online
+                          shops
                         </p>
                       </div>
                     </div>
@@ -179,9 +177,7 @@ export default function LandingPage({
                     </div>
                     <div className="flex items-center justify-between text-xs text-slate-200">
                       <span>Monthly subscription</span>
-                      <span className="font-semibold text-red-300">
-                        None
-                      </span>
+                      <span className="font-semibold text-red-300">None</span>
                     </div>
                   </div>
 
@@ -220,10 +216,7 @@ export default function LandingPage({
                     title: "Shopping cart & checkout",
                     body: "Smooth cart experience that helps buyers add items and complete orders without friction.",
                   },
-                  {
-                    title: "Order management",
-                    body: "Track orders from purchase to fulfilment with clear statuses and contact details.",
-                  },
+
                   {
                     title: "WhatsApp checkout",
                     body: "Let customers complete orders and ask questions via WhatsApp with a single tap.",
@@ -325,16 +318,22 @@ export default function LandingPage({
                       label: "Variant A",
                       title: "Classic grid storefront",
                       body: "Clean hero, product grid and category filters. Perfect for general retail shops.",
+                      imageUrl:
+                        "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
                     },
                     {
                       label: "Variant B",
                       title: "Story-driven hero layout",
                       body: "Big, bold hero with storytelling sections for brands that want to showcase lifestyle.",
+                      imageUrl:
+                        "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
                     },
                     {
                       label: "Variant C",
                       title: "Social commerce focused",
                       body: "Optimised for WhatsApp and social traffic with strong CTAs and highlights.",
+                      imageUrl:
+                        "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
                     },
                   ].map((variant) => (
                     <div
@@ -343,7 +342,7 @@ export default function LandingPage({
                     >
                       <div className="relative h-24 w-full">
                         <Image
-                          src={PLACEHOLDER_IMAGE}
+                          src={variant.imageUrl}
                           alt={variant.title}
                           fill
                           sizes="200px"
@@ -480,4 +479,3 @@ export default function LandingPage({
     </>
   );
 }
-

@@ -21,6 +21,8 @@ export type Tenant = {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type TenantPageProps = {
