@@ -6,10 +6,12 @@
  */
 
 import { MAIN_DOMAIN } from "@/lib/config/platform";
+import { prisma } from "@/lib/prisma";
 import type { CartItem } from "@/types/cart";
 import type { LandingOrder, Order, OrderStatus } from "@/types/order";
 import type { Product } from "@/types/product";
 import type { Tenant } from "@/types/tenant";
+import type { Result } from "@/types/result";
 import {
   cloudCartPasswords,
   cloudCarts,
@@ -33,42 +35,101 @@ function normalizePhone(phone: string): string {
   return phone.replace(/\D/g, "");
 }
 
-/**
- * Get tenant configuration by domain
- * @param domain - The domain/hostname (e.g., "localhost", "client-a.com")
- * @returns Tenant configuration or null if not found
- */
-export async function getTenantConfig(domain: string): Promise<Tenant | null> {
-  const tenant = getTenantByDomain(domain);
-  return tenant || null;
+function mapTenantRecord(record: any): Tenant {
+  return {
+    businessName: record.businessName,
+    tenantId: record.tenantId,
+    accountName: record.accountName,
+    businessPhoneNumber: record.businessPhoneNumber,
+    businessEmail: record.businessEmail,
+    adminPassword: record.adminPassword,
+    variant: record.variant as Tenant["variant"],
+    primaryColor: record.primaryColor,
+    businessDescription: record.businessDescription,
+    websiteDisplayName: record.websiteDisplayName,
+    bankAccountNumber: record.bankAccountNumber,
+    bankName: record.bankName,
+    favIcon: record.favIcon,
+    logoUrl: record.logoUrl ?? undefined,
+    isLogoHorizontal: record.isLogoHorizontal,
+    currency: record.currency,
+    seoTitle: record.seoTitle ?? undefined,
+    seoDescription: record.seoDescription ?? undefined,
+    seoKeywords: record.seoKeywords ?? undefined,
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString(),
+  };
 }
 
 /**
- * Get tenant by domain (synchronous version for compatibility)
- * @param domain - The domain/hostname
- * @returns Tenant or undefined if not found
+ * Get tenant configuration by domain
+ * @param domain - The domain/hostname (e.g., "localhost", "client-a.com")
  */
-export function getTenantByDomain(domain: string): Tenant | undefined {
+export async function getTenantConfig(
+  domain: string,
+): Promise<Result<Tenant>> {
   const normalized = domain.split(":")[0].toLowerCase();
-  return tenants[normalized];
+
+  try {
+    const record = await prisma.tenant.findUnique({
+      where: { domain: normalized },
+    });
+
+    if (!record) {
+      return {
+        ok: false,
+        error: `Tenant not found for domain "${normalized}"`,
+      };
+    }
+
+    return { ok: true, data: mapTenantRecord(record) };
+  } catch (error) {
+    console.error("getTenantConfig failed:", error);
+    return {
+      ok: false,
+      error: "Failed to load tenant configuration.",
+    };
+  }
+}
+
+/**
+ * Get tenant by domain (Result wrapper)
+ */
+export async function getTenantByDomain(
+  domain: string,
+): Promise<Result<Tenant>> {
+  return getTenantConfig(domain);
 }
 
 /** Hosts that must never be treated as tenant domains for routing (Caddy, local dev) */
 const ROUTING_RESERVED_HOSTS = ["localhost", "127.0.0.1", "::1"];
 
 /**
- * Check if a tenant exists for the given domain
- * @param domain - The domain/hostname
- * @returns true if tenant exists, false otherwise
+ * Check if a tenant exists for the given domain.
  *
  * This is a lightweight function for middleware and other edge cases
  * that need to check tenant existence without fetching full tenant data.
  * Returns false for localhost/server IP to prevent them from being rewritten as tenants.
  */
-export function tenantExists(domain: string): boolean {
+export async function tenantExists(domain: string): Promise<Result<boolean>> {
   const normalized = domain.split(":")[0].toLowerCase();
-  if (ROUTING_RESERVED_HOSTS.includes(normalized)) return false;
-  return normalized in tenants;
+
+  if (ROUTING_RESERVED_HOSTS.includes(normalized)) {
+    return { ok: true, data: false };
+  }
+
+  try {
+    const count = await prisma.tenant.count({
+      where: { domain: normalized },
+    });
+    return { ok: true, data: count > 0 };
+  } catch (error) {
+    console.error("tenantExists failed:", error);
+    return {
+      ok: false,
+      error: "Failed to check tenant existence.",
+    };
+  }
 }
 
 function toCanonicalHost(hostname: string): string {
@@ -93,24 +154,106 @@ export type SuperAdminSettings = {
   landingSeoTitle?: string;
   landingSeoDescription?: string;
   landingSeoKeywords?: string;
+  createdAt?: string;
 };
 
-export function getSuperAdminSettings(): SuperAdminSettings {
-  return {
-    domain: superAdmin.domain,
-    email: superAdmin.email,
-    phoneNumber: superAdmin.phoneNumber,
-    landingSeoTitle: superAdmin.landingSeoTitle,
-    landingSeoDescription: superAdmin.landingSeoDescription,
-    landingSeoKeywords: superAdmin.landingSeoKeywords,
-  };
+export async function getSuperAdminSettings(): Promise<
+  Result<SuperAdminSettings>
+> {
+  try {
+    const record = await prisma.superAdmin.findFirst({
+      orderBy: { id: "asc" },
+    });
+
+    if (!record) {
+      return {
+        ok: true,
+        data: {
+          domain: superAdmin.domain,
+          email: superAdmin.email,
+          phoneNumber: superAdmin.phoneNumber,
+          landingSeoTitle: superAdmin.landingSeoTitle,
+          landingSeoDescription: superAdmin.landingSeoDescription,
+          landingSeoKeywords: superAdmin.landingSeoKeywords,
+          createdAt: undefined,
+        },
+      };
+    }
+
+    return {
+      ok: true,
+      data: {
+        domain: record.domain,
+        email: record.email,
+        phoneNumber: record.phoneNumber,
+        landingSeoTitle: record.landingSeoTitle ?? undefined,
+        landingSeoDescription: record.landingSeoDescription ?? undefined,
+        landingSeoKeywords: record.landingSeoKeywords ?? undefined,
+        createdAt: record.createdAt.toISOString(),
+      },
+    };
+  } catch (error) {
+    console.error("getSuperAdminSettings failed:", error);
+    return {
+      ok: false,
+      error: "Failed to load super admin settings.",
+    };
+  }
 }
 
 export async function updateSuperAdminSettings(
   updates: Partial<Omit<SuperAdminSettings, "domain">>,
-): Promise<SuperAdminSettings> {
-  Object.assign(superAdmin, updates);
-  return getSuperAdminSettings();
+): Promise<Result<SuperAdminSettings>> {
+  try {
+    const existing = await prisma.superAdmin.findFirst({
+      orderBy: { id: "asc" },
+    });
+
+    const data = {
+      domain: existing?.domain ?? superAdmin.domain,
+      email: existing?.email ?? superAdmin.email,
+      password: existing?.password ?? superAdmin.password,
+      phoneNumber:
+        updates.phoneNumber ?? existing?.phoneNumber ?? superAdmin.phoneNumber,
+      landingSeoTitle:
+        updates.landingSeoTitle ??
+        existing?.landingSeoTitle ??
+        superAdmin.landingSeoTitle,
+      landingSeoDescription:
+        updates.landingSeoDescription ??
+        existing?.landingSeoDescription ??
+        superAdmin.landingSeoDescription,
+      landingSeoKeywords:
+        updates.landingSeoKeywords ??
+        existing?.landingSeoKeywords ??
+        superAdmin.landingSeoKeywords,
+    };
+
+    const saved = await prisma.superAdmin.upsert({
+      where: { id: existing?.id ?? 1 },
+      create: data,
+      update: data,
+    });
+
+    return {
+      ok: true,
+      data: {
+        domain: saved.domain,
+        email: saved.email,
+        phoneNumber: saved.phoneNumber,
+        landingSeoTitle: saved.landingSeoTitle ?? undefined,
+        landingSeoDescription: saved.landingSeoDescription ?? undefined,
+        landingSeoKeywords: saved.landingSeoKeywords ?? undefined,
+        createdAt: saved.createdAt.toISOString(),
+      },
+    };
+  } catch (error) {
+    console.error("updateSuperAdminSettings failed:", error);
+    return {
+      ok: false,
+      error: "Failed to update super admin settings.",
+    };
+  }
 }
 
 export async function getPlatformSeoConfig(): Promise<{
@@ -118,7 +261,23 @@ export async function getPlatformSeoConfig(): Promise<{
   description: string;
   keywords: string[];
 }> {
-  const settings = getSuperAdminSettings();
+  const result = await getSuperAdminSettings();
+
+  if (!result.ok) {
+    return {
+      title:
+        "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce",
+      description:
+        "Launch a professional ecommerce website in minutes with GetCheapEcommerce. Affordable, mobile-ready online stores with WhatsApp checkout and easy order management.",
+      keywords:
+        "ecommerce website, online store,jumia, nigeria ecommerce, cheap ecommerce, affordable online shop, launch store fast, getcheapecommerce, price nigeria, ecommerce website cost lagos, sell on whatsapp nigeria, affordable web designer nigeria, paystack ecommerce website, getcheapecommerce, how to sell online nigeria"
+          .split(",")
+          .map((k) => k.trim())
+          .filter(Boolean),
+    };
+  }
+
+  const settings = result.data;
   const title =
     settings.landingSeoTitle ||
     "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce";
@@ -145,7 +304,16 @@ export async function verifySuperAdminPassword(
   password: string,
 ): Promise<boolean> {
   if (!password) return false;
-  return password === superAdmin.password;
+  try {
+    const record = await prisma.superAdmin.findFirst({
+      orderBy: { id: "asc" },
+    });
+    const storedPassword = record?.password ?? superAdmin.password;
+    return password === storedPassword;
+  } catch (error) {
+    console.error("verifySuperAdminPassword failed:", error);
+    return false;
+  }
 }
 
 /**
@@ -153,7 +321,13 @@ export async function verifySuperAdminPassword(
  * Only intended for super admin consoles or background tasks.
  */
 export async function getAllTenants(): Promise<Tenant[]> {
-  return Object.values(tenants);
+  try {
+    const rows = await prisma.tenant.findMany();
+    return rows.map(mapTenantRecord);
+  } catch (error) {
+    console.error("getAllTenants failed:", error);
+    return [];
+  }
 }
 
 /**
@@ -173,14 +347,39 @@ export async function updateTenantInDB(
   tenantId: string,
   updates: Partial<Tenant>,
 ): Promise<Tenant | null> {
-  const tenant = tenants[tenantId];
-  if (!tenant) return null;
+  // Never allow tenantId / timestamps to be changed via this function.
+  const { tenantId: _ignoredTenantId, createdAt, updatedAt, ...rest } = updates;
 
-  // Never allow tenantId to be changed via this function.
-  const { tenantId: _ignoredTenantId, ...rest } = updates;
+  try {
+    const record = await prisma.tenant.update({
+      where: { tenantId },
+      data: {
+        businessName: rest.businessName,
+        accountName: rest.accountName,
+        businessPhoneNumber: rest.businessPhoneNumber,
+        businessEmail: rest.businessEmail,
+        adminPassword: rest.adminPassword,
+        variant: rest.variant as Tenant["variant"] | undefined,
+        primaryColor: rest.primaryColor,
+        businessDescription: rest.businessDescription,
+        websiteDisplayName: rest.websiteDisplayName,
+        bankAccountNumber: rest.bankAccountNumber,
+        bankName: rest.bankName,
+        favIcon: rest.favIcon,
+        logoUrl: rest.logoUrl,
+        isLogoHorizontal: rest.isLogoHorizontal,
+        currency: rest.currency,
+        seoTitle: rest.seoTitle,
+        seoDescription: rest.seoDescription,
+        seoKeywords: rest.seoKeywords,
+      },
+    });
 
-  Object.assign(tenant, rest);
-  return tenant;
+    return mapTenantRecord(record);
+  } catch (error) {
+    console.error("updateTenantInDB failed:", error);
+    return null;
+  }
 }
 
 /**
@@ -188,7 +387,15 @@ export async function updateTenantInDB(
  * In production, this would query the database for enabled tenants.
  */
 export async function getAllActiveDomains(): Promise<string[]> {
-  return Object.keys(tenants);
+  try {
+    const rows = await prisma.tenant.findMany({
+      select: { domain: true },
+    });
+    return rows.map((row: { domain: string }) => row.domain);
+  } catch (error) {
+    console.error("getAllActiveDomains failed:", error);
+    return [];
+  }
 }
 
 /**
@@ -415,9 +622,12 @@ export async function verifyAdminCredentials(
   domain: string,
   password: string,
 ): Promise<Tenant | null> {
-  const tenant = getTenantByDomain(domain);
-  if (!tenant) return null;
-  if (!password || tenant.adminPassword !== password) return null;
+  if (!password) return null;
+  const result = await getTenantByDomain(domain);
+  if (!result.ok) return null;
+
+  const tenant = result.data;
+  if (tenant.adminPassword !== password) return null;
   return tenant;
 }
 
@@ -425,11 +635,23 @@ export async function updateAdminPassword(
   domain: string,
   newPassword: string,
 ): Promise<Tenant | null> {
-  const tenant = getTenantByDomain(domain);
-  if (!tenant) return null;
   if (!newPassword) return null;
-  tenant.adminPassword = newPassword;
-  return tenant;
+
+  const result = await getTenantByDomain(domain);
+  if (!result.ok) return null;
+
+  const tenant = result.data;
+
+  try {
+    const record = await prisma.tenant.update({
+      where: { tenantId: tenant.tenantId },
+      data: { adminPassword: newPassword },
+    });
+    return mapTenantRecord(record);
+  } catch (error) {
+    console.error("updateAdminPassword failed:", error);
+    return null;
+  }
 }
 
 export async function createPasswordReset(

@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantVariant {
+  A
+  B
+  C
+}
+
+model Tenant {
+  tenantId            String        @id
+
+  businessName        String
+  accountName         String
+  businessPhoneNumber String
+  businessEmail       String
+  adminPassword       String
+  variant             TenantVariant
+  primaryColor        String
+  businessDescription String
+  websiteDisplayName  String
+  bankAccountNumber   String
+  bankName            String
+  favIcon             String
+  logoUrl             String?
+  isLogoHorizontal    Boolean
+  currency            String
+
+  seoTitle            String?
+  seoDescription      String?
+  seoKeywords         String?
+
+  domain              String        @unique
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+}
+
+model SuperAdmin {
+  id                    Int      @id @default(1)
+  domain                String   @unique
+  email                 String   @unique
+  password              String
+  phoneNumber           String
+  landingSeoTitle       String?
+  landingSeoDescription String?
+  landingSeoKeywords    String?
+  createdAt             DateTime @default(now())
+}

@@ -10,11 +10,13 @@ type CartPageProps = {
 
 export default async function CartPage({ params }: CartPageProps) {
   const { domain } = params;
-  const tenant = await getTenantConfig(domain);
+  const tenantResult = await getTenantConfig(domain);
 
-  if (!tenant) {
+  if (!tenantResult.ok || !tenantResult.data) {
     notFound();
   }
+
+  const tenant = tenantResult.data;
 
   switch (tenant.variant) {
     case "A":

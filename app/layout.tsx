@@ -27,7 +27,8 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
-  const tenant = getTenantByDomain(host);
+  const tenantResult = await getTenantByDomain(host);
+  const tenant = tenantResult.ok ? tenantResult.data : null;
 
   return {
     title: tenant?.websiteDisplayName ?? "Shopping Platform",
@@ -48,7 +49,8 @@ export default async function RootLayout({
   let jsonLd: Record<string, unknown> | null = null;
 
   if (isMain) {
-    const settings = getSuperAdminSettings();
+    const settingsResult = await getSuperAdminSettings();
+    const settings = settingsResult.ok ? settingsResult.data : { phoneNumber: "" };
     const digits = (settings.phoneNumber ?? "").replace(/\D/g, "");
     const whatsappUrl = digits ? `https://wa.me/${digits}` : undefined;
     const baseUrl = `https://${MAIN_DOMAIN}/`;

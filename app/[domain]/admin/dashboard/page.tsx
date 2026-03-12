@@ -39,10 +39,11 @@ async function requireAdminTenantForDomain(domain: string) {
     redirect(`/${normalizedDomain}/admin/login`);
   }
 
-  const tenant = getTenantByDomain(session);
-  if (!tenant) {
+  const tenantResult = await getTenantByDomain(session);
+  if (!tenantResult.ok || !tenantResult.data) {
     redirect(`/${normalizedDomain}/admin/login`);
   }
+  const tenant = tenantResult.data;
 
   if (!isTenantSettingsComplete(tenant)) {
     redirect(`/${normalizedDomain}/admin/settings?incomplete=1`);

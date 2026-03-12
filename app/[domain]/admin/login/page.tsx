@@ -48,7 +48,8 @@ async function startPasswordReset(domain: string, _formData: FormData) {
   "use server";
 
   const normalizedDomain = domain.toLowerCase();
-  const tenant = getTenantByDomain(normalizedDomain);
+  const tenantResult = await getTenantByDomain(normalizedDomain);
+  const tenant = tenantResult.ok ? tenantResult.data : null;
 
   if (!tenant) {
     redirect(
@@ -152,7 +153,8 @@ export default async function AdminLoginPage({
   const resetMessage = searchParams.reset as string | undefined;
   const sent = searchParams.sent === "1";
 
-  const tenant = getTenantByDomain(activeDomain);
+  const tenantResult = await getTenantByDomain(activeDomain);
+  const tenant = tenantResult.ok ? tenantResult.data : null;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-100 px-4">

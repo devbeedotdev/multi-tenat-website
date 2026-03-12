@@ -120,12 +120,15 @@ async function handleUpdatePlatformSettings(formData: FormData) {
   const get = (key: string, fallback: string): string =>
     String(formData.get(key) ?? fallback).trim();
 
-  await updateSuperAdminSettings({
+  const result = await updateSuperAdminSettings({
     phoneNumber: get("phoneNumber", ""),
     landingSeoTitle: get("landingSeoTitle", ""),
     landingSeoDescription: get("landingSeoDescription", ""),
     landingSeoKeywords: get("landingSeoKeywords", ""),
   });
+  if (!result.ok) {
+    redirect(`/super-admin?error=${encodeURIComponent(result.error)}`);
+  }
 
   redirect("/super-admin?updated=platform");
 }
@@ -188,7 +191,8 @@ export default async function SuperAdminPage({
     );
   }
 
-  const platformSettings = getSuperAdminSettings();
+  const platformSettingsResult = await getSuperAdminSettings();
+  const platformSettings = platformSettingsResult.ok ? platformSettingsResult.data : { domain: "", email: "", phoneNumber: "" };
   const tenants = await getAllTenants();
 
   return (
