@@ -5,6 +5,8 @@ import {
   updateSuperAdminSettings,
   verifySuperAdminPassword,
 } from "@/lib/dal";
+import { SuperAdminCreateTenantModal } from "@/components/admin/SuperAdminCreateTenantModal";
+import { SuperAdminSavePlatformButton } from "@/components/admin/SuperAdminSavePlatformButton";
 import type { Tenant } from "@/types/tenant";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -142,6 +144,7 @@ export default async function SuperAdminPage({
   const superSession = cookieStore.get(SUPER_ADMIN_COOKIE)?.value;
   const error = searchParams.error as string | undefined;
   const updatedTenantId = searchParams.updated as string | undefined;
+  const createdTenantId = searchParams.created as string | undefined;
 
   if (!superSession) {
     return (
@@ -215,6 +218,13 @@ export default async function SuperAdminPage({
           </div>
         )}
 
+        {createdTenantId && (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            Tenant <span className="font-mono">{createdTenantId}</span> created
+            successfully.
+          </div>
+        )}
+
         {updatedTenantId && (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
             {updatedTenantId === "platform" ? (
@@ -239,6 +249,7 @@ export default async function SuperAdminPage({
                 <span className="font-medium">{platformSettings.domain}</span>.
               </p>
             </div>
+            <SuperAdminCreateTenantModal />
           </div>
 
           <form action={handleUpdatePlatformSettings} className="space-y-4">
@@ -290,12 +301,7 @@ export default async function SuperAdminPage({
             </div>
 
             <div className="flex justify-end">
-              <button
-                type="submit"
-                className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-              >
-                Save platform settings
-              </button>
+              <SuperAdminSavePlatformButton />
             </div>
           </form>
         </section>

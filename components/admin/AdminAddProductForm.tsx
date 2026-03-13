@@ -259,26 +259,34 @@ export function AdminAddProductForm({
               Quantity
             </label>
             <input
-              type="number"
-              min={0}
+              type="text"
+              inputMode="numeric"
               className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-              value={quantityAvailable}
-              onChange={(e) =>
-                setQuantityAvailable(parseInt(e.target.value || "0", 10) || 0)
-              }
+              value={quantityAvailable.toLocaleString("en-NG")}
+              onChange={(e) => {
+                const digitsOnly = e.target.value.replace(/[^\d]/g, "");
+                const sanitized = digitsOnly.replace(/^0+(?=\d)/, "");
+                const next = parseInt(sanitized || "0", 10);
+                setQuantityAvailable(Number.isNaN(next) ? 0 : next);
+              }}
             />
           </div>
 
           <div className="space-y-1">
             <label className="block text-[11px] font-medium text-slate-700">
-              Price 
+              Price {currency ? `(${currency})` : ""}
             </label>
             <input
-              type="number"
-              min={0}
+              type="text"
+              inputMode="numeric"
               className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-              value={productAmount}
-              onChange={(e) => setProductAmount(Number(e.target.value) || 0)}
+              value={productAmount.toLocaleString("en-NG")}
+              onChange={(e) => {
+                const digitsOnly = e.target.value.replace(/[^\d]/g, "");
+                const sanitized = digitsOnly.replace(/^0+(?=\d)/, "");
+                const next = Number(sanitized || "0");
+                setProductAmount(Number.isNaN(next) ? 0 : next);
+              }}
             />
           </div>
 

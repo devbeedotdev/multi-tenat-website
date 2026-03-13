@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import {
-  addProductForTenant,
+  createProduct,
+  deleteProductForTenant,
   getTenantByDomain,
   updateProductCollection,
   updateTenantInDB,
@@ -17,6 +18,7 @@ import {
 import type { Product } from "@/types/product";
 import type { ProductDetailItem } from "@/types/product-detail";
 import type { Tenant } from "@/types/tenant";
+import { normalizeNigerianPhone } from "@/lib/validation/phone";
 
 export async function requireAdminTenantForDomain(domain: string) {
   const normalizedDomain = domain.toLowerCase();
@@ -141,12 +143,7 @@ export async function handleCreateProduct(domain: string, formData: FormData) {
     productDetails,
   } = result.data;
 
-  const productId = `admin-${tenant.tenantId}-${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2, 8)}`;
-
-  const newProduct: Product = {
-    productId,
+  await createProduct({
     tenantId: tenant.tenantId,
     productName,
     productCategory,
@@ -162,12 +159,42 @@ export async function handleCreateProduct(domain: string, formData: FormData) {
     shortDescription,
     fullDescription,
     currency: currency || "₦",
-  };
-
-  await addProductForTenant(newProduct);
+  });
   revalidatePath(basePath);
   redirect(
     `${basePath}?success=${encodeURIComponent("Product created successfully")}`,
+  );
+}
+
+export async function handleDeleteProduct(
+  domain: string,
+  formData: FormData,
+) {
+  const tenant = await requireAdminTenantForDomain(domain);
+  const basePath = `/${domain.toLowerCase()}/admin/dashboard`;
+
+  const productId = String(formData.get("productId") || "").trim();
+  if (!productId) {
+    redirect(
+      `${basePath}?error=${encodeURIComponent(
+        "No product selected for deletion",
+      )}`,
+    );
+  }
+
+  const ok = await deleteProductForTenant(tenant.tenantId, productId);
+  revalidatePath(basePath);
+
+  if (!ok) {
+    redirect(
+      `${basePath}?error=${encodeURIComponent(
+        "Unable to delete product. It may have already been removed.",
+      )}`,
+    );
+  }
+
+  redirect(
+    `${basePath}?success=${encodeURIComponent("Product deleted successfully")}`,
   );
 }
 
@@ -207,14 +234,31 @@ export async function updateTenantSettings(
   const isLogoHorizontal =
     isLogoHorizontalRaw === "yes" || isLogoHorizontalRaw === "true";
 
+  const rawBusinessPhone = get(
+    "businessPhoneNumber",
+    tenant.businessPhoneNumber,
+  );
+
+  let normalizedBusinessPhone = tenant.businessPhoneNumber;
+  if (rawBusinessPhone) {
+    try {
+      normalizedBusinessPhone = normalizeNigerianPhone(rawBusinessPhone);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Business phone must be an 11-digit Nigerian number.";
+      redirect(
+        `${basePath}?error=${encodeURIComponent(message)}&settingsSaved=0`,
+      );
+    }
+  }
+
   const updates: TenantSettingsInput = {
     businessName: get("businessName", tenant.businessName),
     websiteDisplayName: get("websiteDisplayName", tenant.websiteDisplayName),
     businessEmail: get("businessEmail", tenant.businessEmail),
-    businessPhoneNumber: get(
-      "businessPhoneNumber",
-      tenant.businessPhoneNumber,
-    ),
+    businessPhoneNumber: normalizedBusinessPhone,
     businessDescription: get(
       "businessDescription",
       tenant.businessDescription,

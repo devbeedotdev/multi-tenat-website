@@ -10,15 +10,9 @@ import { prisma } from "@/lib/prisma";
 import type { CartItem } from "@/types/cart";
 import type { LandingOrder, Order, OrderStatus } from "@/types/order";
 import type { Product } from "@/types/product";
-import type { Tenant } from "@/types/tenant";
 import type { Result } from "@/types/result";
-import {
-  cloudCartPasswords,
-  cloudCarts,
-  products,
-  superAdmin,
-  tenants,
-} from "./mock-db";
+import type { Tenant } from "@/types/tenant";
+import { cloudCartPasswords, cloudCarts } from "./mock-db";
 
 type PasswordResetRecord = {
   tenantId: string;
@@ -57,7 +51,27 @@ function mapTenantRecord(record: any): Tenant {
     seoDescription: record.seoDescription ?? undefined,
     seoKeywords: record.seoKeywords ?? undefined,
     createdAt: record.createdAt.toISOString(),
-    updatedAt: record.updatedAt.toISOString(),
+  };
+}
+
+function mapProductRecord(record: any): Product {
+  return {
+    productId: record.productId,
+    tenantId: record.tenantId,
+    productName: record.productName,
+    productCategory: record.productCategory,
+    productAmount: record.productAmount,
+    discountPrice: record.discountPrice ?? undefined,
+    isDetailsTabular: record.isDetailsTabular,
+    quantityAvailable: record.quantityAvailable,
+    isNegotiable: record.isNegotiable,
+    isPromo: record.isPromo,
+    isBestSelling: record.isBestSelling,
+    productDetails: (record.productDetails as Product["productDetails"]) ?? [],
+    mediaUrls: record.mediaUrls ?? [],
+    shortDescription: record.shortDescription,
+    fullDescription: record.fullDescription,
+    currency: record.currency ?? undefined,
   };
 }
 
@@ -65,14 +79,12 @@ function mapTenantRecord(record: any): Tenant {
  * Get tenant configuration by domain
  * @param domain - The domain/hostname (e.g., "localhost", "client-a.com")
  */
-export async function getTenantConfig(
-  domain: string,
-): Promise<Result<Tenant>> {
+export async function getTenantConfig(domain: string): Promise<Result<Tenant>> {
   const normalized = domain.split(":")[0].toLowerCase();
 
   try {
     const record = await prisma.tenant.findUnique({
-      where: { domain: normalized },
+      where: { tenantId: normalized },
     });
 
     if (!record) {
@@ -120,7 +132,7 @@ export async function tenantExists(domain: string): Promise<Result<boolean>> {
 
   try {
     const count = await prisma.tenant.count({
-      where: { domain: normalized },
+      where: { tenantId: normalized },
     });
     return { ok: true, data: count > 0 };
   } catch (error) {
@@ -148,6 +160,7 @@ export function isMainPlatformDomain(domain: string): boolean {
 }
 
 export type SuperAdminSettings = {
+  /** Domain of the main platform (now backed by SuperAdmin.id) */
   domain: string;
   email: string;
   phoneNumber?: string;
@@ -161,29 +174,19 @@ export async function getSuperAdminSettings(): Promise<
   Result<SuperAdminSettings>
 > {
   try {
-    const record = await prisma.superAdmin.findFirst({
-      orderBy: { id: "asc" },
-    });
+    const record = await prisma.superAdmin.findFirst();
 
     if (!record) {
       return {
-        ok: true,
-        data: {
-          domain: superAdmin.domain,
-          email: superAdmin.email,
-          phoneNumber: superAdmin.phoneNumber,
-          landingSeoTitle: superAdmin.landingSeoTitle,
-          landingSeoDescription: superAdmin.landingSeoDescription,
-          landingSeoKeywords: superAdmin.landingSeoKeywords,
-          createdAt: undefined,
-        },
+        ok: false,
+        error: "Super admin record not found in the database.",
       };
     }
 
     return {
       ok: true,
       data: {
-        domain: record.domain,
+        domain: String(record.id),
         email: record.email,
         phoneNumber: record.phoneNumber,
         landingSeoTitle: record.landingSeoTitle ?? undefined,
@@ -205,40 +208,39 @@ export async function updateSuperAdminSettings(
   updates: Partial<Omit<SuperAdminSettings, "domain">>,
 ): Promise<Result<SuperAdminSettings>> {
   try {
-    const existing = await prisma.superAdmin.findFirst({
-      orderBy: { id: "asc" },
-    });
+    const existing = await prisma.superAdmin.findFirst();
 
+    if (!existing) {
+      return {
+        ok: false,
+        error: "Super admin record not found in the database.",
+      };
+    }
+
+    const id = existing.id;
     const data = {
-      domain: existing?.domain ?? superAdmin.domain,
-      email: existing?.email ?? superAdmin.email,
-      password: existing?.password ?? superAdmin.password,
-      phoneNumber:
-        updates.phoneNumber ?? existing?.phoneNumber ?? superAdmin.phoneNumber,
+      email: existing.email,
+      // Keep existing password; not editable via this settings call.
+      password: existing.password,
+      phoneNumber: updates.phoneNumber ?? existing.phoneNumber,
       landingSeoTitle:
-        updates.landingSeoTitle ??
-        existing?.landingSeoTitle ??
-        superAdmin.landingSeoTitle,
+        updates.landingSeoTitle ?? existing.landingSeoTitle,
       landingSeoDescription:
-        updates.landingSeoDescription ??
-        existing?.landingSeoDescription ??
-        superAdmin.landingSeoDescription,
+        updates.landingSeoDescription ?? existing.landingSeoDescription,
       landingSeoKeywords:
-        updates.landingSeoKeywords ??
-        existing?.landingSeoKeywords ??
-        superAdmin.landingSeoKeywords,
+        updates.landingSeoKeywords ?? existing.landingSeoKeywords,
     };
 
     const saved = await prisma.superAdmin.upsert({
-      where: { id: existing?.id ?? 1 },
-      create: data,
+      where: { id } as any,
+      create: { id, ...data } as any,
       update: data,
     });
 
     return {
       ok: true,
       data: {
-        domain: saved.domain,
+        domain: String(saved.id),
         email: saved.email,
         phoneNumber: saved.phoneNumber,
         landingSeoTitle: saved.landingSeoTitle ?? undefined,
@@ -265,8 +267,7 @@ export async function getPlatformSeoConfig(): Promise<{
 
   if (!result.ok) {
     return {
-      title:
-        "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce",
+      title: "Build an Online Store in Nigeria (₦50,000) | GetCheapEcommerce",
       description:
         "Launch a professional ecommerce website in minutes with GetCheapEcommerce. Affordable, mobile-ready online stores with WhatsApp checkout and easy order management.",
       keywords:
@@ -305,10 +306,16 @@ export async function verifySuperAdminPassword(
 ): Promise<boolean> {
   if (!password) return false;
   try {
-    const record = await prisma.superAdmin.findFirst({
-      orderBy: { id: "asc" },
-    });
-    const storedPassword = record?.password ?? superAdmin.password;
+    const record = await prisma.superAdmin.findFirst();
+    const storedPassword = record?.password;
+    if (!storedPassword) return false;
+
+    // Support both hashed (bcrypt) and legacy plain-text passwords.
+    if (storedPassword.startsWith("$2")) {
+      const bcrypt = await import("bcryptjs");
+      return bcrypt.compare(password, storedPassword);
+    }
+
     return password === storedPassword;
   } catch (error) {
     console.error("verifySuperAdminPassword failed:", error);
@@ -336,7 +343,10 @@ export async function getAllTenants(): Promise<Tenant[]> {
  * Add the main domain from env to get the full list of domains that should receive SSL.
  */
 export function getAllowedDomains(): string[] {
-  return Object.keys(tenants);
+  // This legacy helper is no longer backed by the in-memory tenants map.
+  // Prefer getAllActiveDomains (Prisma-backed) instead.
+  // Kept for backwards compatibility; returns an empty list by default.
+  return [];
 }
 
 /**
@@ -348,7 +358,7 @@ export async function updateTenantInDB(
   updates: Partial<Tenant>,
 ): Promise<Tenant | null> {
   // Never allow tenantId / timestamps to be changed via this function.
-  const { tenantId: _ignoredTenantId, createdAt, updatedAt, ...rest } = updates;
+  const { tenantId: _ignoredTenantId, createdAt, ...rest } = updates;
 
   try {
     const record = await prisma.tenant.update({
@@ -389,9 +399,9 @@ export async function updateTenantInDB(
 export async function getAllActiveDomains(): Promise<string[]> {
   try {
     const rows = await prisma.tenant.findMany({
-      select: { domain: true },
+      select: { tenantId: true },
     });
-    return rows.map((row: { domain: string }) => row.domain);
+    return rows.map((row: { tenantId: string }) => row.tenantId);
   } catch (error) {
     console.error("getAllActiveDomains failed:", error);
     return [];
@@ -408,18 +418,27 @@ export async function getAllActiveDomains(): Promise<string[]> {
 export async function getCategoriesByTenant(
   tenantId: string,
 ): Promise<string[]> {
-  const tenantProducts = await getProductsByTenant(tenantId);
+  try {
+    const rows = await (prisma as any).product.findMany({
+      where: { tenantId },
+      select: { productCategory: true },
+    });
 
-  const categorySet = new Set<string>();
-  for (const product of tenantProducts) {
-    if (product.productCategory?.trim()) {
-      categorySet.add(product.productCategory.trim());
+    const categorySet = new Set<string>();
+    for (const row of rows) {
+      const cat = row.productCategory?.trim();
+      if (cat) categorySet.add(cat);
     }
+
+    const categories = Array.from(categorySet).sort((a, b) =>
+      a.localeCompare(b),
+    );
+
+    return ["All", ...categories];
+  } catch (error) {
+    console.error("getCategoriesByTenant failed:", error);
+    return ["All"];
   }
-
-  const categories = Array.from(categorySet).sort((a, b) => a.localeCompare(b));
-
-  return ["All", ...categories];
 }
 
 /**
@@ -433,7 +452,16 @@ export async function getCategoriesByTenant(
 export async function getProductsByTenant(
   tenantId: string,
 ): Promise<Product[]> {
-  return products.filter((p) => p.tenantId === tenantId);
+  try {
+    const rows = await (prisma as any).product.findMany({
+      where: { tenantId },
+      orderBy: { createdAt: "desc" },
+    });
+    return rows.map(mapProductRecord);
+  } catch (error) {
+    console.error("getProductsByTenant failed:", error);
+    return [];
+  }
 }
 
 type CreateProductInput = {
@@ -451,6 +479,46 @@ type UpdateProductInput = CreateProductInput & {
   productId: string;
 };
 
+// Structured input used by admin flows when all product fields
+// are prepared on the server (e.g. from validated form payload).
+export type ProductCreateInput = Omit<Product, "productId">;
+
+export async function createProduct(
+  input: ProductCreateInput,
+): Promise<Product> {
+  const productId = `admin-${input.tenantId}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
+
+  try {
+    const record = await (prisma as any).product.create({
+      data: {
+        productId,
+        tenantId: input.tenantId,
+        productName: input.productName,
+        productCategory: input.productCategory,
+        productAmount: input.productAmount,
+        discountPrice: input.discountPrice ?? 0,
+        isDetailsTabular: input.isDetailsTabular,
+        quantityAvailable: input.quantityAvailable,
+        isNegotiable: input.isNegotiable,
+        isPromo: input.isPromo,
+        isBestSelling: input.isBestSelling,
+        productDetails: input.productDetails as any,
+        mediaUrls: input.mediaUrls,
+        shortDescription: input.shortDescription,
+        fullDescription: input.fullDescription,
+        currency: input.currency,
+      },
+    });
+
+    return mapProductRecord(record);
+  } catch (error) {
+    console.error("createProduct failed:", error);
+    throw error;
+  }
+}
+
 export async function createProductForTenant(
   input: CreateProductInput,
 ): Promise<Product> {
@@ -465,29 +533,35 @@ export async function createProductForTenant(
     imageUrl,
   } = input;
 
-  const productId = `admin-${tenantId}-${Date.now()}-${products.length + 1}`;
+  const productId = `admin-${tenantId}-${Date.now()}`;
   const mediaUrl = imageUrl?.trim();
 
-  const newProduct: Product = {
-    productId,
-    tenantId,
-    productName,
-    productCategory,
-    productAmount,
-    discountPrice: 0,
-    isDetailsTabular: false,
-    quantityAvailable,
-    isNegotiable: false,
-    isPromo: false,
-    isBestSelling: false,
-    productDetails: [],
-    mediaUrls: mediaUrl ? [mediaUrl] : [],
-    shortDescription,
-    fullDescription,
-  };
+  try {
+    const record = await (prisma as any).product.create({
+      data: {
+        productId,
+        tenantId,
+        productName,
+        productCategory,
+        productAmount,
+        discountPrice: 0,
+        isDetailsTabular: false,
+        quantityAvailable,
+        isNegotiable: false,
+        isPromo: false,
+        isBestSelling: false,
+        productDetails: [],
+        mediaUrls: mediaUrl ? [mediaUrl] : [],
+        shortDescription,
+        fullDescription,
+      },
+    });
 
-  products.push(newProduct);
-  return newProduct;
+    return mapProductRecord(record);
+  } catch (error) {
+    console.error("createProductForTenant failed:", error);
+    throw error;
+  }
 }
 
 /**
@@ -495,7 +569,13 @@ export async function createProductForTenant(
  * Used by the admin add-product flow when all fields are prepared on the server.
  */
 export async function addProductForTenant(product: Product): Promise<void> {
-  products.push(product);
+  try {
+    const { productId: _ignored, ...rest } = product;
+    await createProduct(rest);
+  } catch (error) {
+    console.error("addProductForTenant failed:", error);
+    throw error;
+  }
 }
 
 export async function updateProductForTenant(
@@ -513,27 +593,37 @@ export async function updateProductForTenant(
     imageUrl,
   } = input;
 
-  const product = products.find(
-    (p) => p.productId === productId && p.tenantId === tenantId,
-  );
+  try {
+    const mediaUrl = imageUrl?.trim();
 
-  if (!product) {
+    const record = await (prisma as any).product.update({
+      where: { productId },
+      data: {
+        productName,
+        productCategory,
+        productAmount,
+        quantityAvailable,
+        shortDescription,
+        fullDescription,
+        ...(mediaUrl ? { mediaUrls: [mediaUrl] } : {}),
+      },
+    });
+
+    // Ensure the product still belongs to the tenant
+    if (record.tenantId !== tenantId) {
+      console.error(
+        "updateProductForTenant: tenantId mismatch",
+        record.tenantId,
+        tenantId,
+      );
+      return null;
+    }
+
+    return mapProductRecord(record);
+  } catch (error) {
+    console.error("updateProductForTenant failed:", error);
     return null;
   }
-
-  product.productName = productName;
-  product.productCategory = productCategory;
-  product.productAmount = productAmount;
-  product.quantityAvailable = quantityAvailable;
-  product.shortDescription = shortDescription;
-  product.fullDescription = fullDescription;
-
-  const mediaUrl = imageUrl?.trim();
-  if (mediaUrl) {
-    product.mediaUrls = [mediaUrl];
-  }
-
-  return product;
 }
 
 /**
@@ -544,34 +634,131 @@ export async function updateProductCollection(
   tenantId: string,
   updates: Product[],
 ): Promise<void> {
-  for (const updated of updates) {
-    const existing = products.find(
-      (p) => p.productId === updated.productId && p.tenantId === tenantId,
-    );
-    if (!existing) continue;
-
-    existing.productName = updated.productName;
-    existing.productCategory = updated.productCategory;
-    existing.productAmount = updated.productAmount;
-    existing.quantityAvailable = updated.quantityAvailable;
-    existing.isPromo = updated.isPromo;
-    existing.isNegotiable = updated.isNegotiable;
-    existing.shortDescription = updated.shortDescription;
-    existing.fullDescription = updated.fullDescription;
-    existing.mediaUrls = [...updated.mediaUrls];
-    existing.productDetails = [...updated.productDetails];
+  try {
+    for (const updated of updates) {
+      await updateProductForTenant({
+        tenantId,
+        productId: updated.productId,
+        productName: updated.productName,
+        productCategory: updated.productCategory,
+        productAmount: updated.productAmount,
+        quantityAvailable: updated.quantityAvailable,
+        shortDescription: updated.shortDescription,
+        fullDescription: updated.fullDescription,
+        imageUrl: updated.mediaUrls[0],
+      });
+    }
+  } catch (error) {
+    console.error("updateProductCollection failed:", error);
+    throw error;
   }
 }
+
+export async function updateProductForTenantById(
+  tenantId: string,
+  productId: string,
+  data: Partial<Product>,
+): Promise<Product | null> {
+  try {
+    // Ensure the product belongs to the tenant before updating.
+    const existing = await (prisma as any).product.findFirst({
+      where: { productId, tenantId },
+    });
+    if (!existing) {
+      return null;
+    }
+
+    const {
+      productName,
+      productCategory,
+      productAmount,
+      quantityAvailable,
+      isPromo,
+      isNegotiable,
+      isBestSelling,
+      isDetailsTabular,
+      shortDescription,
+      fullDescription,
+      mediaUrls,
+      productDetails,
+      discountPrice,
+      currency,
+    } = data;
+
+    const updateData: Record<string, unknown> = {};
+    if (productName !== undefined) updateData.productName = productName;
+    if (productCategory !== undefined) updateData.productCategory = productCategory;
+    if (productAmount !== undefined) updateData.productAmount = productAmount;
+    if (quantityAvailable !== undefined)
+      updateData.quantityAvailable = quantityAvailable;
+    if (isPromo !== undefined) updateData.isPromo = isPromo;
+    if (isNegotiable !== undefined) updateData.isNegotiable = isNegotiable;
+    if (isBestSelling !== undefined) updateData.isBestSelling = isBestSelling;
+    if (isDetailsTabular !== undefined)
+      updateData.isDetailsTabular = isDetailsTabular;
+    if (shortDescription !== undefined)
+      updateData.shortDescription = shortDescription;
+    if (fullDescription !== undefined)
+      updateData.fullDescription = fullDescription;
+    if (mediaUrls !== undefined) updateData.mediaUrls = mediaUrls;
+    if (productDetails !== undefined)
+      updateData.productDetails = productDetails as any;
+    if (discountPrice !== undefined) updateData.discountPrice = discountPrice;
+    if (currency !== undefined) updateData.currency = currency;
+
+    const record = await (prisma as any).product.update({
+      where: { productId },
+      data: updateData,
+    });
+
+    return mapProductRecord(record);
+  } catch (error) {
+    console.error("updateProductForTenantById failed:", error);
+    return null;
+  }
+}
+
+export async function deleteProductForTenant(
+  tenantId: string,
+  productId: string,
+): Promise<boolean> {
+  try {
+    const existing = await (prisma as any).product.findFirst({
+      where: { productId, tenantId },
+    });
+    if (!existing) {
+      return false;
+    }
+
+    await (prisma as any).product.delete({
+      where: { productId },
+    });
+
+    return true;
+  } catch (error) {
+    console.error("deleteProductForTenant failed:", error);
+    return false;
+  }
+}
+
+// Convenience aliases matching the requested names, while still
+// enforcing tenant scoping at call sites.
+export { updateProductForTenantById as updateProduct, deleteProductForTenant as deleteProduct };
 
 export async function getProductById(
   tenantId: string,
   productId: string,
 ): Promise<Product | null> {
-  const tenantProducts = await getProductsByTenant(tenantId);
+  try {
+    const record = await (prisma as any).product.findFirst({
+      where: { productId, tenantId },
+    });
 
-  const product = tenantProducts.find((p) => p.productId === productId);
-
-  return product || null;
+    return record ? mapProductRecord(record) : null;
+  } catch (error) {
+    console.error("getProductById failed:", error);
+    return null;
+  }
 }
 
 export async function getProductsByCategoryAndTenant(
@@ -584,35 +771,73 @@ export async function getProductsByCategoryAndTenant(
   if (normalizedCategory === "all") {
     return getProductsByTenant(tenantId);
   }
-
-  const tenantProducts = await getProductsByTenant(tenantId);
-
-  return tenantProducts.filter(
-    (product) =>
-      product.productCategory.trim().toLowerCase() === normalizedCategory,
-  );
+  try {
+    const rows = await (prisma as any).product.findMany({
+      where: {
+        tenantId,
+        productCategory: {
+          equals: normalizedCategory,
+          mode: "insensitive",
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return rows.map(mapProductRecord);
+  } catch (error) {
+    console.error("getProductsByCategoryAndTenant failed:", error);
+    return [];
+  }
 }
 
 export async function getProductsBySearchAndTenant(
   tenantId: string,
   search?: string,
 ): Promise<Product[]> {
-  const tenantProducts = await getProductsByTenant(tenantId);
-
   const normalizedSearch = search?.trim().toLowerCase();
 
   if (!normalizedSearch) {
-    return tenantProducts;
+    return getProductsByTenant(tenantId);
   }
 
-  return tenantProducts.filter((product) => {
-    return (
-      product.productName.toLowerCase().includes(normalizedSearch) ||
-      product.shortDescription.toLowerCase().includes(normalizedSearch) ||
-      product.fullDescription.toLowerCase().includes(normalizedSearch) ||
-      product.productCategory.toLowerCase().includes(normalizedSearch)
-    );
-  });
+  try {
+    const rows = await (prisma as any).product.findMany({
+      where: {
+        tenantId,
+        OR: [
+          {
+            productName: {
+              contains: normalizedSearch,
+              mode: "insensitive",
+            },
+          },
+          {
+            shortDescription: {
+              contains: normalizedSearch,
+              mode: "insensitive",
+            },
+          },
+          {
+            fullDescription: {
+              contains: normalizedSearch,
+              mode: "insensitive",
+            },
+          },
+          {
+            productCategory: {
+              contains: normalizedSearch,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return rows.map(mapProductRecord);
+  } catch (error) {
+    console.error("getProductsBySearchAndTenant failed:", error);
+    return [];
+  }
 }
 
 /**
@@ -627,8 +852,24 @@ export async function verifyAdminCredentials(
   if (!result.ok) return null;
 
   const tenant = result.data;
-  if (tenant.adminPassword !== password) return null;
-  return tenant;
+  const storedPassword = tenant.adminPassword;
+  if (!storedPassword) return null;
+
+  try {
+    // Bcrypt-hashed password support (new records)
+    if (storedPassword.startsWith("$2")) {
+      const bcrypt = await import("bcryptjs");
+      const ok = await bcrypt.compare(password, storedPassword);
+      return ok ? tenant : null;
+    }
+
+    // Legacy plain-text fallback (old records)
+    if (storedPassword === password) return tenant;
+    return null;
+  } catch (error) {
+    console.error("verifyAdminCredentials failed:", error);
+    return null;
+  }
 }
 
 export async function updateAdminPassword(
@@ -643,14 +884,90 @@ export async function updateAdminPassword(
   const tenant = result.data;
 
   try {
+    const bcrypt = await import("bcryptjs");
+    const hashed = await bcrypt.hash(newPassword, 10);
+
     const record = await prisma.tenant.update({
       where: { tenantId: tenant.tenantId },
-      data: { adminPassword: newPassword },
+      data: { adminPassword: hashed },
     });
     return mapTenantRecord(record);
   } catch (error) {
     console.error("updateAdminPassword failed:", error);
     return null;
+  }
+}
+
+/**
+ * Input shape for creating a new tenant from the super-admin console.
+ * Only core fields are required; the DAL fills in sensible defaults.
+ */
+export type TenantCreateInput = {
+  tenantId: string;
+  businessName: string;
+  businessEmail: string;
+  adminPassword: string;
+  primaryColor: string;
+  businessPhoneNumber?: string;
+};
+
+export async function createTenantInDB(
+  input: TenantCreateInput,
+): Promise<Result<Tenant>> {
+  const tenantId = input.tenantId.trim().toLowerCase();
+
+  if (!tenantId) {
+    return { ok: false, error: "Tenant ID is required." };
+  }
+
+  try {
+    const bcrypt = await import("bcryptjs");
+    const hashedPassword = await bcrypt.hash(input.adminPassword, 10);
+    const businessPhoneNumber = input.businessPhoneNumber ?? "";
+
+    const record = await prisma.tenant.create({
+      data: {
+        tenantId,
+        businessName: input.businessName.trim(),
+        accountName: input.businessName.trim(),
+        businessPhoneNumber,
+        businessEmail: input.businessEmail.trim(),
+        adminPassword: hashedPassword,
+        variant: "A",
+        primaryColor: input.primaryColor.trim() || "#16A34A",
+        businessDescription:
+          "A new storefront created via the GetCheapEcommerce super admin console.",
+        websiteDisplayName: input.businessName.trim(),
+        bankAccountNumber: "",
+        bankName: "",
+        favIcon:
+          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=64&h=64&q=80",
+        logoUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+        isLogoHorizontal: true,
+        currency: "₦",
+        seoTitle: `${input.businessName} – Online Store`,
+        seoDescription:
+          "A modern ecommerce storefront powered by GetCheapEcommerce.",
+        seoKeywords:
+          "ecommerce, online store, multi-tenant, getcheapecommerce, nigeria",
+      } as any,
+    });
+
+    return { ok: true, data: mapTenantRecord(record) };
+  } catch (error: any) {
+    console.error("createTenantInDB failed:", error);
+
+    if (error && typeof error === "object" && error.code === "P2002") {
+      return {
+        ok: false,
+        error: "Tenant ID is already taken. Please choose another one.",
+      };
+    }
+
+    return {
+      ok: false,
+      error: "Failed to create tenant. Please try again.",
+    };
   }
 }
 

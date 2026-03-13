@@ -41,15 +41,14 @@ model Tenant {
   seoDescription      String?
   seoKeywords         String?
 
-  domain              String        @unique
-
   createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+
+  products            Product[]
 }
 
 model SuperAdmin {
-  id                    Int      @id @default(1)
-  domain                String   @unique
+  /// Domain of the main platform, used as identifier
+  id                    String   @id
   email                 String   @unique
   password              String
   phoneNumber           String
@@ -58,3 +57,29 @@ model SuperAdmin {
   landingSeoKeywords    String?
   createdAt             DateTime @default(now())
 }
+
+model Product {
+  productId         String   @id
+  tenantId         String
+  tenant           Tenant   @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  productName      String
+  productCategory  String
+  productAmount    Int
+  discountPrice    Int?
+  isDetailsTabular Boolean
+  quantityAvailable Int
+  isNegotiable     Boolean
+  isPromo          Boolean
+  isBestSelling    Boolean
+
+  productDetails   Json
+  mediaUrls        String[]
+
+  shortDescription String
+  fullDescription  String
+  currency         String?
+
+  createdAt        DateTime @default(now())
+}
+

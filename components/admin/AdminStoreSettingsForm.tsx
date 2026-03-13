@@ -30,7 +30,7 @@ export function AdminStoreSettingsForm({
   const [primaryColor, setPrimaryColor] = useState(tenant.primaryColor);
   const [logoUrl, setLogoUrl] = useState(tenant.logoUrl ?? "");
   const [favIcon, setFavIcon] = useState(tenant.favIcon);
-  const [currency, setCurrency] = useState(tenant.currency);
+
 
   const [isLogoHorizontal, setIsLogoHorizontal] = useState(
     tenant.isLogoHorizontal,
@@ -41,14 +41,17 @@ export function AdminStoreSettingsForm({
     tenant.bankAccountNumber,
   );
   const [bankName, setBankName] = useState(tenant.bankName);
+  const createdAtMs = Date.parse(tenant.createdAt);
+  const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+  const nowMs = Date.now();
+  const isStyleLockedByAge =
+    !isSuperAdmin &&
+    Number.isFinite(createdAtMs) &&
+    nowMs - createdAtMs > threeDaysMs;
 
-  const isVariantLocked = !isSuperAdmin && !!tenant.variant;
-  const isCurrencyLocked = !isSuperAdmin && !!tenant.currency;
+  const isVariantLocked = isStyleLockedByAge;
 
-  const isPrimaryColorLocked =
-    !isSuperAdmin && typeof tenant.primaryColor === "string"
-      ? tenant.primaryColor.trim().length > 0
-      : false;
+  const isPrimaryColorLocked = isStyleLockedByAge;
 
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const faviconInputRef = useRef<HTMLInputElement | null>(null);
@@ -148,7 +151,7 @@ export function AdminStoreSettingsForm({
 
             <div className="space-y-1">
               <label className="block text-xs font-medium text-slate-700">
-                Business phone (format: 234...)
+                Business phone (11-digit Nigerian mobile)
               </label>
               <input
                 name="businessPhoneNumber"
@@ -156,6 +159,10 @@ export function AdminStoreSettingsForm({
                 onChange={(e) => setBusinessPhoneNumber(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
               />
+              <p className="text-[10px] text-slate-500">
+                Enter an 11-digit number like 08012345678. We&apos;ll store it as
+                23480... for WhatsApp and SMS.
+              </p>
             </div>
 
             <div className="space-y-1 md:col-span-2">
@@ -200,6 +207,11 @@ export function AdminStoreSettingsForm({
                 <option value="B">Variant B</option>
                 <option value="C">Variant C</option>
               </select>
+              {isVariantLocked && (
+                <p className="text-[10px] text-slate-500">
+                  Style settings are locked 3 days after account creation.
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
@@ -222,6 +234,11 @@ export function AdminStoreSettingsForm({
                   className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300 disabled:cursor-not-allowed disabled:bg-slate-50"
                 />
               </div>
+              {isPrimaryColorLocked && (
+                <p className="text-[10px] text-slate-500">
+                  Style settings are locked 3 days after account creation.
+                </p>
+              )}
             </div>
 
             <div className="space-y-1 md:col-span-2">
@@ -302,26 +319,7 @@ export function AdminStoreSettingsForm({
               </div>
 
               {/* Account Name - wrapped in a div for layout */}
-              <div className="flex-1 space-y-1">
-                <label className="block text-xs font-medium text-slate-700">
-                  Currency
-                </label>
-                <select
-                  name="currency"
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  disabled={isCurrencyLocked}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                >
-                  <option value="₦">₦</option>
-                  <option value="$">$</option>
-                  <option value="€">€</option>
-                  <option value="£">£</option>
-                  <option value="¥">¥</option>
-                  <option value="₹">₹</option>
-                  <option value="₩">₩</option>
-                </select>
-              </div>
+           
             </div>
           </div>
         </section>

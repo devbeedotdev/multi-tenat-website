@@ -71,12 +71,6 @@ export async function middleware(request: NextRequest) {
 
   const hostname = getEffectiveHost(request);
   const canonicalHost = toCanonicalTenantHost(hostname);
-  if (process.env.NODE_ENV !== "production") {
-    // eslint-disable-next-line no-console
-    console.log(
-      `[Middleware Debug] Path: ${pathname} | Host: ${hostname} | Canonical: ${canonicalHost}`,
-    );
-  }
 
   // 4. Never apply tenant rewrite to localhost or server IP
   if (isBypassHost(hostname)) {
@@ -92,7 +86,9 @@ export async function middleware(request: NextRequest) {
   // Path already prefixed with a known tenant domain
   const pathSegments = pathname.split("/").filter(Boolean);
   const firstSegment = pathSegments[0];
-  const firstExistsResult = firstSegment ? await tenantExists(firstSegment) : { ok: true, data: false };
+  const firstExistsResult = firstSegment
+    ? await tenantExists(firstSegment)
+    : { ok: true, data: false };
   const firstExists = firstExistsResult.ok && firstExistsResult.data;
   if (firstSegment && firstExists && !isBypassHost(firstSegment)) {
     return NextResponse.next();
