@@ -19,7 +19,9 @@ export async function GET(request: NextRequest) {
     process.env.MAIN_DOMAIN ??
     "getcheapecommerce.com";
 
-  const allowed = normalized === mainDomain || tenantExists(normalized);
+  const existsResult = await tenantExists(normalized);
+  const exists = existsResult.ok && existsResult.data;
+  const allowed = normalized === mainDomain || exists;
 
   return new NextResponse(allowed ? "OK" : null, {
     status: allowed ? 200 : 404,

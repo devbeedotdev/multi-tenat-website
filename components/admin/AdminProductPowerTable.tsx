@@ -2,6 +2,7 @@
 
 import type { Product } from "@/types/product";
 import type { ProductDetailItem } from "@/types/product-detail";
+import { Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type AdminProductPowerTableProps = {
@@ -9,6 +10,8 @@ type AdminProductPowerTableProps = {
   formId: string;
   payloadInputId: string;
   isSaving?: boolean;
+  deleteFormId?: string;
+  currency?: string;
 };
 
 type EditableProduct = Product;
@@ -77,6 +80,8 @@ export function AdminProductPowerTable({
   formId,
   payloadInputId,
   isSaving,
+  deleteFormId,
+  currency,
 }: AdminProductPowerTableProps) {
   const [rows, setRows] = useState<EditableProduct[]>(() =>
     initialProducts.map((p) => ({ ...p })),
@@ -118,6 +123,27 @@ export function AdminProductPowerTable({
     form.requestSubmit();
   };
 
+  const handleDelete = (productId: string) => {
+    if (
+      // eslint-disable-next-line no-alert
+      !window.confirm(
+        "Are you sure you want to delete this product? This action cannot be undone.",
+      )
+    ) {
+      return;
+    }
+    if (!deleteFormId) return;
+    const form = document.getElementById(
+      deleteFormId,
+    ) as HTMLFormElement | null;
+    const input = form?.querySelector<HTMLInputElement>(
+      'input[name="productId"]',
+    );
+    if (!form || !input) return;
+    input.value = productId;
+    form.requestSubmit();
+  };
+
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -126,7 +152,9 @@ export function AdminProductPowerTable({
             <tr className="border-b border-slate-200 bg-slate-50 uppercase tracking-wide text-slate-500">
               <th className="px-3 py-2 w-[180px]">Name</th>
               <th className="px-3 py-2 w-[140px]">Category</th>
-              <th className="px-3 py-2 w-[120px]">Price </th>
+              <th className="px-3 py-2 w-[120px]">
+                Price {currency ? `(${currency})` : ""}
+              </th>
               <th className="px-3 py-2 w-[120px]">
                 <div className="flex items-center justify-between gap-2">
                   <span>Qty</span>
@@ -147,6 +175,7 @@ export function AdminProductPowerTable({
               <th className="px-3 py-2 w-[160px]">Details</th>
               <th className="px-3 py-2 w-[220px]">Short description</th>
               <th className="px-3 py-2 w-[260px]">Full description</th>
+              <th className="px-3 py-2 w-[80px]">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -188,12 +217,17 @@ export function AdminProductPowerTable({
                   <td className="px-3 py-2 align-top">
                     <input
                       type="text"
+                      inputMode="numeric"
                       className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                       value={product.productAmount.toLocaleString("en-NG")}
                       onChange={(e) =>
                         updateRow(product.productId, (row) => {
-                          const raw = e.target.value.replace(/,/g, "");
-                          const next = Number(raw);
+                          const digitsOnly = e.target.value.replace(
+                            /[^\d]/g,
+                            "",
+                          );
+                          const sanitized = digitsOnly.replace(/^0+(?=\d)/, "");
+                          const next = Number(sanitized || "0");
                           row.productAmount = Number.isNaN(next) ? 0 : next;
                         })
                       }
@@ -202,12 +236,18 @@ export function AdminProductPowerTable({
 
                   <td className="px-3 py-2">
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                      value={product.quantityAvailable}
+                      value={product.quantityAvailable.toLocaleString("en-NG")}
                       onChange={(e) =>
                         updateRow(product.productId, (row) => {
-                          const next = parseInt(e.target.value || "0", 10);
+                          const digitsOnly = e.target.value.replace(
+                            /[^\d]/g,
+                            "",
+                          );
+                          const sanitized = digitsOnly.replace(/^0+(?=\d)/, "");
+                          const next = parseInt(sanitized || "0", 10);
                           row.quantityAvailable = Number.isNaN(next) ? 0 : next;
                         })
                       }
@@ -438,6 +478,16 @@ export function AdminProductPowerTable({
                         })
                       }
                     />
+                  </td>
+                  <td className="p-3 py-2 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(product.productId)}
+                      className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700"
+                      title="Delete product"
+                    >
+                      <Trash2 size={16} strokeWidth={2} />
+                    </button>
                   </td>
                 </tr>
               );

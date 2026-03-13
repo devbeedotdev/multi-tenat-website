@@ -45,7 +45,7 @@ function toCanonicalTenantHost(hostname: string): string {
   return lower.startsWith("www.") ? lower.slice(4) : lower;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. NEVER apply tenant logic to API routes — pass through immediately
@@ -71,12 +71,6 @@ export function middleware(request: NextRequest) {
 
   const hostname = getEffectiveHost(request);
   const canonicalHost = toCanonicalTenantHost(hostname);
-  if (process.env.NODE_ENV !== "production") {
-    // eslint-disable-next-line no-console
-    console.log(
-      `[Middleware Debug] Path: ${pathname} | Host: ${hostname} | Canonical: ${canonicalHost}`,
-    );
-  }
 
   // 4. Never apply tenant rewrite to localhost or server IP
   if (isBypassHost(hostname)) {
@@ -92,16 +86,18 @@ export function middleware(request: NextRequest) {
   // Path already prefixed with a known tenant domain
   const pathSegments = pathname.split("/").filter(Boolean);
   const firstSegment = pathSegments[0];
-  if (
-    firstSegment &&
-    tenantExists(firstSegment) &&
-    !isBypassHost(firstSegment)
-  ) {
+  const firstExistsResult = firstSegment
+    ? await tenantExists(firstSegment)
+    : { ok: true, data: false };
+  const firstExists = firstExistsResult.ok && firstExistsResult.data;
+  if (firstSegment && firstExists && !isBypassHost(firstSegment)) {
     return NextResponse.next();
   }
 
   // 4. Tenant domain: rewrite to /{canonicalHost}/[path] — no localhost, no www in path
-  if (tenantExists(canonicalHost) && !isBypassHost(canonicalHost)) {
+  const tenantExistsResult = await tenantExists(canonicalHost);
+  const tenantExistsForHost = tenantExistsResult.ok && tenantExistsResult.data;
+  if (tenantExistsForHost && !isBypassHost(canonicalHost)) {
     const clonedUrl = request.nextUrl.clone();
     clonedUrl.pathname =
       pathname === "/" ? `/${canonicalHost}` : `/${canonicalHost}${pathname}`;

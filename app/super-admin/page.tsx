@@ -5,6 +5,8 @@ import {
   updateSuperAdminSettings,
   verifySuperAdminPassword,
 } from "@/lib/dal";
+import { SuperAdminCreateTenantModal } from "@/components/admin/SuperAdminCreateTenantModal";
+import { SuperAdminSavePlatformButton } from "@/components/admin/SuperAdminSavePlatformButton";
 import type { Tenant } from "@/types/tenant";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -120,12 +122,15 @@ async function handleUpdatePlatformSettings(formData: FormData) {
   const get = (key: string, fallback: string): string =>
     String(formData.get(key) ?? fallback).trim();
 
-  await updateSuperAdminSettings({
+  const result = await updateSuperAdminSettings({
     phoneNumber: get("phoneNumber", ""),
     landingSeoTitle: get("landingSeoTitle", ""),
     landingSeoDescription: get("landingSeoDescription", ""),
     landingSeoKeywords: get("landingSeoKeywords", ""),
   });
+  if (!result.ok) {
+    redirect(`/super-admin?error=${encodeURIComponent(result.error)}`);
+  }
 
   redirect("/super-admin?updated=platform");
 }
@@ -139,6 +144,7 @@ export default async function SuperAdminPage({
   const superSession = cookieStore.get(SUPER_ADMIN_COOKIE)?.value;
   const error = searchParams.error as string | undefined;
   const updatedTenantId = searchParams.updated as string | undefined;
+  const createdTenantId = searchParams.created as string | undefined;
 
   if (!superSession) {
     return (
@@ -188,7 +194,8 @@ export default async function SuperAdminPage({
     );
   }
 
-  const platformSettings = getSuperAdminSettings();
+  const platformSettingsResult = await getSuperAdminSettings();
+  const platformSettings = platformSettingsResult.ok ? platformSettingsResult.data : { domain: "", email: "", phoneNumber: "" };
   const tenants = await getAllTenants();
 
   return (
@@ -208,6 +215,13 @@ export default async function SuperAdminPage({
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
             {error}
+          </div>
+        )}
+
+        {createdTenantId && (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            Tenant <span className="font-mono">{createdTenantId}</span> created
+            successfully.
           </div>
         )}
 
@@ -235,6 +249,7 @@ export default async function SuperAdminPage({
                 <span className="font-medium">{platformSettings.domain}</span>.
               </p>
             </div>
+            <SuperAdminCreateTenantModal />
           </div>
 
           <form action={handleUpdatePlatformSettings} className="space-y-4">
@@ -286,12 +301,7 @@ export default async function SuperAdminPage({
             </div>
 
             <div className="flex justify-end">
-              <button
-                type="submit"
-                className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-              >
-                Save platform settings
-              </button>
+              <SuperAdminSavePlatformButton />
             </div>
           </form>
         </section>

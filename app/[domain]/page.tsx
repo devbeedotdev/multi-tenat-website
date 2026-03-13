@@ -9,7 +9,8 @@ export default async function DomainHomePage({
   params,
   searchParams,
 }: DomainPageProps) {
-  const tenant = getTenantByDomain(params.domain);
+  const tenantResult = await getTenantByDomain(params.domain);
+  const tenant = tenantResult.ok ? tenantResult.data : null;
   if (!tenant) {
     return (
       <main className="min-h-screen flex items-center justify-center">

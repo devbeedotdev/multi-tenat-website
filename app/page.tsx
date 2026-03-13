@@ -98,8 +98,9 @@ async function completeLandingOrderPaymentAction(
       };
     }
 
-    const superAdmin = getSuperAdminSettings();
-    if (superAdmin.email) {
+    const superAdminResult = await getSuperAdminSettings();
+    const superAdmin = superAdminResult.ok ? superAdminResult.data : null;
+    if (superAdmin?.email) {
       await sendSuperAdminLandingOrderEmail(superAdmin.email, updated);
     }
 
@@ -115,7 +116,8 @@ async function completeLandingOrderPaymentAction(
 }
 
 export default async function Home() {
-  const superAdmin = getSuperAdminSettings();
+  const superAdminResult = await getSuperAdminSettings();
+  const superAdmin = superAdminResult.ok ? superAdminResult.data : { domain: "", email: "", phoneNumber: "" };
 
   return (
     <LandingPage

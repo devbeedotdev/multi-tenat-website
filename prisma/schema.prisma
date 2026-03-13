@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantVariant {
+  A
+  B
+  C
+}
+
+model Tenant {
+  tenantId            String        @id
+
+  businessName        String
+  accountName         String
+  businessPhoneNumber String
+  businessEmail       String
+  adminPassword       String
+  variant             TenantVariant
+  primaryColor        String
+  businessDescription String
+  websiteDisplayName  String
+  bankAccountNumber   String
+  bankName            String
+  favIcon             String
+  logoUrl             String?
+  isLogoHorizontal    Boolean
+  currency            String
+
+  seoTitle            String?
+  seoDescription      String?
+  seoKeywords         String?
+
+  createdAt           DateTime      @default(now())
+
+  products            Product[]
+}
+
+model SuperAdmin {
+  /// Domain of the main platform, used as identifier
+  id                    String   @id
+  email                 String   @unique
+  password              String
+  phoneNumber           String
+  landingSeoTitle       String?
+  landingSeoDescription String?
+  landingSeoKeywords    String?
+  createdAt             DateTime @default(now())
+}
+
+model Product {
+  productId         String   @id
+  tenantId         String
+  tenant           Tenant   @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  productName      String
+  productCategory  String
+  productAmount    Int
+  discountPrice    Int?
+  isDetailsTabular Boolean
+  quantityAvailable Int
+  isNegotiable     Boolean
+  isPromo          Boolean
+  isBestSelling    Boolean
+
+  productDetails   Json
+  mediaUrls        String[]
+
+  shortDescription String
+  fullDescription  String
+  currency         String?
+
+  createdAt        DateTime @default(now())
+}
+

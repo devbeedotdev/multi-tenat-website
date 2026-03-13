@@ -2,6 +2,7 @@
 
 import { ProductCardB } from "@/components/cards/ProductCardB";
 import { ProductCardC } from "@/components/cards/ProductCardC";
+import { NoProduct } from "@/components/empty/NoProduct";
 import { getProductsAction } from "@/lib/actions";
 import { getRandomProducts } from "@/src/utils/string.utils";
 import type { VariantContainerProps } from "@/types/components";
@@ -157,7 +158,11 @@ export default function VariantContainer({
             )}
           </div>
         ) : (
-          <ProductGridSkeleton tenant={tenant} />
+          <NoProduct
+            variant={tenant.variant}
+            tenantName={tenant.websiteDisplayName || tenant.businessName}
+            contactPhone={tenant.businessPhoneNumber}
+          />
         )}
       </Suspense>
 

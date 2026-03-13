@@ -23,11 +23,11 @@ function isMainDomainParam(domain: string): boolean {
   return candidate === main;
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { domain: string };
-}): Metadata {
+}): Promise<Metadata> {
   // Guard: never attempt tenant lookup for the platform main domain.
   if (isMainDomainParam(params.domain)) {
     return {
@@ -36,7 +36,8 @@ export function generateMetadata({
     };
   }
 
-  const tenant = getTenantByDomain(params.domain);
+  const tenantResult = await getTenantByDomain(params.domain);
+  const tenant = tenantResult.ok ? tenantResult.data : null;
 
   if (!tenant) {
     return {
@@ -60,7 +61,7 @@ export function generateMetadata({
   };
 }
 
-export default function DomainLayout({ children, params }: DomainLayoutProps) {
+export default async function DomainLayout({ children, params }: DomainLayoutProps) {
   // Guard: if someone accidentally routes the main platform domain
   // through this layout, render children without tenant styling instead
   // of throwing a "Tenant not found" error.
@@ -68,7 +69,8 @@ export default function DomainLayout({ children, params }: DomainLayoutProps) {
     return <>{children}</>;
   }
 
-  const tenant = getTenantByDomain(params.domain);
+  const tenantResult = await getTenantByDomain(params.domain);
+  const tenant = tenantResult.ok ? tenantResult.data : null;
 
   if (!tenant) {
     return (

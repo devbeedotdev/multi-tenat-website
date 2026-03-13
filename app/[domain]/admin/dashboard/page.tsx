@@ -1,10 +1,15 @@
 import { AdminAddProductForm } from "@/components/admin/AdminAddProductForm";
 import { AdminProductPowerTable } from "@/components/admin/AdminProductPowerTable";
+import { NoProduct } from "@/components/empty/NoProduct";
 import { getProductsByTenant, getTenantByDomain } from "@/lib/dal";
 import type { Tenant } from "@/types/tenant";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { handleBulkUpdate, handleCreateProduct } from "../actions";
+import {
+  handleBulkUpdate,
+  handleCreateProduct,
+  handleDeleteProduct,
+} from "../actions";
 
 function isTenantSettingsComplete(tenant: Tenant): boolean {
   const requiredFields = [
@@ -39,10 +44,11 @@ async function requireAdminTenantForDomain(domain: string) {
     redirect(`/${normalizedDomain}/admin/login`);
   }
 
-  const tenant = getTenantByDomain(session);
-  if (!tenant) {
+  const tenantResult = await getTenantByDomain(session);
+  if (!tenantResult.ok || !tenantResult.data) {
     redirect(`/${normalizedDomain}/admin/login`);
   }
+  const tenant = tenantResult.data;
 
   if (!isTenantSettingsComplete(tenant)) {
     redirect(`/${normalizedDomain}/admin/settings?incomplete=1`);
@@ -79,6 +85,7 @@ export default async function AdminDashboardPage({
   const payloadInputId = "bulk-update-payload";
   const addFormId = "add-product-form";
   const addPayloadInputId = "add-product-payload";
+  const deleteFormId = "delete-product-form";
 
   return (
     <div className="space-y-6">
@@ -136,14 +143,18 @@ export default async function AdminDashboardPage({
         </div>
       )}
 
-      <form id={formId} action={handleBulkUpdate.bind(null, domain)}>
-        <input type="hidden" name="payload" id={payloadInputId} />
-        <AdminProductPowerTable
-          initialProducts={products}
-          formId={formId}
-          payloadInputId={payloadInputId}
-        />
-      </form>
+      
+      
+        <form id={formId} action={handleBulkUpdate.bind(null, domain)}>
+          <input type="hidden" name="payload" id={payloadInputId} />
+          <AdminProductPowerTable
+            initialProducts={products}
+            formId={formId}
+            payloadInputId={payloadInputId}
+            currency={tenant.currency}
+          />
+        </form>
+      
 
       <form id={addFormId} action={handleCreateProduct.bind(null, domain)}>
         <input type="hidden" name="payload" id={addPayloadInputId} />
@@ -153,6 +164,10 @@ export default async function AdminDashboardPage({
           defaultCurrency={tenant.currency}
           primaryColor={tenant.primaryColor}
         />
+      </form>
+
+      <form id={deleteFormId} action={handleDeleteProduct.bind(null, domain)}>
+        <input type="hidden" name="productId" />
       </form>
     </div>
   );

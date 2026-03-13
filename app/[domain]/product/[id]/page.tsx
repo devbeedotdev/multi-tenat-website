@@ -6,7 +6,8 @@ import VariantBProductDetailPage from "./product_detail_pages/VariantBProductDet
 import VariantCProductDetailPage from "./product_detail_pages/VariantCProductDetailPage";
 
 export default async function ProductDetailPage({ params }: ProductPageParams) {
-  const tenant = getTenantByDomain(params.domain);
+  const tenantResult = await getTenantByDomain(params.domain);
+  const tenant = tenantResult.ok ? tenantResult.data : null;
 
   if (!tenant) {
     return (

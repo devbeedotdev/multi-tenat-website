@@ -99,6 +99,7 @@ export default function LandingOrderModal({
         isLogoHorizontal: true,
         logoUrl: PLATFORM_LOGO_URL,
         currency: "₦",
+        createdAt: new Date().toISOString(),
       };
 
       const amount = 50000;

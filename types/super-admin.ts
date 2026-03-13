@@ -1,6 +1,6 @@
 export interface SuperAdmin {
   /** Main platform domain that owns the super admin console */
-  domain: string;
+  id: string;
   /** Login identifier for the super admin */
   email: string;
   /** Plain-text password for mock purposes only (will be replaced with hashes later) */
@@ -11,5 +11,5 @@ export interface SuperAdmin {
   landingSeoTitle?: string;
   landingSeoDescription?: string;
   landingSeoKeywords?: string;
+  createdAt: string;
 }
-

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 type SearchParams = {
   settingsSaved?: string;
+  error?: string;
 };
 
 async function requireAdminTenantForDomain(domain: string) {
@@ -17,12 +18,12 @@ async function requireAdminTenantForDomain(domain: string) {
     redirect(`/${normalizedDomain}/admin/login`);
   }
 
-  const tenant = getTenantByDomain(session);
-  if (!tenant) {
+  const tenantResult = await getTenantByDomain(session);
+  if (!tenantResult.ok || !tenantResult.data) {
     redirect(`/${normalizedDomain}/admin/login`);
   }
 
-  return tenant;
+  return tenantResult.data;
 }
 
 export default async function AdminSettingsPage({
@@ -35,6 +36,7 @@ export default async function AdminSettingsPage({
   const domain = params.domain.toLowerCase();
   const tenant = await requireAdminTenantForDomain(domain);
   const settingsSaved = searchParams.settingsSaved === "1";
+  const error = searchParams.error as string | undefined;
   const cookieStore = cookies();
   const isSuperAdmin =
     cookieStore.get("super_admin_session")?.value != null;
@@ -63,7 +65,13 @@ export default async function AdminSettingsPage({
         </a>
       </header>
 
-      {settingsSaved && (
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
+      {settingsSaved && !error && (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
           Settings saved successfully. Your storefront will now use the updated
           branding.
