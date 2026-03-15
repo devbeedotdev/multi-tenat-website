@@ -7,6 +7,7 @@
 
 import { MAIN_DOMAIN } from "@/lib/config/platform";
 import { prisma } from "@/lib/prisma";
+import { encrypt, decrypt } from "@/lib/crypto";
 import type { CartItem } from "@/types/cart";
 import type { LandingOrder, Order, OrderStatus } from "@/types/order";
 import type { Product } from "@/types/product";
@@ -51,6 +52,12 @@ function mapTenantRecord(record: any): Tenant {
     seoDescription: record.seoDescription ?? undefined,
     seoKeywords: record.seoKeywords ?? undefined,
     createdAt: record.createdAt.toISOString(),
+    currentPlan: (record.currentPlan as Tenant["currentPlan"]) ?? "Starter",
+    imageSizeLimit: record.imageSizeLimit,
+    videoSizeLimit: record.videoSizeLimit,
+    cloudinaryName: record.cloudinaryName ?? undefined,
+    cloudinaryKey: decrypt(record.cloudinaryKey) ?? undefined,
+    cloudinarySecret: decrypt(record.cloudinarySecret) ?? undefined,
   };
 }
 
@@ -94,6 +101,16 @@ export async function getTenantConfig(domain: string): Promise<Result<Tenant>> {
       };
     }
 
+    const tenantWithSecrets = record as any;
+    const decKey = tenantWithSecrets.cloudinaryKey
+      ? decrypt(tenantWithSecrets.cloudinaryKey)
+      : undefined;
+    const decSecret = tenantWithSecrets.cloudinarySecret
+      ? decrypt(tenantWithSecrets.cloudinarySecret)
+      : undefined;
+
+    // If decrypt fails (e.g. legacy/corrupt data), treat as missing credentials
+    // so the tenant page still loads; media upload will prompt to re-enter.
     return { ok: true, data: mapTenantRecord(record) };
   } catch (error) {
     console.error("getTenantConfig failed:", error);
@@ -168,6 +185,10 @@ export type SuperAdminSettings = {
   landingSeoDescription?: string;
   landingSeoKeywords?: string;
   createdAt?: string;
+
+  cloudinaryName?: string;
+  cloudinaryKey?: string;
+  cloudinarySecret?: string;
 };
 
 export async function getSuperAdminSettings(): Promise<
@@ -183,6 +204,28 @@ export async function getSuperAdminSettings(): Promise<
       };
     }
 
+    const superWithSecrets = record as any;
+    const decKey = superWithSecrets.cloudinaryKey
+      ? decrypt(superWithSecrets.cloudinaryKey)
+      : undefined;
+    const decSecret = superWithSecrets.cloudinarySecret
+      ? decrypt(superWithSecrets.cloudinarySecret)
+      : undefined;
+
+    if (superWithSecrets.cloudinaryKey && !decKey) {
+      return {
+        ok: false,
+        error: "Failed to decrypt SuperAdmin Cloudinary API key.",
+      };
+    }
+
+    if (superWithSecrets.cloudinarySecret && !decSecret) {
+      return {
+        ok: false,
+        error: "Failed to decrypt SuperAdmin Cloudinary API secret.",
+      };
+    }
+
     return {
       ok: true,
       data: {
@@ -193,6 +236,9 @@ export async function getSuperAdminSettings(): Promise<
         landingSeoDescription: record.landingSeoDescription ?? undefined,
         landingSeoKeywords: record.landingSeoKeywords ?? undefined,
         createdAt: record.createdAt.toISOString(),
+        cloudinaryName: superWithSecrets.cloudinaryName ?? undefined,
+        cloudinaryKey: decKey ?? undefined,
+        cloudinarySecret: decSecret ?? undefined,
       },
     };
   } catch (error) {
@@ -217,6 +263,7 @@ export async function updateSuperAdminSettings(
       };
     }
 
+    const existingWithSecrets = existing as any;
     const id = existing.id;
     const data = {
       email: existing.email,
@@ -229,12 +276,20 @@ export async function updateSuperAdminSettings(
         updates.landingSeoDescription ?? existing.landingSeoDescription,
       landingSeoKeywords:
         updates.landingSeoKeywords ?? existing.landingSeoKeywords,
+      cloudinaryName:
+        updates.cloudinaryName ?? existingWithSecrets.cloudinaryName,
+      cloudinaryKey: updates.cloudinaryKey
+        ? encrypt(updates.cloudinaryKey)
+        : existingWithSecrets.cloudinaryKey,
+      cloudinarySecret: updates.cloudinarySecret
+        ? encrypt(updates.cloudinarySecret)
+        : existingWithSecrets.cloudinarySecret,
     };
 
     const saved = await prisma.superAdmin.upsert({
       where: { id } as any,
       create: { id, ...data } as any,
-      update: data,
+      update: data as any,
     });
 
     return {
@@ -382,7 +437,17 @@ export async function updateTenantInDB(
         seoTitle: rest.seoTitle,
         seoDescription: rest.seoDescription,
         seoKeywords: rest.seoKeywords,
-      },
+        currentPlan: (rest.currentPlan as any) ?? undefined,
+        imageSizeLimit: rest.imageSizeLimit ?? undefined,
+        videoSizeLimit: rest.videoSizeLimit ?? undefined,
+        cloudinaryName: rest.cloudinaryName ?? undefined,
+        cloudinaryKey: rest.cloudinaryKey
+          ? encrypt(rest.cloudinaryKey)
+          : undefined,
+        cloudinarySecret: rest.cloudinarySecret
+          ? encrypt(rest.cloudinarySecret)
+          : undefined,
+      } as any,
     });
 
     return mapTenantRecord(record);
@@ -909,6 +974,12 @@ export type TenantCreateInput = {
   adminPassword: string;
   primaryColor: string;
   businessPhoneNumber?: string;
+  currentPlan?: string;
+  imageSizeLimit?: number;
+  videoSizeLimit?: number;
+  cloudinaryName?: string;
+  cloudinaryKey?: string;
+  cloudinarySecret?: string;
 };
 
 export async function createTenantInDB(
@@ -950,6 +1021,17 @@ export async function createTenantInDB(
           "A modern ecommerce storefront powered by GetCheapEcommerce.",
         seoKeywords:
           "ecommerce, online store, multi-tenant, getcheapecommerce, nigeria",
+        // Plan & limits: use provided values or fall back to Prisma defaults
+        currentPlan: input.currentPlan ?? undefined,
+        imageSizeLimit: input.imageSizeLimit ?? undefined,
+        videoSizeLimit: input.videoSizeLimit ?? undefined,
+        cloudinaryName: input.cloudinaryName?.trim() || undefined,
+        cloudinaryKey: input.cloudinaryKey
+          ? encrypt(input.cloudinaryKey)
+          : undefined,
+        cloudinarySecret: input.cloudinarySecret
+          ? encrypt(input.cloudinarySecret)
+          : undefined,
       } as any,
     });
 

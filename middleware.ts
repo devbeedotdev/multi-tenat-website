@@ -2,7 +2,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { MAIN_DOMAIN } from "./lib/config/platform";
-import { isMainPlatformDomain, tenantExists } from "./lib/dal";
+import { isMainPlatformDomain, tenantExists } from "./lib/dal-middleware";
 
 /**
  * Domains that must NEVER be rewritten as tenants (Caddy check-domain, local dev, health checks).

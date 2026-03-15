@@ -1,17 +1,85 @@
 import { v2 as cloudinary } from "cloudinary";
 
-if (!process.env.CLOUDINARY_CLOUD_NAME) {
-  console.warn(
-    "[cloudinary] CLOUDINARY_CLOUD_NAME is not set. Media uploads will fail until it is configured.",
-  );
+type TenantUploadOptions = {
+  tenantId: string;
+  resourceType: "image" | "video";
+  cloudinaryName?: string | null;
+  cloudinaryKey?: string | null;
+  cloudinarySecret?: string | null;
+};
+
+function getCloudinaryClient(opts: {
+  cloudinaryName?: string | null;
+  cloudinaryKey?: string | null;
+  cloudinarySecret?: string | null;
+}) {
+  const { cloudinaryName, cloudinaryKey, cloudinarySecret } = opts;
+
+  if (!cloudinaryName || !cloudinaryKey || !cloudinarySecret) {
+    throw new Error(
+      "Cloudinary credentials are required (cloudinaryName, cloudinaryKey, cloudinarySecret).",
+    );
+  }
+
+  // Create an isolated Cloudinary client for this tenant.
+  const CloudinaryCtor = (cloudinary as any).Cloudinary;
+  if (typeof CloudinaryCtor !== "function") {
+    throw new Error("Cloudinary client is not properly configured.");
+  }
+
+  const tenantClient = new CloudinaryCtor({
+    cloud_name: cloudinaryName,
+    api_key: cloudinaryKey,
+    api_secret: cloudinarySecret,
+    secure: true,
+  });
+
+  return tenantClient;
 }
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
+export async function uploadTenantMediaFromBuffer(
+  buffer: Buffer,
+  {
+    tenantId,
+    resourceType,
+    cloudinaryName,
+    cloudinaryKey,
+    cloudinarySecret,
+  }: TenantUploadOptions,
+): Promise<string> {
+  const folder = `getcheapecommerce/tenants/${tenantId}/products`;
+  const tags = [tenantId, "product-media"];
+
+  const client = getCloudinaryClient({
+    cloudinaryName,
+    cloudinaryKey,
+    cloudinarySecret,
+  });
+
+  const result = await new Promise<any>((resolve, reject) => {
+    const stream = client.uploader.upload_stream(
+      {
+        folder,
+        resource_type: resourceType,
+        use_filename: true,
+        tags,
+      },
+      (error: any, uploadResult: any) => {
+        if (error || !uploadResult) {
+          reject(
+            error ?? new Error("Upload failed without an error message"),
+          );
+        } else {
+          resolve(uploadResult);
+        }
+      },
+    );
+
+    stream.end(buffer);
+  });
+
+  return result.secure_url as string;
+}
 
 export { cloudinary };
 

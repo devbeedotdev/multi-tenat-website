@@ -1,7 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import type { Product } from "@/types/product";
 import type { ProductDetailItem } from "@/types/product-detail";
+import {
+  uploadProductMedia,
+  type MediaUploadProgress,
+} from "@/lib/services/media";
 import { Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -12,6 +17,9 @@ type AdminProductPowerTableProps = {
   isSaving?: boolean;
   deleteFormId?: string;
   currency?: string;
+  tenantId: string;
+  onConfirm?: (rows: Product[]) => void;
+  onDelete?: (productId: string) => void;
 };
 
 type EditableProduct = Product;
@@ -82,11 +90,19 @@ export function AdminProductPowerTable({
   isSaving,
   deleteFormId,
   currency,
+  tenantId,
+  onConfirm,
+  onDelete,
 }: AdminProductPowerTableProps) {
   const [rows, setRows] = useState<EditableProduct[]>(() =>
     initialProducts.map((p) => ({ ...p })),
   );
   const [openMediaFor, setOpenMediaFor] = useState<string | null>(null);
+  const [isUploadingFor, setIsUploadingFor] = useState<string | null>(null);
+  const [uploadProgressFor, setUploadProgressFor] = useState<{
+    productId: string;
+    progress: MediaUploadProgress;
+  } | null>(null);
   const [openDetailsFor, setOpenDetailsFor] = useState<string | null>(null);
 
   const hasChanges = useMemo(() => {
@@ -114,13 +130,7 @@ export function AdminProductPowerTable({
   };
 
   const handleConfirm = () => {
-    const form = document.getElementById(formId) as HTMLFormElement | null;
-    const input = document.getElementById(
-      payloadInputId,
-    ) as HTMLInputElement | null;
-    if (!form || !input) return;
-    input.value = JSON.stringify(rows);
-    form.requestSubmit();
+    onConfirm?.(rows);
   };
 
   const handleDelete = (productId: string) => {
@@ -133,15 +143,52 @@ export function AdminProductPowerTable({
       return;
     }
     if (!deleteFormId) return;
-    const form = document.getElementById(
-      deleteFormId,
-    ) as HTMLFormElement | null;
-    const input = form?.querySelector<HTMLInputElement>(
-      'input[name="productId"]',
+    onDelete?.(productId);
+  };
+
+  const handleUploadMediaForProduct = async (
+    productId: string,
+    files: FileList | null,
+  ) => {
+    if (!files || files.length === 0) return;
+
+    const current = rows.find((p) => p.productId === productId);
+    const existing = current?.mediaUrls ?? [];
+    const fileArray = Array.from(files);
+    const hasExistingVideo = existing.some((url) => isVideoUrl(url));
+    const hasVideoInSelection = fileArray.some((file) =>
+      file.type.startsWith("video/"),
     );
-    if (!form || !input) return;
-    input.value = productId;
-    form.requestSubmit();
+    if (hasExistingVideo && hasVideoInSelection) {
+      // eslint-disable-next-line no-alert
+      alert("Only one video is allowed per product.");
+      return;
+    }
+
+    setIsUploadingFor(productId);
+    setUploadProgressFor(null);
+    try {
+      const newUrls = await uploadProductMedia(
+        fileArray,
+        tenantId,
+        (progress) => {
+          setUploadProgressFor({ productId, progress });
+        },
+      );
+
+      const merged = normalizeMediaUrls([...existing, ...newUrls]);
+
+      setRows((prev) =>
+        prev.map((row) =>
+          row.productId === productId ? { ...row, mediaUrls: merged } : row,
+        ),
+      );
+    } catch (error) {
+      console.error("upload media in table failed:", error);
+    } finally {
+      setIsUploadingFor((prev) => (prev === productId ? null : prev));
+      setUploadProgressFor(null);
+    }
   };
 
   return (
@@ -342,10 +389,11 @@ export function AdminProductPowerTable({
                     >
                       <span className="inline-block h-6 w-6 overflow-hidden rounded bg-slate-200">
                         {primaryMedia && !isVideoUrl(primaryMedia) ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={primaryMedia}
                             alt=""
+                            width={40}
+                            height={40}
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -358,27 +406,119 @@ export function AdminProductPowerTable({
                     </button>
 
                     {openMediaFor === product.productId && (
-                      <div className="mt-2 w-[420px] max-w-[90vw] space-y-1 rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
+                      <div className="mt-2 w-[420px] max-w-[90vw] space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
                         <p className="text-[10px] text-slate-500">
-                          Up to 4 URLs. At most one can be a video (.mp4, .webm,
-                          .ogg).
+                          Up to 4 media items. At most one can be a video. Use the
+                          picker to upload via Cloudinary or edit URLs directly.
                         </p>
-                        {Array.from({ length: 4 }).map((_, idx) => (
+
+                        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-700 hover:bg-slate-100">
                           <input
-                            key={idx}
-                            className="mt-1 w-full rounded border border-slate-200 bg-white px-2 py-1 text-[10px] text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                            placeholder={`Media URL ${idx + 1}`}
-                            value={product.mediaUrls[idx] ?? ""}
-                            onChange={(e) => {
-                              const urls = [...product.mediaUrls];
-                              urls[idx] = e.target.value;
-                              const normalized = normalizeMediaUrls(urls);
-                              updateRow(product.productId, (row) => {
-                                row.mediaUrls = normalized;
-                              });
-                            }}
+                            type="file"
+                            accept="image/*,video/*"
+                            multiple
+                            className="hidden"
+                            onChange={(e) =>
+                              handleUploadMediaForProduct(
+                                product.productId,
+                                e.target.files,
+                              )
+                            }
                           />
-                        ))}
+                          <span>
+                            {isUploadingFor === product.productId
+                              ? uploadProgressFor?.productId ===
+                                  product.productId &&
+                                uploadProgressFor.progress.phase ===
+                                  "compressing"
+                                ? "Optimizing video..."
+                                : "Uploading media..."
+                              : "Upload media"}
+                          </span>
+                        </label>
+
+                        {uploadProgressFor?.productId ===
+                          product.productId && (
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-[10px] text-slate-600">
+                              <span>
+                                {uploadProgressFor.progress.phase ===
+                                "compressing"
+                                  ? "Optimizing video..."
+                                  : "Uploading media..."}
+                              </span>
+                              <span>
+                                {uploadProgressFor.progress.percent}%
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                              <div
+                                className="h-full rounded-full bg-slate-800 transition-all duration-300"
+                                style={{
+                                  width: `${uploadProgressFor.progress.percent}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-2">
+                          {product.mediaUrls.map((url, idx) => {
+                            const video = isVideoUrl(url);
+                            return (
+                              <div
+                                key={idx}
+                                className="group relative overflow-hidden rounded-lg border border-slate-200 bg-slate-50"
+                              >
+                                <button
+                                  type="button"
+                                  aria-label="Remove media"
+                                  className="absolute right-1 top-1 z-10 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/70 text-slate-100 opacity-0 transition group-hover:opacity-100"
+                                  onClick={() => {
+                                    const urls = product.mediaUrls.filter(
+                                      (_u, i) => i !== idx,
+                                    );
+                                    const normalized = normalizeMediaUrls(urls);
+                                    updateRow(product.productId, (row) => {
+                                      row.mediaUrls = normalized;
+                                    });
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                                <div className="aspect-video w-full bg-slate-200">
+                                  {video ? (
+                                    <video
+                                      src={url}
+                                      className="h-full w-full object-cover"
+                                      controls
+                                    />
+                                  ) : (
+                                    <Image
+                                      src={url}
+                                      alt=""
+                                      width={320}
+                                      height={180}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  )}
+                                </div>
+                                <input
+                                  className="mt-0.5 w-full border-t border-slate-200 bg-white px-2 py-1 text-[9px] text-slate-700 outline-none"
+                                  value={url}
+                                  onChange={(e) => {
+                                    const urls = [...product.mediaUrls];
+                                    urls[idx] = e.target.value;
+                                    const normalized = normalizeMediaUrls(urls);
+                                    updateRow(product.productId, (row) => {
+                                      row.mediaUrls = normalized;
+                                    });
+                                  }}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                   </td>

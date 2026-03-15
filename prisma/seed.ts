@@ -1,6 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import "dotenv/config";
+import { encrypt } from "../lib/crypto";
 
 const prisma = new PrismaClient();
 
@@ -19,34 +20,50 @@ async function main() {
   const landingSeoKeywords =
     "ecommerce website, online store, nigeria ecommerce, cheap ecommerce, affordable online shop, launch store fast, getcheapecommerce, whatsapp checkout, small business ecommerce, sell online in nigeria, 50000 naira website";
 
-  if (rawPassword && id) {
+  const cloudinaryName = process.env.CLOUDINARY_CLOUD_NAME;
+  const cloudinaryKey = process.env.CLOUDINARY_API_KEY;
+  const cloudinarySecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (rawPassword && id && cloudinaryName && cloudinaryKey && cloudinarySecret) {
     // Hash password with the same settings as DAL
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
+    const updateData = {
+      email,
+      password: hashedPassword,
+      phoneNumber,
+      landingSeoTitle,
+      landingSeoDescription,
+      landingSeoKeywords,
+      cloudinaryName,
+      cloudinaryKey: encrypt(cloudinaryKey),
+      cloudinarySecret: encrypt(cloudinarySecret),
+    } as Prisma.SuperAdminUpdateInput;
+
+    const createData = {
+      id,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+      landingSeoTitle,
+      landingSeoDescription,
+      landingSeoKeywords,
+      cloudinaryName,
+      cloudinaryKey: encrypt(cloudinaryKey),
+      cloudinarySecret: encrypt(cloudinarySecret),
+    } as Prisma.SuperAdminUncheckedCreateInput;
+
     await prisma.superAdmin.upsert({
       where: { id },
-      update: {
-        email,
-        password: hashedPassword,
-        phoneNumber,
-        landingSeoTitle,
-        landingSeoDescription,
-        landingSeoKeywords,
-      },
-      create: {
-        id,
-        email,
-        password: hashedPassword,
-        phoneNumber,
-        landingSeoTitle,
-        landingSeoDescription,
-        landingSeoKeywords,
-      },
+      update: updateData,
+      create: createData,
     });
 
     console.log(`Seeded SuperAdmin with id=${id}, email=${email}`);
   } else {
-    console.error("SUPER_ADMIN_PASSWORD or MAIN_DOMAIN is not set");
+    console.error(
+      "SUPER_ADMIN_PASSWORD, MAIN_DOMAIN or Cloudinary env vars are not set",
+    );
     process.exit(1);
   }
 }

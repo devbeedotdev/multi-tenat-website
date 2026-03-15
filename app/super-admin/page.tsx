@@ -122,11 +122,26 @@ async function handleUpdatePlatformSettings(formData: FormData) {
   const get = (key: string, fallback: string): string =>
     String(formData.get(key) ?? fallback).trim();
 
+  const cloudinaryName = get("cloudinaryName", "");
+  const cloudinaryKey = get("cloudinaryKey", "");
+  const cloudinarySecret = get("cloudinarySecret", "");
+
+  if (!cloudinaryName || !cloudinaryKey || !cloudinarySecret) {
+    redirect(
+      `/super-admin?error=${encodeURIComponent(
+        "Cloudinary credentials are required for the platform.",
+      )}`,
+    );
+  }
+
   const result = await updateSuperAdminSettings({
     phoneNumber: get("phoneNumber", ""),
     landingSeoTitle: get("landingSeoTitle", ""),
     landingSeoDescription: get("landingSeoDescription", ""),
     landingSeoKeywords: get("landingSeoKeywords", ""),
+    cloudinaryName,
+    cloudinaryKey,
+    cloudinarySecret,
   });
   if (!result.ok) {
     redirect(`/super-admin?error=${encodeURIComponent(result.error)}`);
@@ -296,6 +311,43 @@ export default async function SuperAdminPage({
                   name="landingSeoKeywords"
                   defaultValue={platformSettings.landingSeoKeywords ?? ""}
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </label>
+
+              <label className="space-y-1 md:col-span-2">
+                <span className="block text-[11px] font-medium text-slate-700">
+                  Platform Cloudinary cloud name
+                </span>
+                <input
+                  name="cloudinaryName"
+                  defaultValue={platformSettings.cloudinaryName ?? ""}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  required
+                />
+              </label>
+
+              <label className="space-y-1">
+                <span className="block text-[11px] font-medium text-slate-700">
+                  Platform Cloudinary API key
+                </span>
+                <input
+                  name="cloudinaryKey"
+                  defaultValue={platformSettings.cloudinaryKey ?? ""}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  required
+                />
+              </label>
+
+              <label className="space-y-1">
+                <span className="block text-[11px] font-medium text-slate-700">
+                  Platform Cloudinary API secret
+                </span>
+                <input
+                  name="cloudinarySecret"
+                  type="password"
+                  defaultValue={platformSettings.cloudinarySecret ?? ""}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  required
                 />
               </label>
             </div>

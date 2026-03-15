@@ -11,14 +11,25 @@ import {
   updateProductCollection,
   updateTenantInDB,
 } from "@/lib/dal";
+import { generateProductDetails } from "@/lib/services/ai";
 import {
   zAdminProductPayload,
   zProductCollection,
 } from "@/lib/validation/product";
 import type { Product } from "@/types/product";
 import type { ProductDetailItem } from "@/types/product-detail";
+import type { Result } from "@/types/result";
 import type { Tenant } from "@/types/tenant";
 import { normalizeNigerianPhone } from "@/lib/validation/phone";
+import type { AiProductDetails } from "@/lib/services/ai";
+
+export async function generateProductDetailsAction(params: {
+  productName: string;
+  category: string;
+  features?: string[];
+}): Promise<Result<AiProductDetails>> {
+  return generateProductDetails(params);
+}
 
 export async function requireAdminTenantForDomain(domain: string) {
   const normalizedDomain = domain.toLowerCase();
@@ -162,7 +173,9 @@ export async function handleCreateProduct(domain: string, formData: FormData) {
   });
   revalidatePath(basePath);
   redirect(
-    `${basePath}?success=${encodeURIComponent("Product created successfully")}`,
+    `${basePath}?success=${encodeURIComponent(
+      "Product created successfully",
+    )}#products-table`,
   );
 }
 
@@ -213,6 +226,12 @@ type TenantSettingsInput = Pick<
   | "accountName"
   | "bankAccountNumber"
   | "bankName"
+  | "currentPlan"
+  | "imageSizeLimit"
+  | "videoSizeLimit"
+  | "cloudinaryName"
+  | "cloudinaryKey"
+  | "cloudinarySecret"
 >;
 
 export async function updateTenantSettings(
@@ -254,6 +273,47 @@ export async function updateTenantSettings(
     }
   }
 
+  // Limits in MB (only present for super admin store settings UI).
+  const imageSizeLimitMbRaw = get(
+    "imageSizeLimitMb",
+    tenant.imageSizeLimit
+      ? String(Math.round(tenant.imageSizeLimit / (1024 * 1024)))
+      : "5",
+  );
+  const videoSizeLimitMbRaw = get(
+    "videoSizeLimitMb",
+    tenant.videoSizeLimit
+      ? String(Math.round(tenant.videoSizeLimit / (1024 * 1024)))
+      : "10",
+  );
+
+  let imageSizeLimit: number | undefined;
+  let videoSizeLimit: number | undefined;
+
+  if (imageSizeLimitMbRaw) {
+    const mb = Number(imageSizeLimitMbRaw);
+    if (!Number.isFinite(mb) || mb <= 0) {
+      redirect(
+        `${basePath}?error=${encodeURIComponent(
+          "Image size limit must be a positive number (in MB).",
+        )}&settingsSaved=0`,
+      );
+    }
+    imageSizeLimit = Math.round(mb * 1024 * 1024);
+  }
+
+  if (videoSizeLimitMbRaw) {
+    const mb = Number(videoSizeLimitMbRaw);
+    if (!Number.isFinite(mb) || mb <= 0) {
+      redirect(
+        `${basePath}?error=${encodeURIComponent(
+          "Video size limit must be a positive number (in MB).",
+        )}&settingsSaved=0`,
+      );
+    }
+    videoSizeLimit = Math.round(mb * 1024 * 1024);
+  }
+
   const updates: TenantSettingsInput = {
     businessName: get("businessName", tenant.businessName),
     websiteDisplayName: get("websiteDisplayName", tenant.websiteDisplayName),
@@ -271,6 +331,17 @@ export async function updateTenantSettings(
     accountName: get("accountName", tenant.accountName),
     bankAccountNumber: get("bankAccountNumber", tenant.bankAccountNumber),
     bankName: get("bankName", tenant.bankName),
+    currentPlan: get("currentPlan", tenant.currentPlan ?? "Starter") as
+      | "Starter"
+      | "Advanced",
+    imageSizeLimit,
+    videoSizeLimit,
+    cloudinaryName: get("cloudinaryName", tenant.cloudinaryName ?? ""),
+    cloudinaryKey: get("cloudinaryKey", tenant.cloudinaryKey ?? ""),
+    cloudinarySecret: get(
+      "cloudinarySecret",
+      tenant.cloudinarySecret ?? "",
+    ),
   };
 
   await updateTenantInDB(tenant.tenantId, updates);

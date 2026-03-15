@@ -1,15 +1,9 @@
-import { AdminAddProductForm } from "@/components/admin/AdminAddProductForm";
-import { AdminProductPowerTable } from "@/components/admin/AdminProductPowerTable";
 import { NoProduct } from "@/components/empty/NoProduct";
 import { getProductsByTenant, getTenantByDomain } from "@/lib/dal";
 import type { Tenant } from "@/types/tenant";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import {
-  handleBulkUpdate,
-  handleCreateProduct,
-  handleDeleteProduct,
-} from "../actions";
+import { AdminDashboardClient } from "@/components/admin/AdminDashboardClient";
 
 function isTenantSettingsComplete(tenant: Tenant): boolean {
   const requiredFields = [
@@ -80,13 +74,6 @@ export default async function AdminDashboardPage({
   const error = searchParams.error as string | undefined;
   const success = searchParams.success as string | undefined;
 
-  const basePath = `/${domain}/admin/dashboard`;
-  const formId = "bulk-update-form";
-  const payloadInputId = "bulk-update-payload";
-  const addFormId = "add-product-form";
-  const addPayloadInputId = "add-product-payload";
-  const deleteFormId = "delete-product-form";
-
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-3 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
@@ -143,32 +130,16 @@ export default async function AdminDashboardPage({
         </div>
       )}
 
-      
-      
-        <form id={formId} action={handleBulkUpdate.bind(null, domain)}>
-          <input type="hidden" name="payload" id={payloadInputId} />
-          <AdminProductPowerTable
-            initialProducts={products}
-            formId={formId}
-            payloadInputId={payloadInputId}
-            currency={tenant.currency}
-          />
-        </form>
-      
-
-      <form id={addFormId} action={handleCreateProduct.bind(null, domain)}>
-        <input type="hidden" name="payload" id={addPayloadInputId} />
-        <AdminAddProductForm
-          formId={addFormId}
-          payloadInputId={addPayloadInputId}
-          defaultCurrency={tenant.currency}
-          primaryColor={tenant.primaryColor}
-        />
-      </form>
-
-      <form id={deleteFormId} action={handleDeleteProduct.bind(null, domain)}>
-        <input type="hidden" name="productId" />
-      </form>
+      <AdminDashboardClient
+        initialProducts={products}
+        tenant={tenant}
+        domain={domain}
+        bulkFormId="bulk-update-form"
+        bulkPayloadInputId="bulk-update-payload"
+        addFormId="add-product-form"
+        addPayloadInputId="add-product-payload"
+        deleteFormId="delete-product-form"
+      />
     </div>
   );
 }

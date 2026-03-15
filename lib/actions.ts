@@ -92,11 +92,61 @@ export async function createTenantAction(
   const rawBusinessPhone = String(
     formData.get("businessPhoneNumber") || "",
   ).trim();
+  const currentPlan = String(formData.get("currentPlan") || "Starter").trim();
+  const imageSizeLimitMbRaw = String(
+    formData.get("imageSizeLimitMb") || "5",
+  ).trim();
+  const videoSizeLimitMbRaw = String(
+    formData.get("videoSizeLimitMb") || "10",
+  ).trim();
+  const cloudinaryName = String(formData.get("cloudinaryName") || "").trim();
+  const cloudinaryKey = String(formData.get("cloudinaryKey") || "").trim();
+  const cloudinarySecret = String(
+    formData.get("cloudinarySecret") || "",
+  ).trim();
 
-  if (!tenantId || !businessName || !businessEmail || !adminPassword) {
+  // #region agent log
+  fetch("http://127.0.0.1:7242/ingest/95122c88-1964-458a-a916-5e32205c060c", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Debug-Session-Id": "1a2a77",
+    },
+    body: JSON.stringify({
+      sessionId: "1a2a77",
+      runId: "tenant-create-1",
+      hypothesisId: "H1",
+      location: "lib/actions.ts:createTenantAction:entry",
+      message: "createTenantAction called",
+      data: {
+        tenantId,
+        hasBusinessName: !!businessName,
+        hasBusinessEmail: !!businessEmail,
+        hasAdminPassword: !!adminPassword,
+        plan: currentPlan,
+        imageSizeLimitMbRaw,
+        videoSizeLimitMbRaw,
+        hasCloudinaryName: !!cloudinaryName,
+        hasCloudinaryKey: !!cloudinaryKey,
+        hasCloudinarySecret: !!cloudinarySecret,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion agent log
+
+  if (
+    !tenantId ||
+    !businessName ||
+    !businessEmail ||
+    !adminPassword ||
+    !cloudinaryName ||
+    !cloudinaryKey ||
+    !cloudinarySecret
+  ) {
     redirect(
       `/super-admin?error=${encodeURIComponent(
-        "All fields are required to create a tenant.",
+        "All fields are required to create a tenant, including Cloudinary credentials.",
       )}`,
     );
   }
@@ -110,6 +160,25 @@ export async function createTenantAction(
       )}`,
     );
   }
+
+  const imageSizeLimitMb = Number(imageSizeLimitMbRaw);
+  const videoSizeLimitMb = Number(videoSizeLimitMbRaw);
+
+  if (
+    !Number.isFinite(imageSizeLimitMb) ||
+    imageSizeLimitMb <= 0 ||
+    !Number.isFinite(videoSizeLimitMb) ||
+    videoSizeLimitMb <= 0
+  ) {
+    redirect(
+      `/super-admin?error=${encodeURIComponent(
+        "Image and video size limits must be positive numbers (in MB).",
+      )}`,
+    );
+  }
+
+  const imageSizeLimitBytes = Math.round(imageSizeLimitMb * 1024 * 1024);
+  const videoSizeLimitBytes = Math.round(videoSizeLimitMb * 1024 * 1024);
 
   let normalizedBusinessPhone = "";
   if (rawBusinessPhone) {
@@ -131,6 +200,12 @@ export async function createTenantAction(
     adminPassword,
     primaryColor,
     businessPhoneNumber: normalizedBusinessPhone,
+    currentPlan,
+    imageSizeLimit: imageSizeLimitBytes,
+    videoSizeLimit: videoSizeLimitBytes,
+    cloudinaryName,
+    cloudinaryKey,
+    cloudinarySecret,
   });
 
   if (!result.ok) {

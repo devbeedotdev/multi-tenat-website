@@ -102,8 +102,8 @@ export function SuperAdminCreateTenantModal() {
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                 />
                 <p className="text-[10px] text-slate-500">
-                  Enter 11 digits, we&apos;ll store it as 23480... for WhatsApp and
-                  SMS.
+                  Enter 11 digits, we&apos;ll store it as 23480... for WhatsApp
+                  and SMS.
                 </p>
               </div>
 
@@ -113,7 +113,6 @@ export function SuperAdminCreateTenantModal() {
                 </label>
                 <input
                   name="adminPassword"
-                  type="password"
                   placeholder="Temporary admin password"
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                 />
@@ -128,6 +127,96 @@ export function SuperAdminCreateTenantModal() {
                   placeholder="#16A34A"
                   defaultValue="#16A34A"
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-mono text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </div>
+
+              <div className="grid gap-2 md:grid-cols-2">
+                <label className="space-y-1">
+                  <span className="block text-[11px] font-medium text-slate-700">
+                    Plan
+                  </span>
+                  <select
+                    name="currentPlan"
+                    defaultValue="Starter"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  >
+                    <option value="Starter">Starter</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </label>
+
+                <label className="space-y-1">
+                  <span className="block text-[11px] font-medium text-slate-700">
+                    Image size limit (MB)
+                  </span>
+                  <input
+                    name="imageSizeLimitMb"
+                    type="number"
+                    min={1}
+                    step={1}
+                    defaultValue={5}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-2 md:grid-cols-2">
+                <label className="space-y-1">
+                  <span className="block text-[11px] font-medium text-slate-700">
+                    Video size limit (MB)
+                  </span>
+                  <input
+                    name="videoSizeLimitMb"
+                    type="number"
+                    min={1}
+                    step={1}
+                    defaultValue={10}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  />
+                </label>
+
+                <div className="space-y-1 text-[10px] text-slate-500 md:pt-6">
+                  <p>
+                    Limits are in megabytes per file. They are enforced by the
+                    app when uploading to Cloudinary.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-medium text-slate-700">
+                  Cloudinary cloud name
+                </label>
+                <input
+                  name="cloudinaryName"
+                  placeholder="your-cloud-name"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-medium text-slate-700">
+                  Cloudinary API key
+                </label>
+                <input
+                  name="cloudinaryKey"
+                  placeholder="API key"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-medium text-slate-700">
+                  Cloudinary API secret
+                </label>
+                <input
+                  name="cloudinarySecret"
+                  // type="password"
+                  placeholder="API secret"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                  required
                 />
               </div>
 

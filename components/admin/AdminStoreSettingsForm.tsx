@@ -30,8 +30,21 @@ export function AdminStoreSettingsForm({
   const [primaryColor, setPrimaryColor] = useState(tenant.primaryColor);
   const [logoUrl, setLogoUrl] = useState(tenant.logoUrl ?? "");
   const [favIcon, setFavIcon] = useState(tenant.favIcon);
-
-
+  const [imageLimitMb, setImageLimitMb] = useState(
+    tenant.imageSizeLimit ? Math.round(tenant.imageSizeLimit / (1024 * 1024)) : 5,
+  );
+  const [videoLimitMb, setVideoLimitMb] = useState(
+    tenant.videoSizeLimit ? Math.round(tenant.videoSizeLimit / (1024 * 1024)) : 10,
+  );
+  const [cloudinaryName, setCloudinaryName] = useState(
+    tenant.cloudinaryName ?? "",
+  );
+  const [cloudinaryKey, setCloudinaryKey] = useState(
+    tenant.cloudinaryKey ?? "",
+  );
+  const [cloudinarySecret, setCloudinarySecret] = useState(
+    tenant.cloudinarySecret ?? "",
+  );
   const [isLogoHorizontal, setIsLogoHorizontal] = useState(
     tenant.isLogoHorizontal,
   );
@@ -69,7 +82,7 @@ export function AdminStoreSettingsForm({
   ) => {
     const files = Array.from(event.target.files ?? []);
     if (!files.length) return;
-    const urls = await uploadProductMedia(files);
+    const urls = await uploadProductMedia(files, tenant.tenantId);
     if (urls[0]) {
       setLogoUrl(urls[0]);
     }
@@ -80,7 +93,7 @@ export function AdminStoreSettingsForm({
   ) => {
     const files = Array.from(event.target.files ?? []);
     if (!files.length) return;
-    const urls = await uploadProductMedia(files);
+    const urls = await uploadProductMedia(files, tenant.tenantId);
     if (urls[0]) {
       setFavIcon(urls[0]);
     }
@@ -373,6 +386,90 @@ export function AdminStoreSettingsForm({
             </div>
           </div>
         </section>
+
+        {isSuperAdmin && (
+          <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-600">
+                Media limits & Cloudinary (super admin)
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                Configure per-tenant media limits and Cloudinary credentials.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-slate-700">
+                  Image size limit (MB)
+                </label>
+                <input
+                  name="imageSizeLimitMb"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={imageLimitMb}
+                  onChange={(e) => setImageLimitMb(Number(e.target.value) || 0)}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-slate-700">
+                  Video size limit (MB)
+                </label>
+                <input
+                  name="videoSizeLimitMb"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={videoLimitMb}
+                  onChange={(e) =>
+                    setVideoLimitMb(Number(e.target.value) || 0)
+                  }
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-slate-700">
+                Cloudinary cloud name
+              </label>
+              <input
+                name="cloudinaryName"
+                value={cloudinaryName}
+                onChange={(e) => setCloudinaryName(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-slate-700">
+                Cloudinary API key
+              </label>
+              <input
+                name="cloudinaryKey"
+                value={cloudinaryKey}
+                onChange={(e) => setCloudinaryKey(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-slate-700">
+                Cloudinary API secret
+              </label>
+              <input
+                name="cloudinarySecret"
+                type="password"
+                value={cloudinarySecret}
+                onChange={(e) => setCloudinarySecret(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              />
+            </div>
+          </section>
+        )}
 
         <div className="flex justify-end">
           <button

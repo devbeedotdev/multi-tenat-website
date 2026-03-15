@@ -22,6 +22,13 @@ export type Tenant = {
   seoDescription?: string;
   seoKeywords?: string;
   createdAt: string;
+
+  currentPlan?: "Starter" | "Advanced";
+  imageSizeLimit?: number;
+  videoSizeLimit?: number;
+  cloudinaryName?: string;
+  cloudinaryKey?: string;
+  cloudinarySecret?: string;
 };
 
 export type TenantPageProps = {

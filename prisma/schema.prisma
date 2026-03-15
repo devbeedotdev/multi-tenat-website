@@ -41,6 +41,16 @@ model Tenant {
   seoDescription      String?
   seoKeywords         String?
 
+  // Billing / plan & media limits
+  currentPlan         String @default("Starter")
+  imageSizeLimit      Int    @default(3145728) // ~3MB
+  videoSizeLimit      Int    @default(5242880) // ~5MB
+
+  // Optional per-tenant Cloudinary credentials (encrypted at rest)
+  cloudinaryName      String?
+  cloudinaryKey       String?
+  cloudinarySecret    String?
+
   createdAt           DateTime      @default(now())
 
   products            Product[]
@@ -56,6 +66,11 @@ model SuperAdmin {
   landingSeoDescription String?
   landingSeoKeywords    String?
   createdAt             DateTime @default(now())
+
+  // Optional Cloudinary credentials for the main platform (encrypted at rest)
+  cloudinaryName        String?
+  cloudinaryKey         String?
+  cloudinarySecret      String?
 }
 
 model Product {
